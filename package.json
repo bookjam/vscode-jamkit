@@ -1,43 +1,43 @@
 {
-	"name": "jamkit-tools",
-	"displayName": "Jamkit Tools",
-	"description": "The offical tools for Jamkit",
-	"version": "0.0.2",
-	"publisher": "bookjam",
-	"engines": {
-		"vscode": "^1.32.0"
-	},
-	"categories": [
-		"Programming Languages"
-	],
-	"contributes": {
-		"languages": [
-			{
-				"id": "sbss",
-				"extensions": [
-					".sbss"
-				],
-				"configuration": "./sbss-configuration.json"
-			},
-			{
-				"id": "sbml",
-				"extensions": [
-					".sbml"
-				],
-				"configuration": "./sbml-configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "sbss",
-				"scopeName": "source.sbss",
-				"path": "./syntaxes/sbss.tmLanguage.json"
-			},
-			{
-				"language": "sbml",
-				"scopeName": "source.sbml",
-				"path": "./syntaxes/sbml.tmLanguage.json"
-			}
-		]
-	}
+    "name": "jamkit-tools",
+    "displayName": "Jamkit Tools",
+    "description": "The offical tools for Jamkit",
+    "version": "0.0.2",
+    "publisher": "bookjam",
+    "engines": {
+        "vscode": "^1.32.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "sbss",
+                "extensions": [
+                    ".sbss"
+                ],
+                "configuration": "./sbss-configuration.json"
+            },
+            {
+                "id": "sbml",
+                "extensions": [
+                    ".sbml"
+                ],
+                "configuration": "./sbml-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "sbss",
+                "scopeName": "source.sbss",
+                "path": "./syntaxes/sbss.tmLanguage.json"
+            },
+            {
+                "language": "sbml",
+                "scopeName": "source.sbml",
+                "path": "./syntaxes/sbml.tmLanguage.json"
+            }
+        ]
+    }
 }
