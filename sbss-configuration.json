@@ -1,0 +1,17 @@
+{
+    "comments": {
+        "lineComment": "--"
+    },
+    "brackets": [
+        [
+            "{",
+            "}"
+        ]
+    ],
+    "folding": {
+        "markers": {
+            "start": "^\\s*if",
+            "end": "^\\s*end"
+        }
+    }
+}

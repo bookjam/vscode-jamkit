@@ -1,0 +1,147 @@
+{
+    "scopeName": "source.sbss",
+    "patterns": [
+        {
+            "include": "#comment"
+        },
+        {
+            "include": "#directive"
+        },
+        {
+            "include": "#variable-definition"
+        },
+        {
+            "include": "#style-definition"
+        },
+        {
+            "include": "#property-list"
+        },
+        {
+            "include": "#property-block"
+        }
+    ],
+    "repository": {
+        "comment": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-dash.sbss",
+                    "match": "^\\s*--.*"
+                }
+            ]
+        },
+        "directive": {
+            "patterns": [
+                {
+                    "name": "keyword.other.sbss",
+                    "match": "^\\s*import\\s+(\"([^\"]*)\"|([^,]*))",
+                    "captures": {
+                        "1": {
+                            "name": "string.quoted.double.sbss"
+                        }
+                    },
+                    "comment": "import"
+                },
+                {
+                    "begin": "^\\s*(if|elif)\\s+",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "keyword.control.sbss"
+                        }
+                    },
+                    "end": "$",
+                    "patterns": [
+                        {
+                            "include": "#expression"
+                        }
+                    ]
+                },
+                {
+                    "name": "keyword.control.sbss",
+                    "match": "^\\s*(else|end)",
+                    "comment": "else | end"
+                }
+            ]
+        },
+        "variable-definition": {
+            "patterns": [
+                {
+                    "begin": "^\\s*(\\$[A-Z_]+)\\s*=",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "markup.italic.sbss"
+                        }
+                    },
+                    "end": "$"
+                }
+            ]
+        },
+        "property-list": {
+            "patterns": [
+                "__PROP_LIST_PATTERNS__"
+            ]
+        },
+        "property-group": {
+            "patterns": [
+                "__PROP_GROUP_PATTERNS__"
+            ]
+        },
+        "expression": {
+            "patterns": [
+                {
+                    "include": "#operator"
+                },
+                {
+                    "include": "#variable"
+                }
+            ]
+        },
+        "style-definition": {
+            "patterns": [
+                {
+                    "begin": "^\\s*(@root|(#|%)[\\.a-zA-Z0-9-_ ]+|/[/\\.a-zA-Z0-9-_ ]+)\\s*:",
+                    "end": "$",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.name.tag"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#property-list"
+                        }
+                    ]
+                },
+                {
+                    "begin": "^\\s*(@root|(#|%)[\\.a-zA-Z0-9-_ ]+|/[/\\.a-zA-Z0-9-_ ]+)\\s*{",
+                    "end": "}",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.name.tag"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#property-group"
+                        }
+                    ]
+                }
+            ]
+        },
+        "variable": {
+            "patterns": [
+                {
+                    "name": "markup.italic.sbss",
+                    "match": "\\$[A-Z_]+"
+                }
+            ]
+        },
+        "operator": {
+            "patterns": [
+                {
+                    "match": "(==|\\!=|\\*|\\+|-|/)",
+                    "name": "keyword.operator.other.sbss"
+                }
+            ]
+        }
+    }
+}

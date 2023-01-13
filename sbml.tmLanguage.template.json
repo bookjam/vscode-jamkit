@@ -1,0 +1,198 @@
+{
+    "scopeName": "source.sbml",
+    "patterns": [
+        {
+            "include": "#import"
+        },
+        {
+            "include": "#begin"
+        },
+        {
+            "include": "#end"
+        },
+        {
+            "include": "#object"
+        },
+        {
+            "include": "#if"
+        },
+        {
+            "include": "#else"
+        },
+        {
+            "include": "#inline-object"
+        },
+        {
+            "include": "#inline-style"
+        },
+        {
+            "include": "#anchor"
+        }
+    ],
+    "repository": {
+        "import": {
+            "match": "^\\s*(=import)\\s+(.+)$",
+            "captures": {
+                "1": {
+                    "name": "keyword.other.sbml"
+                },
+                "2": {
+                    "name": "string.quoted.double.sbml"
+                }
+            }
+        },
+        "begin": {
+            "begin": "^\\s*(=begin)\\b([^:]+)?",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.sbml"
+                },
+                "2": {
+                    "name": "string.quoted.double.sbml"
+                }
+            },
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
+            ]
+        },
+        "end": {
+            "match": "^\\s*(=end)(\\s+(.+))?",
+            "captures": {
+                "1": {
+                    "name": "keyword.other.sbml"
+                },
+                "3": {
+                    "name": "string.quoted.double.sbml"
+                }
+            }
+        },
+        "object": {
+            "begin": "^\\s*(=(object|image))\\s+([^:]+)",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.sbml"
+                },
+                "3": {
+                    "name": "string.quoted.double.sbml"
+                }
+            },
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
+            ]
+        },
+        "if": {
+            "begin": "^\\s*=(el)?if\\s+",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.other.sbml"
+                }
+            },
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#expression"
+                }
+            ]
+        },
+        "else": {
+            "name": "keyword.other.sbss",
+            "match": "^\\s*=else"
+        },
+        "inline-object": {
+            "begin": "=\\((object|image)\\s+([^:]+)",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.other.sbml"
+                },
+                "2": {
+                    "name": "string.quoted.double.sbml"
+                }
+            },
+            "end": "\\)=",
+            "endCaptures": {
+                "0": {
+                    "name": "keyword.other.sbml"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
+            ]
+        },
+        "inline-style": {
+            "begin": "=\\[(.*?)\\|",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.other.sbml"
+                },
+                "1": {
+                    "name": "string.quoted.double.sbml"
+                }
+            },
+            "end": "\\]=",
+            "endCaptures": {
+                "0": {
+                    "name": "keyword.other.sbml"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#inline-style"
+                },
+                {
+                    "include": "#inline-object"
+                },
+                {
+                    "include": "#anchor"
+                }
+            ]
+        },
+        "anchor": {
+            "match": "=\\(anchor\\|(.*)\\)=",
+            "name": "keyword.other.sbml",
+            "captures": {
+                "1": {
+                    "name": "string.quoted.double.sbml"
+                }
+            }
+        },
+        "property-list": {
+            "patterns": [
+                "__PROP_LIST_PATTERNS__"
+            ]
+        },
+        "expression": {
+            "patterns": [
+                {
+                    "include": "#operator"
+                },
+                {
+                    "include": "#variable"
+                }
+            ]
+        },
+        "variable": {
+            "patterns": [
+                {
+                    "name": "markup.italic.sbml",
+                    "match": "\\$[A-Z_]+"
+                }
+            ]
+        },
+        "operator": {
+            "patterns": [
+                {
+                    "match": "(==|\\!=|\\*|\\+|-|/)",
+                    "name": "keyword.operator.other.sbml"
+                }
+            ]
+        }
+    }
+}
