@@ -2,4 +2,4 @@
 
 ## Features
 
-- Syntax highlighting for *.sbss
+- Syntax highlighting for SBML & SBSS
