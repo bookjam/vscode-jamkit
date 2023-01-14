@@ -92,25 +92,25 @@ _STYLE_MAP = {
     '__STYLE_SBML_IMPORT__':        'keyword.other',        # =import
     '__STYLE_SBML_BEGIN__':         'keyword.other',        # =begin
     '__STYLE_SBML_END__':           'keyword.other',        # =end
-    '__STYLE_SBML_SECTION_NAME__':  'string.quoted.double',
+    '__STYLE_SBML_SECTION_NAME__':  'entity.name.type',
     '__STYLE_SBML_IF_ELIF__':       'keyword.other',        # =if =elif
     '__STYLE_SBML_ELSE__':          'keyword.other',        # =else
-    '__STYLE_SBML_BLOCK_OBJECT__':  'keyword.other',        # =object
+    '__STYLE_SBML_BLOCK_OBJECT__':  'keyword.control',      # =object
     '__STYLE_SBML_INLINE_OBJECT__': 'keyword.other',        # =(:)=
-    '__STYLE_SBML_OBJECT_TYPE__':   'string.quoted.double',
+    '__STYLE_SBML_OBJECT_TYPE__':   'entity.name.type',
     '__STYLE_SBML_STYLE_MARK__':    'keyword.other',        # =[|]=
     '__STYLE_SBML_STYLE_NAME__':    'keyword.other',
     '__STYLE_SBML_ANCHOR_MARK__':   'keyword.other',        # =(anchor|)=
     '__STYLE_SBML_ANCHOR_NAME__':   'string.quoted.double',
 
     # common styles
-    '__STYLE_PROP_NAME__': 'entity.other.attribute-name',
-    '__STYLE_PROP_VALUE__': 'string.quoted.double',
-    '__STYLE_PROP_WRONG_VALUE__': 'invalid.illegal',
-    '__STYLE_VARIABLE__': 'markup.italic',
-    '__STYLE_FILENAME__': 'string.quoted.double',
-    '__STYLE_NUMBER__': 'constant.numeric',
-    '__STYLE_OPERATOR__': 'keyword.operator.other',
+    '__STYLE_PROP_NAME__':          'entity.other.attribute-name',
+    '__STYLE_PROP_VALUE__':         'string.quoted.double',
+    '__STYLE_PROP_WRONG_VALUE__':   'invalid.illegal',
+    '__STYLE_VARIABLE__':           'markup.italic',
+    '__STYLE_FILENAME__':           'string.quoted.double',
+    '__STYLE_NUMBER__':             'constant.numeric',
+    '__STYLE_OPERATOR__':           'keyword.operator',
 }
 
 

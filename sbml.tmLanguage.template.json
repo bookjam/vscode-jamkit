@@ -182,22 +182,33 @@
                 },
                 {
                     "include": "#variable"
-                }
-            ]
-        },
-        "variable": {
-            "patterns": [
+                },
                 {
-                    "name": "markup.italic.sbml",
-                    "match": "\\$[A-Z_]+"
+                    "include": "#number"
                 }
             ]
         },
         "operator": {
             "patterns": [
                 {
-                    "match": "(==|\\!=|\\*|\\+|-|/)",
-                    "name": "keyword.operator.other.sbml"
+                    "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)",
+                    "name": "__STYLE_OPERATOR__"
+                }
+            ]
+        },
+        "variable": {
+            "patterns": [
+                {
+                    "name": "__STYLE_VARIABLE__",
+                    "match": "\\$[A-Z_]+"
+                }
+            ]
+        },
+        "number": {
+            "patterns": [
+                {
+                    "match": "[+-]?([0-9]*[.])?[0-9]+",
+                    "name": "__STYLE_NUMBER__"
                 }
             ]
         }

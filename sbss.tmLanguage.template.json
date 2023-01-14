@@ -120,14 +120,6 @@
                 }
             ]
         },
-        "variable": {
-            "patterns": [
-                {
-                    "name": "__STYLE_VARIABLE__",
-                    "match": "\\$[A-Z_]+"
-                }
-            ]
-        },
         "expression": {
             "patterns": [
                 {
@@ -146,6 +138,14 @@
                 {
                     "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)",
                     "name": "__STYLE_OPERATOR__"
+                }
+            ]
+        },
+        "variable": {
+            "patterns": [
+                {
+                    "name": "__STYLE_VARIABLE__",
+                    "match": "\\$[A-Z_]+"
                 }
             ]
         },
