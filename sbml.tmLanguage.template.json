@@ -130,16 +130,16 @@
             "begin": "=\\[(.*?)\\|",
             "beginCaptures": {
                 "0": {
-                    "name": "__STYLE_SBML_INLINE_STYLE_MARK__"
+                    "name": "__STYLE_SBML_STYLE_MARK__"
                 },
                 "1": {
-                    "name": "__STYLE_SBML_INLINE_STYLE_NAME__"
+                    "name": "__STYLE_SBML_STYLE_NAME__"
                 }
             },
             "end": "\\]=",
             "endCaptures": {
                 "0": {
-                    "name": "__STYLE_SBML_INLINE_STYLE_MARK__"
+                    "name": "__STYLE_SBML_STYLE_MARK__"
                 }
             },
             "patterns": [
