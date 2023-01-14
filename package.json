@@ -39,5 +39,9 @@
                 "path": "./syntaxes/sbml.tmLanguage.json"
             }
         ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bookjam/vscode-jamkit.git"
     }
 }
