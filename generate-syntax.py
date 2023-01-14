@@ -81,26 +81,26 @@ _GENERAL_PAIR_PATTERN_TEMPLATE = '''
 
 _STYLE_MAP = {
     # sbss-specific styles
-    '__STYLE_SBSS_IMPORT__':   'keyword.other.sbss',
-    '__STYLE_SBSS_IF_ELIF__':  'keyword.control.sbss',
-    '__STYLE_SBSS_ELSE_END__': 'keyword.control.sbss',
-    '__STYLE_SBSS_COMMENT__':  'comment.line.double-dash.sbss',
-    '__STYLE_SBSS_SELECTOR__': 'entity.name.tag.sbss',
+    '__STYLE_SBSS_IMPORT__':        'keyword.other',
+    '__STYLE_SBSS_IF_ELIF__':       'keyword.control',
+    '__STYLE_SBSS_ELSE_END__':      'keyword.control',
+    '__STYLE_SBSS_SELECTOR__':      'entity.name.tag',
 
     # sbml-specific styles
-    '__STYLE_SBML_IMPORT__':        'keyword.other.sbml',        # =import
-    '__STYLE_SBML_BEGIN__':         'keyword.other.sbml',        # =begin
-    '__STYLE_SBML_END__':           'keyword.other.sbml',        # =end
-    '__STYLE_SBML_SECTION_NAME__':  'string.quoted.double.sbml',
-    '__STYLE_SBML_IF_ELIF__':       'keyword.other.sbml',        # =if =elif
-    '__STYLE_SBML_ELSE__':          'keyword.other.sbml',        # =else
-    '__STYLE_SBML_BLOCK_OBJECT__':  'keyword.other.sbml',        # =object
-    '__STYLE_SBML_INLINE_OBJECT__': 'keyword.other.sbml',        # =(:)=
-    '__STYLE_SBML_OBJECT_TYPE__':   'string.quoted.double.sbml',
-    '__STYLE_SBML_STYLE_MARK__':    'keyword.other.sbml',        # =[|]=
-    '__STYLE_SBML_STYLE_NAME__':    'keyword.other.sbml',
-    '__STYLE_SBML_ANCHOR_MARK__':   'keyword.other.sbml',        # =(anchor|)=
-    '__STYLE_SBML_ANCHOR_NAME__':   'string.quoted.double.sbml',
+    '__STYLE_COMMENT__':            'comment.line',
+    '__STYLE_SBML_IMPORT__':        'keyword.other',        # =import
+    '__STYLE_SBML_BEGIN__':         'keyword.other',        # =begin
+    '__STYLE_SBML_END__':           'keyword.other',        # =end
+    '__STYLE_SBML_SECTION_NAME__':  'string.quoted.double',
+    '__STYLE_SBML_IF_ELIF__':       'keyword.other',        # =if =elif
+    '__STYLE_SBML_ELSE__':          'keyword.other',        # =else
+    '__STYLE_SBML_BLOCK_OBJECT__':  'keyword.other',        # =object
+    '__STYLE_SBML_INLINE_OBJECT__': 'keyword.other',        # =(:)=
+    '__STYLE_SBML_OBJECT_TYPE__':   'string.quoted.double',
+    '__STYLE_SBML_STYLE_MARK__':    'keyword.other',        # =[|]=
+    '__STYLE_SBML_STYLE_NAME__':    'keyword.other',
+    '__STYLE_SBML_ANCHOR_MARK__':   'keyword.other',        # =(anchor|)=
+    '__STYLE_SBML_ANCHOR_NAME__':   'string.quoted.double',
 
     # common styles
     '__STYLE_PROP_NAME__': 'entity.other.attribute-name',

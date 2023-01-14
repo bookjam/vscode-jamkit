@@ -22,7 +22,7 @@
         "comment": {
             "patterns": [
                 {
-                    "name": "__STYLE_SBSS_COMMENT__",
+                    "name": "__STYLE_COMMENT__",
                     "match": "^\\s*--.*"
                 }
             ]

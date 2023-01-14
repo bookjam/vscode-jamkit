@@ -2,6 +2,9 @@
     "scopeName": "source.sbml",
     "patterns": [
         {
+            "include": "#comment"
+        },
+        {
             "include": "#import"
         },
         {
@@ -30,6 +33,10 @@
         }
     ],
     "repository": {
+        "comment": {
+            "match": "^\\s*=comment\\s+.*$",
+            "name": "__STYLE_COMMENT__"
+        },
         "import": {
             "match": "^\\s*(=import)\\s+(.+)$",
             "captures": {
