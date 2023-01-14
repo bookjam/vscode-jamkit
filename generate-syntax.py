@@ -84,7 +84,6 @@ _STYLE_MAP = {
     '__STYLE_SBSS_IMPORT__': 'keyword.other.sbss',
     '__STYLE_SBSS_IF_ELIF__': 'keyword.control.sbss',
     '__STYLE_SBSS_ELSE_END__': 'keyword.control.sbss',
-    '__STYLE_SBSS_OPERATOR__': 'keyword.operator.other.sbss',
     '__STYLE_SBSS_COMMENT__': 'comment.line.double-dash.sbss',
     '__STYLE_SBSS_SELECTOR__': 'entity.name.tag.sbss',
 
@@ -109,6 +108,8 @@ _STYLE_MAP = {
     '__STYLE_PROP_WRONG_VALUE__': 'invalid.illegal',
     '__STYLE_VARIABLE__': 'markup.italic',
     '__STYLE_FILENAME__': 'string.quoted.double',
+    '__STYLE_NUMBER__': 'constant.numeric',
+    '__STYLE_OPERATOR__': 'keyword.operator.other',
 }
 
 

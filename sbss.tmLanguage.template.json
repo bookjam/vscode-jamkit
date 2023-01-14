@@ -8,7 +8,7 @@
             "include": "#directive"
         },
         {
-            "include": "#variable-definition"
+            "include": "#variable-assignement"
         },
         {
             "include": "#style-definition"
@@ -60,7 +60,7 @@
                 }
             ]
         },
-        "variable-definition": {
+        "variable-assignement": {
             "patterns": [
                 {
                     "begin": "^\\s*(\\$[A-Z_]+)\\s*=",
@@ -70,9 +70,11 @@
                         }
                     },
                     "end": "$",
-                    "patterns": {
-                        "include": "#expression"
-                    }
+                    "patterns": [
+                        {
+                            "include": "#expression"
+                        }
+                    ]
                 }
             ]
         },
@@ -84,16 +86,6 @@
         "property-group": {
             "patterns": [
                 "__PROP_GROUP_PATTERNS__"
-            ]
-        },
-        "expression": {
-            "patterns": [
-                {
-                    "include": "#operator"
-                },
-                {
-                    "include": "#variable"
-                }
             ]
         },
         "style-definition": {
@@ -136,11 +128,32 @@
                 }
             ]
         },
+        "expression": {
+            "patterns": [
+                {
+                    "include": "#operator"
+                },
+                {
+                    "include": "#variable"
+                },
+                {
+                    "include": "#number"
+                }
+            ]
+        },
         "operator": {
             "patterns": [
                 {
-                    "match": "(==|\\!=|\\*|\\+|-|/)",
-                    "name": "__STYLE_SBSS_OPERATOR__"
+                    "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)",
+                    "name": "__STYLE_OPERATOR__"
+                }
+            ]
+        },
+        "number": {
+            "patterns": [
+                {
+                    "match": "[+-]?([0-9]*[.])?[0-9]+",
+                    "name": "__STYLE_NUMBER__"
                 }
             ]
         }
