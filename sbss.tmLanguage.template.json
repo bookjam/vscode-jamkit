@@ -8,23 +8,21 @@
             "include": "#directive"
         },
         {
-            "include": "#variable-definition"
+            "include": "#variable-assignement"
         },
         {
             "include": "#style-definition"
         },
         {
-            "include": "#property-list"
-        },
-        {
-            "include": "#property-block"
+            "include": "#property-list",
+            "note": "this is a workaround for muti-line property list connected by \\."
         }
     ],
     "repository": {
         "comment": {
             "patterns": [
                 {
-                    "name": "comment.line.double-dash.sbss",
+                    "name": "__STYLE_COMMENT__",
                     "match": "^\\s*--.*"
                 }
             ]
@@ -32,20 +30,21 @@
         "directive": {
             "patterns": [
                 {
-                    "name": "keyword.other.sbss",
-                    "match": "^\\s*import\\s+(\"([^\"]*)\"|([^,]*))",
+                    "match": "^\\s*(import)\\s+(\"([^\"]*)\"|([^,]*))",
                     "captures": {
                         "1": {
-                            "name": "string.quoted.double.sbss"
+                            "name": "__STYLE_SBSS_IMPORT__"
+                        },
+                        "2": {
+                            "name": "__STYLE_FILENAME__"
                         }
-                    },
-                    "comment": "import"
+                    }
                 },
                 {
                     "begin": "^\\s*(if|elif)\\s+",
                     "beginCaptures": {
                         "0": {
-                            "name": "keyword.control.sbss"
+                            "name": "__STYLE_SBSS_IF_ELIF__"
                         }
                     },
                     "end": "$",
@@ -56,22 +55,26 @@
                     ]
                 },
                 {
-                    "name": "keyword.control.sbss",
-                    "match": "^\\s*(else|end)",
-                    "comment": "else | end"
+                    "name": "__STYLE_SBSS_ELSE_END__",
+                    "match": "^\\s*(else|end)\\s*$"
                 }
             ]
         },
-        "variable-definition": {
+        "variable-assignement": {
             "patterns": [
                 {
                     "begin": "^\\s*(\\$[A-Z_]+)\\s*=",
                     "beginCaptures": {
                         "1": {
-                            "name": "markup.italic.sbss"
+                            "name": "__STYLE_VARIABLE__"
                         }
                     },
-                    "end": "$"
+                    "end": "$",
+                    "patterns": [
+                        {
+                            "include": "#expression"
+                        }
+                    ]
                 }
             ]
         },
@@ -85,16 +88,6 @@
                 "__PROP_GROUP_PATTERNS__"
             ]
         },
-        "expression": {
-            "patterns": [
-                {
-                    "include": "#operator"
-                },
-                {
-                    "include": "#variable"
-                }
-            ]
-        },
         "style-definition": {
             "patterns": [
                 {
@@ -102,7 +95,7 @@
                     "end": "$",
                     "beginCaptures": {
                         "1": {
-                            "name": "entity.name.tag"
+                            "name": "__STYLE_SBSS_SELECTOR__"
                         }
                     },
                     "patterns": [
@@ -116,7 +109,7 @@
                     "end": "}",
                     "beginCaptures": {
                         "1": {
-                            "name": "entity.name.tag"
+                            "name": "__STYLE_SBSS_SELECTOR__"
                         }
                     },
                     "patterns": [
@@ -130,16 +123,37 @@
         "variable": {
             "patterns": [
                 {
-                    "name": "markup.italic.sbss",
+                    "name": "__STYLE_VARIABLE__",
                     "match": "\\$[A-Z_]+"
+                }
+            ]
+        },
+        "expression": {
+            "patterns": [
+                {
+                    "include": "#operator"
+                },
+                {
+                    "include": "#variable"
+                },
+                {
+                    "include": "#number"
                 }
             ]
         },
         "operator": {
             "patterns": [
                 {
-                    "match": "(==|\\!=|\\*|\\+|-|/)",
-                    "name": "keyword.operator.other.sbss"
+                    "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)",
+                    "name": "__STYLE_OPERATOR__"
+                }
+            ]
+        },
+        "number": {
+            "patterns": [
+                {
+                    "match": "[+-]?([0-9]*[.])?[0-9]+",
+                    "name": "__STYLE_NUMBER__"
                 }
             ]
         }
