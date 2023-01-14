@@ -45,8 +45,10 @@ _KNOWN_ATTRIBUTES = {
     'page-header-hidden': 'yes|no',
     'page-footer-hidden': 'yes|no',
     'page-background-image-type': 'stretch|pattern',
-    
-    # 'text-decoration': [...],
+
+    'text-decoration':
+        '(underline|overline|line\\\\-through|cross\\\\-out|sidedot|side\\\\-dot)' +
+        '(\\\\s+(underline|overline|line\\\\-through|cross\\\\-out|sidedot|side\\\\-dot))*',
     
     'gravity': 'center|left|top|right|bottom|' +
                'left\\\\-top|top\\\\-left|left\\\\-bottom|bottom\\\\-left|' +
@@ -56,13 +58,12 @@ _KNOWN_ATTRIBUTES = {
 
 _KNOWN_PAIR_PATTERN_TEMPLATE = '''
 {
-    "match": "(__KEY__)\\\\s*__SEP__\\\\s*(((\\\"|')?(__VALUE_REGEX__)(\\\"|')?)|((\\\\$[A-Z_]+))|([^__TERM__]*))",
+    "match": "(__KEY__)\\\\s*__SEP__\\\\s*(((\\\\$[A-Z_]+)|((\\\"|')?(__VALUE_REGEX__)(\\\"|')?))|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
-        "7": { "name": "__STYLE_PROP_VALUE__" },
-        "7": { "name": "__STYLE_VARIABLE__" },
-        "9": { "name": "__STYLE_PROP_WRONG_VALUE__" }
+        "4": { "name": "__STYLE_VARIABLE__" },
+        "__WRONG_VALUE_INDEX__": { "name": "__STYLE_PROP_WRONG_VALUE__" }
     }
 }'''
 
@@ -125,7 +126,8 @@ def _make_known_pair_str(sep, term):
                 .replace('__SEP__', sep)\
                 .replace('__TERM__', term)\
                 .replace('__KEY__', key.replace('-', '\\\\-'))\
-                .replace('__VALUE_REGEX__', value_regex)
+                .replace('__VALUE_REGEX__', value_regex)\
+                .replace('__WRONG_VALUE_INDEX__', str(value_regex.count('(') + 9))
         prop_pair_patterns.append(s)
     s = _GENERAL_PAIR_PATTERN_TEMPLATE\
             .replace('__SEP__', sep)\
