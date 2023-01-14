@@ -34,10 +34,10 @@
             "match": "^\\s*(=import)\\s+(.+)$",
             "captures": {
                 "1": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_IMPORT__"
                 },
                 "2": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_FILENAME__"
                 }
             }
         },
@@ -45,10 +45,10 @@
             "begin": "^\\s*(=begin)\\b([^:]+)?",
             "beginCaptures": {
                 "1": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_BEGIN__"
                 },
                 "2": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_SBML_SECTION_NAME__"
                 }
             },
             "end": "$",
@@ -62,10 +62,10 @@
             "match": "^\\s*(=end)(\\s+(.+))?",
             "captures": {
                 "1": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_END__"
                 },
                 "3": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_SBML_SECTION_NAME__"
                 }
             }
         },
@@ -73,10 +73,10 @@
             "begin": "^\\s*(=(object|image))\\s+([^:]+)",
             "beginCaptures": {
                 "1": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_BLOCK_OBJECT__"
                 },
                 "3": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_SBML_OBJECT_TYPE__"
                 }
             },
             "end": "$",
@@ -90,7 +90,7 @@
             "begin": "^\\s*=(el)?if\\s+",
             "beginCaptures": {
                 "0": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_IF_ELIF__"
                 }
             },
             "end": "$",
@@ -101,23 +101,23 @@
             ]
         },
         "else": {
-            "name": "keyword.other.sbss",
+            "name": "__STYLE_SBML_ELSE__",
             "match": "^\\s*=else"
         },
         "inline-object": {
             "begin": "=\\((object|image)\\s+([^:]+)",
             "beginCaptures": {
                 "0": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_INLINE_OBJECT__"
                 },
                 "2": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_SBML_OBJECT_TYPE__"
                 }
             },
             "end": "\\)=",
             "endCaptures": {
                 "0": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_INLINE_OBJECT__"
                 }
             },
             "patterns": [
@@ -130,16 +130,16 @@
             "begin": "=\\[(.*?)\\|",
             "beginCaptures": {
                 "0": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_INLINE_STYLE_MARK__"
                 },
                 "1": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_SBML_INLINE_STYLE_NAME__"
                 }
             },
             "end": "\\]=",
             "endCaptures": {
                 "0": {
-                    "name": "keyword.other.sbml"
+                    "name": "__STYLE_SBML_INLINE_STYLE_MARK__"
                 }
             },
             "patterns": [
@@ -156,10 +156,10 @@
         },
         "anchor": {
             "match": "=\\(anchor\\|(.*)\\)=",
-            "name": "keyword.other.sbml",
+            "name": "__STYLE_SBML_ANCHOR_MARK__",
             "captures": {
                 "1": {
-                    "name": "string.quoted.double.sbml"
+                    "name": "__STYLE_SBML_ANCHOR_NAME__"
                 }
             }
         },
