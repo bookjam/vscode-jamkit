@@ -177,18 +177,7 @@
         },
         "expression": {
             "patterns": [
-                {
-                    "name": "__STYLE_VARIABLE__",
-                    "match": "\\$[A-Z_]+"
-                },
-                {
-                    "name": "__STYLE_OPERATOR__",
-                    "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)"
-                },
-                {
-                    "name": "__STYLE_LENGTH__",
-                    "match": "[+-]?([0-9]*[.])?[0-9]+(pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)?"
-                }
+                "__EXPRESSION_PATTERNS__"
             ]
         }
     }
