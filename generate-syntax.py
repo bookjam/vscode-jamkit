@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import re
-import subprocess
 import sys
 
 
@@ -172,5 +170,4 @@ def _generate_syntax(lang):
 if __name__ == '__main__':
     if not os.path.exists('syntaxes'):
         os.makedirs('syntaxes')
-    _generate_syntax('sbss')
-    _generate_syntax('sbml') 
+    _generate_syntax(sys.argv[1])
