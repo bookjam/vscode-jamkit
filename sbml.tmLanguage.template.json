@@ -177,39 +177,7 @@
         },
         "expression": {
             "patterns": [
-                {
-                    "include": "#operator"
-                },
-                {
-                    "include": "#variable"
-                },
-                {
-                    "include": "#number"
-                }
-            ]
-        },
-        "operator": {
-            "patterns": [
-                {
-                    "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)",
-                    "name": "__STYLE_OPERATOR__"
-                }
-            ]
-        },
-        "variable": {
-            "patterns": [
-                {
-                    "name": "__STYLE_VARIABLE__",
-                    "match": "\\$[A-Z_]+"
-                }
-            ]
-        },
-        "number": {
-            "patterns": [
-                {
-                    "match": "[+-]?([0-9]*[.])?[0-9]+",
-                    "name": "__STYLE_NUMBER__"
-                }
+                "__EXPRESSION_PATTERNS__"
             ]
         }
     }

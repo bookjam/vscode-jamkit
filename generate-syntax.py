@@ -5,7 +5,7 @@ import re
 import subprocess
 import sys
 
-# key -> value-regex
+
 _KNOWN_ATTRIBUTES = {
     'begin-new-page': 'yes|no',
     'pack': 'yes|no',
@@ -67,17 +67,36 @@ _KNOWN_PAIR_PATTERN_TEMPLATE = '''
     }
 }'''
 
+
 _GENERAL_PAIR_PATTERN_TEMPLATE = '''
 {
-    "match": "([a-z-@]+)\\\\s*__SEP__\\\\s*((\\"[^\\"]*\\")|((\\\\$[A-Z_]+))|([^__TERM__]*))",
+    "match": "([a-z-@]+)\\\\s*__SEP__\\\\s*((\\"[^\\"]*\\")|(\\\\$[A-Z_]+)|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
-        "4": { "name": "__STYLE_PROP_VALUE__" },
-        "5": { "name": "__STYLE_VARIABLE__" },
-        "6": { "name": "__STYLE_PROP_VALUE__" }
+        "4": { "name": "__STYLE_PROP_VALUE__ __STYLE_VARIABLE__" },
+        "5": { "name": "__STYLE_PROP_VALUE__" }
     }
 }'''
+
+
+_EXPRESSION_PATTERNS = '''
+{
+    "name": "__STYLE_VARIABLE__",
+    "match": "\\\\$[A-Z_]+"
+},
+{
+    "name": "__STYLE_OPERATOR__",
+    "match": "(==|\\\\!=|\\\\*|\\\\+|-|/|<|<=|>|>=)"
+},
+{
+    "name": "__STYLE_LENGTH__",
+    "match": "[+-]?([0-9]*[.])?[0-9]+(pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)?",
+    "captures": {
+        "4": "__STYLE_PROP_WRONG_VALUE__"
+    }
+}
+'''
 
 
 _STYLE_MAP = {
@@ -92,7 +111,7 @@ _STYLE_MAP = {
     '__STYLE_SBML_IMPORT__':        'keyword.other',        # =import
     '__STYLE_SBML_BEGIN__':         'keyword.other',        # =begin
     '__STYLE_SBML_END__':           'keyword.other',        # =end
-    '__STYLE_SBML_SECTION_NAME__':  'entity.name.type',
+    '__STYLE_SBML_SECTION_NAME__':  'entity.name.type markup.italic',
     '__STYLE_SBML_IF_ELIF__':       'keyword.other',        # =if =elif
     '__STYLE_SBML_ELSE__':          'keyword.other',        # =else
     '__STYLE_SBML_BLOCK_OBJECT__':  'keyword.control',      # =object
@@ -109,7 +128,7 @@ _STYLE_MAP = {
     '__STYLE_PROP_WRONG_VALUE__':   'invalid.illegal',
     '__STYLE_VARIABLE__':           'markup.italic',
     '__STYLE_FILENAME__':           'string.quoted.double',
-    '__STYLE_NUMBER__':             'constant.numeric',
+    '__STYLE_LENGTH__':             'constant.numeric',
     '__STYLE_OPERATOR__':           'keyword.operator',
 }
 
@@ -141,6 +160,7 @@ def _generate_syntax(lang):
     
     content = content.replace('"__PROP_LIST_PATTERNS__"', _make_known_pair_str('=', ','))
     content = content.replace('"__PROP_GROUP_PATTERNS__"', _make_known_pair_str(':', ';'))
+    content = content.replace('"__EXPRESSION_PATTERNS__"', _EXPRESSION_PATTERNS)
     
     for key, value in _STYLE_MAP.items():
         content = content.replace(key, value)
