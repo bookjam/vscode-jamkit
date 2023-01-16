@@ -45,8 +45,8 @@ _KNOWN_ATTRIBUTES = {
     'page-background-image-type': 'stretch|pattern',
 
     'text-decoration':
-        '(underline|overline|line\\\\-through|cross\\\\-out|sidedot|side\\\\-dot)' +
-        '(\\\\s+(underline|overline|line\\\\-through|cross\\\\-out|sidedot|side\\\\-dot))*',
+        '(underline|overline|line\\\\-through|cross\\\\-out|sidedot|side\\\\-dot|outline)' +
+        '(\\\\s+(underline|overline|line\\\\-through|cross\\\\-out|sidedot|side\\\\-dot|outline))*',
     
     'gravity': 'center|left|top|right|bottom|' +
                'left\\\\-top|top\\\\-left|left\\\\-bottom|bottom\\\\-left|' +
