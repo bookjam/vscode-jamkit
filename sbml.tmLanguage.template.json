@@ -30,6 +30,9 @@
         },
         {
             "include": "#anchor"
+        },
+        {
+            "include": "#continued-property-list"
         }
     ],
     "repository": {
@@ -173,6 +176,15 @@
         "property-list": {
             "patterns": [
                 "__PROP_LIST_PATTERNS__"
+            ]
+        },
+        "continued-property-list": {
+            "begin": "^\\s+(?=[a-z-]+(\\@[a-z-])?\\s*\\=)",
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
             ]
         },
         "expression": {
