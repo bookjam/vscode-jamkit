@@ -84,6 +84,11 @@
         },
         "property-group": {
             "patterns": [
+                {
+                    "match": "([a-z-]+(@[a-z-]+)?)\\s*=.*$",
+                    "name": "__STYLE_INVALID__",
+                    "comment": "A common mistake - property list style pair in property group."
+                },
                 "__PROP_GROUP_PATTERNS__"
             ]
         },
