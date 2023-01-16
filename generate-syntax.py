@@ -54,9 +54,9 @@ _KNOWN_ATTRIBUTES = {
 }
 
 
-_KNOWN_PAIR_PATTERN_TEMPLATE = '''
+_KNOWN_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match": "(__KEY__)\\\\s*__SEP__\\\\s*(((\\\\$[A-Z_]+)|((\\\"|')?(__VALUE_REGEX__)(\\\"|')?))|([^__TERM__]*))",
+    "match": "(__KEY__)\\s*__SEP__\\s*(((\\$[A-Z_]+)|((\"|')?(__VALUE_REGEX__)(\"|')?))|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
@@ -66,9 +66,9 @@ _KNOWN_PAIR_PATTERN_TEMPLATE = '''
 }'''
 
 
-_GENERAL_PAIR_PATTERN_TEMPLATE = '''
+_GENERAL_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match": "([a-z-@]+)\\\\s*__SEP__\\\\s*((\\"[^\\"]*\\")|(\\\\$[A-Z_]+)|([^__TERM__]*))",
+    "match": "([a-z-@]+)\\s*__SEP__\\s*((\"[^\"]*\")|(\\$[A-Z_]+)|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
@@ -78,14 +78,14 @@ _GENERAL_PAIR_PATTERN_TEMPLATE = '''
 }'''
 
 
-_EXPRESSION_PATTERNS = '''
+_EXPRESSION_PATTERNS = r'''
 {
     "name": "__STYLE_VARIABLE__",
-    "match": "\\\\$[A-Z_]+"
+    "match": "\\$[A-Z_]+"
 },
 {
     "name": "__STYLE_OPERATOR__",
-    "match": "(==|\\\\!=|\\\\*|\\\\+|-|/|<|<=|>|>=)"
+    "match": "(==|\\!=|\\*|\\+|-|/|<|<=|>|>=)"
 },
 {
     "name": "__STYLE_LENGTH__",
