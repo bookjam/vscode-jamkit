@@ -14,8 +14,7 @@
             "include": "#style-definition"
         },
         {
-            "include": "#property-list",
-            "note": "this is a workaround for muti-line property list connected by \\."
+            "include": "#continued-property-list"
         }
     ],
     "repository": {
@@ -86,6 +85,15 @@
         "property-group": {
             "patterns": [
                 "__PROP_GROUP_PATTERNS__"
+            ]
+        },
+        "continued-property-list": {
+            "begin": "^\\s+(?=[a-z-]+(\\@[a-z-])?\\s*\\=)",
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
             ]
         },
         "style-definition": {
