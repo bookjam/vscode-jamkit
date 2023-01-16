@@ -55,7 +55,7 @@ _KNOWN_ATTRIBUTES = {
 
 _KNOWN_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match": "(__KEY__)\\s*__SEP__\\s*((__VALUE_REGEX__)[^,\\s]+)",
+    "match": "(__KEY__)\\s*__SEP__\\s*((__VALUE_REGEX__)[^__TERM__\\s]+)",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "2": { "name": "__STYLE_PROP_WRONG_VALUE__" }
@@ -121,17 +121,17 @@ _STYLE_MAP = {
     '__STYLE_SBML_INLINE_OBJECT__': 'keyword.other',        # =(:)=
     '__STYLE_SBML_OBJECT_TYPE__':   'entity.name.type',
     '__STYLE_SBML_STYLE_MARK__':    'keyword.other',        # =[|]=
-    '__STYLE_SBML_STYLE_NAME__':    'keyword.other',
+    '__STYLE_SBML_STYLE_NAME__':    'entity.name.type',
     '__STYLE_SBML_ANCHOR_MARK__':   'keyword.other',        # =(anchor|)=
-    '__STYLE_SBML_ANCHOR_NAME__':   'string.quoted.double',
+    '__STYLE_SBML_ANCHOR_NAME__':   'string',
 
     # common styles
     '__STYLE_PROP_NAME__':          'entity.other.attribute-name',
-    '__STYLE_PROP_VALUE__':         'string.quoted.double',
+    '__STYLE_PROP_VALUE__':         'string',
     '__STYLE_PROP_WRONG_VALUE__':   'invalid.illegal',
     '__STYLE_PROP_SEP__':           'keyword.operator',
-    '__STYLE_VARIABLE__':           'markup.italic',
-    '__STYLE_FILENAME__':           'string.quoted.double',
+    '__STYLE_VARIABLE__':           'string markup.italic',
+    '__STYLE_FILENAME__':           'string',
     '__STYLE_LENGTH__':             'constant.numeric',
     '__STYLE_OPERATOR__':           'keyword.operator',
 }
