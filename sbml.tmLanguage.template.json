@@ -52,12 +52,12 @@
             }
         },
         "begin": {
-            "begin": "^\\s*(=begin)\\b([^:]+)?",
+            "begin": "^\\s*(=begin)(\\s+([^:]+))?",
             "beginCaptures": {
                 "1": {
                     "name": "__STYLE_SBML_BEGIN__"
                 },
-                "2": {
+                "3": {
                     "name": "__STYLE_SBML_SECTION_NAME__"
                 }
             },

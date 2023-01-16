@@ -2,12 +2,7 @@
     "comments": {
         "lineComment": "=comment"
     },
-    "brackets": [
-        [
-            "=[",
-            "]="
-        ]
-    ],
+    "brackets": [],
     "autoClosingPairs": [
         [
             "\"",

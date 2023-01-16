@@ -53,10 +53,16 @@ _KNOWN_ATTRIBUTES = {
                'right\\\\-top|top\\\\-right|right\\\\-bottom|bottom\\\\-right',
 }
 
-
 _KNOWN_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match": "(__KEY__)\\s*__SEP__\\s*(((\\$[A-Z_]+)|((\"|')?(__VALUE_REGEX__)(\"|')?))|([^__TERM__]*))",
+    "match": "(__KEY__)\\s*__SEP__\\s*((__VALUE_REGEX__)[^__TERM__\\s]+)",
+    "captures": {
+        "1": { "name": "__STYLE_PROP_NAME__" },
+        "2": { "name": "__STYLE_PROP_WRONG_VALUE__" }
+    }
+},
+{
+    "match": "(__KEY__)\\s*__SEP__\\s*(((\\$[A-Z_]+)|(__VALUE_REGEX__)|('(__VALUE_REGEX__)')|(\"(__VALUE_REGEX__)\"))|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
@@ -68,12 +74,11 @@ _KNOWN_PAIR_PATTERN_TEMPLATE = r'''
 
 _GENERAL_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match": "([a-z-@]+)\\s*__SEP__\\s*((\"[^\"]*\")|(\\$[A-Z_]+)|([^__TERM__]*))",
+    "match": "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
-        "4": { "name": "__STYLE_PROP_VALUE__ __STYLE_VARIABLE__" },
-        "5": { "name": "__STYLE_PROP_VALUE__" }
+        "6": { "name": "__STYLE_VARIABLE__" }
     }
 }'''
 
@@ -116,16 +121,17 @@ _STYLE_MAP = {
     '__STYLE_SBML_INLINE_OBJECT__': 'keyword.other',        # =(:)=
     '__STYLE_SBML_OBJECT_TYPE__':   'entity.name.type',
     '__STYLE_SBML_STYLE_MARK__':    'keyword.other',        # =[|]=
-    '__STYLE_SBML_STYLE_NAME__':    'keyword.other',
+    '__STYLE_SBML_STYLE_NAME__':    'entity.name.type',
     '__STYLE_SBML_ANCHOR_MARK__':   'keyword.other',        # =(anchor|)=
-    '__STYLE_SBML_ANCHOR_NAME__':   'string.quoted.double',
+    '__STYLE_SBML_ANCHOR_NAME__':   'string',
 
     # common styles
     '__STYLE_PROP_NAME__':          'entity.other.attribute-name',
-    '__STYLE_PROP_VALUE__':         'string.quoted.double',
+    '__STYLE_PROP_VALUE__':         'string',
     '__STYLE_PROP_WRONG_VALUE__':   'invalid.illegal',
-    '__STYLE_VARIABLE__':           'markup.italic',
-    '__STYLE_FILENAME__':           'string.quoted.double',
+    '__STYLE_PROP_SEP__':           'keyword.operator',
+    '__STYLE_VARIABLE__':           'string markup.italic',
+    '__STYLE_FILENAME__':           'string',
     '__STYLE_LENGTH__':             'constant.numeric',
     '__STYLE_OPERATOR__':           'keyword.operator',
 }
@@ -144,7 +150,7 @@ def _make_known_pair_str(sep, term):
                 .replace('__TERM__', term)\
                 .replace('__KEY__', key.replace('-', '\\\\-'))\
                 .replace('__VALUE_REGEX__', value_regex)\
-                .replace('__WRONG_VALUE_INDEX__', str(value_regex.count('(') + 9))
+                .replace('__WRONG_VALUE_INDEX__', str(10 + value_regex.count('(')))
         prop_pair_patterns.append(s)
     s = _GENERAL_PAIR_PATTERN_TEMPLATE\
             .replace('__SEP__', sep)\
