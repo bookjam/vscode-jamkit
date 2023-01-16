@@ -58,7 +58,7 @@ _KNOWN_PAIR_PATTERN_TEMPLATE = r'''
     "match": "(__KEY__)\\s*__SEP__\\s*((__VALUE_REGEX__)[^__TERM__\\s]+)",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
-        "2": { "name": "__STYLE_PROP_WRONG_VALUE__" }
+        "2": { "name": "__STYLE_INVALID__" }
     }
 },
 {
@@ -67,7 +67,7 @@ _KNOWN_PAIR_PATTERN_TEMPLATE = r'''
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
         "4": { "name": "__STYLE_VARIABLE__" },
-        "__WRONG_VALUE_INDEX__": { "name": "__STYLE_PROP_WRONG_VALUE__" }
+        "__WRONG_VALUE_INDEX__": { "name": "__STYLE_INVALID__" }
     }
 }'''
 
@@ -96,7 +96,7 @@ _EXPRESSION_PATTERNS = r'''
     "name": "__STYLE_LENGTH__",
     "match": "[+-]?([0-9]*[.])?[0-9]+(pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)?",
     "captures": {
-        "4": "__STYLE_PROP_WRONG_VALUE__"
+        "4": "__STYLE_INVALID__"
     }
 }
 '''
@@ -128,8 +128,8 @@ _STYLE_MAP = {
     # common styles
     '__STYLE_PROP_NAME__':          'entity.other.attribute-name',
     '__STYLE_PROP_VALUE__':         'string',
-    '__STYLE_PROP_WRONG_VALUE__':   'invalid.illegal',
     '__STYLE_PROP_SEP__':           'keyword.operator',
+    '__STYLE_INVALID__':            'invalid.illegal',
     '__STYLE_VARIABLE__':           'string markup.italic',
     '__STYLE_FILENAME__':           'string',
     '__STYLE_LENGTH__':             'constant.numeric',
