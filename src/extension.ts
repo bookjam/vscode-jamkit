@@ -49,25 +49,20 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const provider2 = vscode.languages.registerCompletionItemProvider(
-        'plaintext',
+        'sbss',
         {
             provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-
-                // get all text until the `position` and check if it reads `console.`
-                // and if so then complete if `log`, `warn`, and `error`
-                const linePrefix = document.lineAt(position).text.substr(0, position.character);
-                if (!linePrefix.endsWith('console.')) {
-                    return undefined;
+                const text = document.lineAt(position).text.substring(0, position.character - 1).trimEnd();
+                if (text.endsWith('display')) {
+                    return [
+                        new vscode.CompletionItem('block', vscode.CompletionItemKind.EnumMember),
+                        new vscode.CompletionItem('none', vscode.CompletionItemKind.EnumMember),
+                    ];
                 }
-
-                return [
-                    new vscode.CompletionItem('log', vscode.CompletionItemKind.Method),
-                    new vscode.CompletionItem('warn', vscode.CompletionItemKind.Method),
-                    new vscode.CompletionItem('error', vscode.CompletionItemKind.Method),
-                ];
+                return undefined;
             }
         },
-        '.' // triggered whenever a '.' is being typed
+        '=' // triggered whenever a '=' is being typed
     );
 
     context.subscriptions.push(provider1, provider2);
