@@ -11,7 +11,7 @@ const knownAttributes = require('../known-attributes.json')
 
 export function activate(context: ExtensionContext) {
 
-    const sbssPropertyValueProvider = languages.registerCompletionItemProvider(
+    const valueCompletionItemProvider = languages.registerCompletionItemProvider(
         'sbss',
         {
             provideCompletionItems(document: TextDocument, position: Position) {
@@ -38,19 +38,16 @@ export function activate(context: ExtensionContext) {
                     const regex = new RegExp("^\\s*(@root|(#|%)[\\.\\w- ]+|/[/\\.\\w- ]+)\\s*:");
                     return regex.test(document.lineAt(logicalLineBeginPosition).text);
                 };
-
                 if (!isInPropertyList()) {
                     return null;
                 }
 
-                const getAttributeName = () => {
+                const attributeName = (_ => {
                     let text = lineText.substring(0, position.character - 1);
                     return text.substring(Math.max(text.lastIndexOf(','), text.lastIndexOf(':')) + 1).trim();
-                };
-
-                const attributeName = getAttributeName();
+                })();
                 if (attributeName in knownAttributes) {
-                    const values: [string] = knownAttributes[attributeName]
+                    const values: [string] = knownAttributes[attributeName];
                     return values.map(value => new CompletionItem(value, CompletionItemKind.EnumMember));
                 }
             }
@@ -58,5 +55,5 @@ export function activate(context: ExtensionContext) {
         '=' // triggered whenever '=' or ':' is being typed
     );
 
-    context.subscriptions.push(sbssPropertyValueProvider);
+    context.subscriptions.push(valueCompletionItemProvider);
 }
