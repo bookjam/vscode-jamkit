@@ -16,6 +16,15 @@ export function activate(context: ExtensionContext) {
         {
             provideCompletionItems(document: TextDocument, position: Position) {
 
+                const lineText = document.lineAt(position).text;
+
+                // For some reason, `provideCompletionItems` seems to be triggered with any word chars
+                // as well as '='. Hmm...
+                if (lineText.substring(position.character - 1, position.character) !== '=') {
+                    // return early if it wasn't '='
+                    return null;
+                }
+
                 const isInPropertyList = () => {
                     let logicalLineBeginPosition = position.with(undefined, 0);
                     while (logicalLineBeginPosition.line > 0) {
@@ -31,17 +40,18 @@ export function activate(context: ExtensionContext) {
                 };
 
                 if (!isInPropertyList()) {
-                    return undefined;
+                    return null;
                 }
 
-                const text = document.lineAt(position).text.substring(0, position.character - 1);
+                const getAttributeName = () => {
+                    let text = lineText.substring(0, position.character - 1);
+                    return text.substring(Math.max(text.lastIndexOf(','), text.lastIndexOf(':')) + 1).trim();
+                };
 
-                Math.max(text.lastIndexOf(','), text.lastIndexOf(':'));
-                for (const key in knownAttributes) {
-                    if (text.endsWith(key)) {
-                        const values: [string] = knownAttributes[key]
-                        return values.map(value => new CompletionItem(value, CompletionItemKind.EnumMember));
-                    }
+                const attributeName = getAttributeName();
+                if (attributeName in knownAttributes) {
+                    const values: [string] = knownAttributes[attributeName]
+                    return values.map(value => new CompletionItem(value, CompletionItemKind.EnumMember));
                 }
             }
         },
