@@ -1,59 +1,61 @@
-import {
-    CompletionItem,
-    CompletionItemKind,
-    ExtensionContext,
-    Position,
-    TextDocument,
-    languages,
-} from 'vscode';
+import * as vscode from 'vscode';
 
-const knownAttributes = require('../known-attributes.json')
+const KNOWN_ATTRIBUTES = require('../known-attributes.json')
 
-export function activate(context: ExtensionContext) {
+function getCompletionItems(attributeName: string): vscode.CompletionItem[] {
+    const values: string[] | undefined = KNOWN_ATTRIBUTES[attributeName];
+    if (values) {
+        return values.map(value =>
+            new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
+    }
+    return [];
+}
 
-    const valueCompletionItemProvider = languages.registerCompletionItemProvider(
-        'sbss',
-        {
-            provideCompletionItems(document: TextDocument, position: Position) {
+class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
 
-                const lineText = document.lineAt(position).text;
+    provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+        const lineText = document.lineAt(position).text;
 
-                // For some reason, `provideCompletionItems` seems to be triggered with any word chars
-                // as well as '='. Hmm...
-                if (lineText.substring(position.character - 1, position.character) !== '=') {
-                    // return early if it wasn't '='
-                    return null;
-                }
+        if (lineText.substring(position.character - 1, position.character) !== '=') {
+            return undefined;
+        }
 
-                const isInPropertyList = () => {
-                    let logicalLineBeginPosition = position.with(undefined, 0);
-                    while (logicalLineBeginPosition.line > 0) {
-                        const previousLinePosition = position.with(logicalLineBeginPosition.line - 1, 0);
-                        if (document.lineAt(previousLinePosition).text.endsWith('\\'))
-                            logicalLineBeginPosition = previousLinePosition;
-                        else
-                            break;
-                    }
+        if (!this.isInPropertyList(document, position)) {
+            return undefined;
+        }
 
-                    const regex = new RegExp("^\\s*(@root|(#|%)[\\.\\w- ]+|/[/\\.\\w- ]+)\\s*:");
-                    return regex.test(document.lineAt(logicalLineBeginPosition).text);
-                };
-                if (!isInPropertyList()) {
-                    return null;
-                }
+        const attributeName = (_ => {
+            const text = lineText.substring(0, position.character - 1);
+            return text.substring(Math.max(text.lastIndexOf(','), text.lastIndexOf(':')) + 1).trim();
+        })();
 
-                const attributeName = (_ => {
-                    let text = lineText.substring(0, position.character - 1);
-                    return text.substring(Math.max(text.lastIndexOf(','), text.lastIndexOf(':')) + 1).trim();
-                })();
-                if (attributeName in knownAttributes) {
-                    const values: [string] = knownAttributes[attributeName];
-                    return values.map(value => new CompletionItem(value, CompletionItemKind.EnumMember));
-                }
-            }
-        },
-        '=' // triggered whenever '=' or ':' is being typed
-    );
+        return getCompletionItems(attributeName);
+    }
 
-    context.subscriptions.push(valueCompletionItemProvider);
+    private propertyListPrefix = new RegExp("^\\s*(@root|(#|%)[\\.\\w- ]+|/[/\\.\\w- ]+)\\s*:");
+
+    private isInPropertyList(document: vscode.TextDocument, position: vscode.Position) {
+        const lineText = this.getLocalLineTextUpTo(document, position);
+        return this.propertyListPrefix.test(lineText);
+    }
+
+    private getLocalLineTextUpTo(document: vscode.TextDocument, position: vscode.Position): string {
+        let lineText = document.lineAt(position).text;
+        let lineBeginPos = position.with(undefined, 0);
+        while (lineBeginPos.line > 0) {
+            const prevLinePos = position.with(lineBeginPos.line - 1);
+            const prevLineText = document.lineAt(prevLinePos).text;
+            if (!prevLineText.endsWith('\\'))
+                break;
+            lineBeginPos = prevLinePos;
+            lineText = prevLineText.substring(0, prevLineText.length - 1) + lineText;
+        }
+        return lineText;
+    }
+}
+
+export function activate(context: vscode.ExtensionContext) {
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
+        'sbss', new SbssCompletionItemProvider(), '='
+    ));
 }
