@@ -1,0 +1,12 @@
+{
+    "display": [
+        "block",
+        "none"
+    ],
+    "position": [
+        "absolute",
+        "static",
+        "top",
+        "bottom"
+    ]
+}
