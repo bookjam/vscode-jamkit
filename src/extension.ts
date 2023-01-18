@@ -1,6 +1,8 @@
-import * as vscode from 'vscode';
+import { ExtensionContext } from 'vscode';
 import { SbssCompletionItemProvider } from './SbssCompletionItemProvider';
+import { SbmlCompletionItemProvider } from './SbmlCompletionItemProvider';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
     SbssCompletionItemProvider.register(context);
+    SbmlCompletionItemProvider.register(context);
 }

@@ -46,7 +46,8 @@
         "url": "https://github.com/bookjam/vscode-jamkit.git"
     },
     "activationEvents": [
-        "onLanguage:sbss"
+        "onLanguage:sbss",
+        "onLanguage:sbml"
     ],
     "main": "./out/extension.js",
     "scripts": {

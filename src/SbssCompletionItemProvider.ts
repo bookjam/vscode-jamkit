@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as utils from './DocumentUtils';
 import { getKnownAttributeValues } from './KnownAttributes';
 
 enum CompletionContextKind {
@@ -79,18 +80,11 @@ class CompletionContextParser {
     }
 
     private getLineTextAt(position: vscode.Position): string {
-        return this.document.lineAt(position).text;
+        return utils.getLineTextAt(this.document, position);
     }
 
     private getLogicalLineBeginPosition(position: vscode.Position): vscode.Position {
-        let lineBeginPosition = position.with(undefined, 0);
-        while (lineBeginPosition.line > 0) {
-            const previousLineBeginPosition = lineBeginPosition.with(lineBeginPosition.line - 1);
-            if (!this.document.lineAt(previousLineBeginPosition).text.endsWith('\\'))
-                break;
-            lineBeginPosition = previousLineBeginPosition;
-        }
-        return lineBeginPosition;
+        return utils.getLogicalLineBeginPosition(this.document, position);
     }
 }
 

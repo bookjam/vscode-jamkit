@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as utils from './DocumentUtils';
 import { getKnownAttributeValues } from './KnownAttributes';
 
 interface CompletionContext {
@@ -16,7 +17,7 @@ class CompletionContextParser {
 
     parseContext(): CompletionContext | undefined {
 
-        const lineText = this.getLineTextAt(this.position).substring(0, this.position.character);
+        const lineText = utils.getLineTextAt(this.document, this.position).substring(0, this.position.character);
         const triggerChar = lineText.trimEnd().slice(-1);
 
         if (triggerChar === '=') {
@@ -31,36 +32,20 @@ class CompletionContextParser {
         return undefined;
     }
 
-    private propertyListPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*:/
+    private sectionPropListPrefix = /^\s*=begin\s+([\.\w- ]*)?\s*:/;
+    private objectPropListPrefix = /^\s*=(object|image)\s+([a-z-]+)\s*:/;
 
     private isInPropertList(): boolean {
-        const lineText = this.getLineTextAt(this.getLogicalLineBeginPosition(this.position));
-        return this.propertyListPrefix.test(lineText);
-    }
-
-    private getLineTextAt(position: vscode.Position): string {
-        return this.document.lineAt(position).text;
-    }
-
-    private getLogicalLineBeginPosition(position: vscode.Position): vscode.Position {
-        let lineBeginPosition = position.with(undefined, 0);
-        while (lineBeginPosition.line > 0) {
-            const previousLineBeginPosition = lineBeginPosition.with(lineBeginPosition.line - 1);
-            if (!this.document.lineAt(previousLineBeginPosition).text.endsWith('\\'))
-                break;
-            lineBeginPosition = previousLineBeginPosition;
-        }
-        return lineBeginPosition;
+        const lineText = utils.getLineTextAt(this.document, utils.getLogicalLineBeginPosition(this.document, this.position));
+        return this.sectionPropListPrefix.test(lineText) || this.objectPropListPrefix.test(lineText);
     }
 }
 
-export class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
+export class SbmlCompletionItemProvider implements vscode.CompletionItemProvider {
 
     static register(context: vscode.ExtensionContext) {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-            'sbss',
-            new SbssCompletionItemProvider(),
-            '=', ':'
+            'sbml', new this(), '='
         ));
     }
 
@@ -70,13 +55,7 @@ export class SbssCompletionItemProvider implements vscode.CompletionItemProvider
         if (context) {
             const values = getKnownAttributeValues(context.attributeName);
             if (values) {
-                return values.map(value => {
-                    const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember);
-                    if (context.kind == CompletionContextKind.InPropertyGroup) {
-                        item.insertText = " " + value + ";";
-                    }
-                    return item;
-                });
+                return values.map(value => new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
             }
         }
         return undefined;
