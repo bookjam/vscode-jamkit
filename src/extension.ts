@@ -2,60 +2,125 @@ import * as vscode from 'vscode';
 
 const KNOWN_ATTRIBUTES = require('../known-attributes.json')
 
-function getCompletionItems(attributeName: string): vscode.CompletionItem[] {
-    const values: string[] | undefined = KNOWN_ATTRIBUTES[attributeName];
-    if (values) {
-        return values.map(value =>
-            new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
-    }
-    return [];
+function getKnownAttributeValues(attributeName: string): string[] | undefined {
+    return KNOWN_ATTRIBUTES[attributeName];
 }
 
-class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
+enum SbssContextKind {
+    InPropertyList,
+    InPropertyGroup,
+}
 
-    provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-        const lineText = document.lineAt(position).text;
+interface SbssContext {
+    kind: SbssContextKind;
+    attributeName: string;
+}
 
-        if (lineText.substring(position.character - 1, position.character) !== '=') {
-            return undefined;
-        }
+class SbssContextParser {
+    readonly document: vscode.TextDocument;
+    readonly position: vscode.Position;
 
-        if (!this.isInPropertyList(document, position)) {
-            return undefined;
-        }
-
-        const attributeName = (_ => {
-            const text = lineText.substring(0, position.character - 1);
-            return text.substring(Math.max(text.lastIndexOf(','), text.lastIndexOf(':')) + 1).trim();
-        })();
-
-        return getCompletionItems(attributeName);
+    constructor(document: vscode.TextDocument, position: vscode.Position) {
+        this.document = document;
+        this.position = position;
     }
 
-    private propertyListPrefix = new RegExp("^\\s*(@root|(#|%)[\\.\\w- ]+|/[/\\.\\w- ]+)\\s*:");
+    parseContext(): SbssContext | undefined {
+        if (this.position.character == 0) {
+            return undefined;
+        }
 
-    private isInPropertyList(document: vscode.TextDocument, position: vscode.Position) {
-        const lineText = this.getLocalLineTextUpTo(document, position);
+        const lineText = this.getLineTextAt(this.position).substring(0, this.position.character);
+        const triggerChar = lineText.trimEnd().slice(-1);
+
+        if (triggerChar === '=') {
+            if (!this.isInPropertList())
+                return undefined;
+
+            const text = lineText.substring(0, lineText.length - 1);
+            const attributeName = text.substring(Math.max(text.lastIndexOf(','), text.lastIndexOf(':')) + 1).trim();
+            return { kind: SbssContextKind.InPropertyList, attributeName };
+        }
+
+        if (triggerChar === ':') {
+            if (!this.isInPropertyGroup())
+                return undefined;
+
+            let b, e = lineText.length - 1;
+            for (b = e; b > 0; --b) {
+                const ch = lineText.charAt(b - 1);
+                if (!ch.match(/[A-Za-z-]/)) {
+                    break;
+                }
+            }
+            return { kind: SbssContextKind.InPropertyGroup, attributeName: lineText.substring(b, e) };
+        }
+
+        return undefined;
+    }
+
+    private propertyListPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*:/
+    private propertyGroupPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*{/
+    private propertyGroupSuffix = /^\s*}/
+
+    private isInPropertList(): boolean {
+        const lineText = this.getLineTextAt(this.getLogicalLineBeginPosistion(this.position));
         return this.propertyListPrefix.test(lineText);
     }
 
-    private getLocalLineTextUpTo(document: vscode.TextDocument, position: vscode.Position): string {
-        let lineText = document.lineAt(position).text;
-        let lineBeginPos = position.with(undefined, 0);
-        while (lineBeginPos.line > 0) {
-            const prevLinePos = position.with(lineBeginPos.line - 1);
-            const prevLineText = document.lineAt(prevLinePos).text;
-            if (!prevLineText.endsWith('\\'))
+    private isInPropertyGroup(): boolean {
+        for (let pos = this.getLogicalLineBeginPosistion(this.position); pos; pos = pos.with(pos.line - 1)) {
+            const lineText = this.getLineTextAt(pos);
+            if (this.propertyGroupPrefix.test(lineText)) {
+                return true;
+            }
+            if (this.propertyListPrefix.test(lineText) || this.propertyGroupSuffix.test(lineText)) {
                 break;
-            lineBeginPos = prevLinePos;
-            lineText = prevLineText.substring(0, prevLineText.length - 1) + lineText;
+            }
+            if (pos.line == 0)
+                break;
         }
-        return lineText;
+        return false;
+    }
+
+    private getLineTextAt(position: vscode.Position): string {
+        return this.document.lineAt(position).text;
+    }
+
+    private getLogicalLineBeginPosistion(position: vscode.Position): vscode.Position {
+        let lineBeginPosition = position.with(undefined, 0);
+        while (lineBeginPosition.line > 0) {
+            const previousLineBeginPosition = lineBeginPosition.with(lineBeginPosition.line - 1);
+            if (!this.document.lineAt(previousLineBeginPosition).text.endsWith('\\'))
+                break;
+            lineBeginPosition = previousLineBeginPosition;
+        }
+        return lineBeginPosition;
     }
 }
 
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-        'sbss', new SbssCompletionItemProvider(), '='
+        'sbss',
+        {
+            provideCompletionItems: function (document: vscode.TextDocument, position: vscode.Position) {
+                const contextParser = new SbssContextParser(document, position);
+                const context = contextParser.parseContext();
+                if (context) {
+                    const values = getKnownAttributeValues(context.attributeName);
+                    if (values) {
+                        return values.map(value => {
+                            const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember);
+                            if (context.kind == SbssContextKind.InPropertyGroup) {
+                                item.insertText = " " + value + ";";
+                            }
+                            return item;
+                        });
+                    }
+                }
+                return undefined;
+            }
+        },
+        '=', ':'
     ));
 }
