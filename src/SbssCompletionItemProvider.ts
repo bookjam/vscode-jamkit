@@ -22,9 +22,6 @@ class CompletionContextParser {
     }
 
     parseContext(): CompletionContext | undefined {
-        if (this.position.character == 0) {
-            return undefined;
-        }
 
         const lineText = this.getLineTextAt(this.position).substring(0, this.position.character);
         const triggerChar = lineText.trimEnd().slice(-1);
@@ -93,7 +90,7 @@ export class SbssCompletionItemProvider implements vscode.CompletionItemProvider
     static register(context: vscode.ExtensionContext) {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
             'sbss',
-            new SbssCompletionItemProvider(),
+            new this(),
             '=', ':'
         ));
     }
