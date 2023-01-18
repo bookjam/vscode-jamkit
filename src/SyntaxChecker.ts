@@ -13,18 +13,15 @@ export class SyntaxChecker {
         }
 
         context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
-            // if (editor) {
-            //     console.log(`onDidChangeActiveTextEditor - ${editor.document.fileName}`);
-            // } else {
-            //     console.log("onDidChangeActiveTextEditor - <null>");
-            // }
-
             instance.setActiveDocument(editor?.document);
         }));
 
         context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-            console.log(`onDidChangeTextDocument - ${event.reason}: ${event.document.fileName}`);
-            instance.applyDocumentChange(event.document);
+            console.log(`onDidChangeTextDocument - ${event.contentChanges.length}`);
+
+            if (event.contentChanges.length > 0) {
+                instance.applyDocumentChange(event.document);
+            }
         }));
     }
 
@@ -58,7 +55,8 @@ export class SyntaxChecker {
 
     updateDiagnostics(document: vscode.TextDocument): void {
 
-        console.log(`updateDiagnostics - ${document.fileName}`)
+        //console.log(`updateDiagnostics - ${document.fileName}`);
+        console.log("updateDiagnostics");
 
         this.collection.delete(document.uri);
         if (document.fileName.endsWith('.sbml')) {
