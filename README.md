@@ -5,3 +5,4 @@
 ## Features
 
 - Syntax highlighting for SBML & SBSS
+- Property auto-completion
