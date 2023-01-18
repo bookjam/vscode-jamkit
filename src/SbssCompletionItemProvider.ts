@@ -59,12 +59,12 @@ class CompletionContextParser {
     private propertyGroupSuffix = /^\s*}/
 
     private isInPropertList(): boolean {
-        const lineText = this.getLineTextAt(this.getLogicalLineBeginPosistion(this.position));
+        const lineText = this.getLineTextAt(this.getLogicalLineBeginPosition(this.position));
         return this.propertyListPrefix.test(lineText);
     }
 
     private isInPropertyGroup(): boolean {
-        for (let pos = this.getLogicalLineBeginPosistion(this.position); pos; pos = pos.with(pos.line - 1)) {
+        for (let pos = this.getLogicalLineBeginPosition(this.position); pos; pos = pos.with(pos.line - 1)) {
             const lineText = this.getLineTextAt(pos);
             if (this.propertyGroupPrefix.test(lineText)) {
                 return true;
@@ -82,7 +82,7 @@ class CompletionContextParser {
         return this.document.lineAt(position).text;
     }
 
-    private getLogicalLineBeginPosistion(position: vscode.Position): vscode.Position {
+    private getLogicalLineBeginPosition(position: vscode.Position): vscode.Position {
         let lineBeginPosition = position.with(undefined, 0);
         while (lineBeginPosition.line > 0) {
             const previousLineBeginPosition = lineBeginPosition.with(lineBeginPosition.line - 1);
