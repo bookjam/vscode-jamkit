@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Stack } from './Stack';
+import * as utils from './utils';
 
 interface SectionInfo {
     line: number;
@@ -12,12 +12,12 @@ export class SbmlDiagnosticCollector {
         this.document = document;
     }
 
-    private sectionBeginPattern = /^\s*=begin(\s+([^(:|\s|$)]+))?/;
-    private sectionEndPattern = /^\s*=end(\s+([^(\s|$)]+))?/;
+    private SECTION_BEGIN_PATTERN = /^\s*=begin(\s+([^(:|\s|$)]+))?/;
+    private SECTION_END_PATTERN = /^\s*=end(\s+([^(\s|$)]+))?/;
 
     collect(): vscode.Diagnostic[] {
         const diagnostics: vscode.Diagnostic[] = [];
-        const sectionStack = new Stack<SectionInfo>();
+        const sectionStack = new utils.Stack<SectionInfo>();
 
         enum LineKind {
             Begin,
@@ -33,12 +33,12 @@ export class SbmlDiagnosticCollector {
             const lineText = this.document.lineAt(i).text.trimStart();
 
             if (!isConnectedLine) {
-                let m: RegExpMatchArray | null = lineText.match(this.sectionBeginPattern);
+                let m = lineText.match(this.SECTION_BEGIN_PATTERN);
                 if (m) {
                     lineKind = LineKind.Begin;
 
                     sectionStack.push({ line: i, tag: m[2] ? m[2] : "" });
-                } else if (m = lineText.match(this.sectionEndPattern)) {
+                } else if (m = lineText.match(this.SECTION_END_PATTERN)) {
                     lineKind = LineKind.End;
 
                     const sectionInfo = sectionStack.pop();
