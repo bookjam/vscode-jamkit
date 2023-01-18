@@ -36,7 +36,7 @@ export class SyntaxChecker {
         if (document) {
             if (this.currentFileName !== document.fileName) {
                 this.currentFileName = document.fileName;
-                if (this.collection.get(document.uri) == undefined) {
+                if (!this.collection.has(document.uri)) {
                     this.updateDiagnostics(document);
                 }
             }
