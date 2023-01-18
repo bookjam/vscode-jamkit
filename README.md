@@ -6,3 +6,9 @@
 
 - Syntax highlighting for SBML & SBSS
 - Property auto-completion
+
+## TODO
+
+- Diagnostic via extension
+- Context-sensative attribute auto-completion
+- Syntax highlighting via extension
