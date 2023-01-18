@@ -32,7 +32,7 @@ class CompletionContextParser {
         return undefined;
     }
 
-    private sectionPropListPrefix = /^\s*=begin\s+([\.\w- ]*)?\s*:/;
+    private sectionPropListPrefix = /^\s*=begin\s+([\.\w-]*)?\s*:/;
     private objectPropListPrefix = /^\s*=(object|image)\s+([a-z-]+)\s*:/;
 
     private isInPropertList(): boolean {
