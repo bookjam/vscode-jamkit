@@ -13,11 +13,11 @@ export class SyntaxChecker {
         }
 
         context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
-            if (editor) {
-                console.log(`onDidChangeActiveTextEditor - ${editor.document.fileName}`);
-            } else {
-                console.log("onDidChangeActiveTextEditor - <null>");
-            }
+            // if (editor) {
+            //     console.log(`onDidChangeActiveTextEditor - ${editor.document.fileName}`);
+            // } else {
+            //     console.log("onDidChangeActiveTextEditor - <null>");
+            // }
 
             instance.setActiveDocument(editor?.document);
         }));
@@ -57,6 +57,9 @@ export class SyntaxChecker {
     }
 
     updateDiagnostics(document: vscode.TextDocument): void {
+
+        console.log(`updateDiagnostics - ${document.fileName}`)
+
         this.collection.delete(document.uri);
         if (document.fileName.endsWith('.sbml')) {
             const diagnosticCollector = new SbmlDiagnosticCollector(document);
