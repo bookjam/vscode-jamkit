@@ -2,9 +2,8 @@ import * as vscode from 'vscode';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
 
 export class SyntaxChecker {
-    static register(context: vscode.ExtensionContext) {
+    static register(context: vscode.ExtensionContext): void {
         const collection = vscode.languages.createDiagnosticCollection('jamkit');
-
         const instance = new SyntaxChecker(collection);
 
         const currentDocument = vscode.window.activeTextEditor?.document;
@@ -54,11 +53,8 @@ export class SyntaxChecker {
     }
 
     updateDiagnostics(document: vscode.TextDocument): void {
-
-        //console.log(`updateDiagnostics - ${document.fileName}`);
         console.log("updateDiagnostics");
 
-        this.collection.delete(document.uri);
         if (document.fileName.endsWith('.sbml')) {
             const diagnosticCollector = new SbmlDiagnosticCollector(document);
             this.collection.set(document.uri, diagnosticCollector.collect());

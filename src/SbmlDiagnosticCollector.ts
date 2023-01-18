@@ -16,9 +16,7 @@ export class SbmlDiagnosticCollector {
     private sectionEndPattern = /^\s*=end(\s+([^(\s|$)]+))?/;
 
     collect(): vscode.Diagnostic[] {
-
         const diagnostics: vscode.Diagnostic[] = [];
-
         const sectionStack = new Stack<SectionInfo>();
 
         enum LineKind {

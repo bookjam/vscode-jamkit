@@ -52,9 +52,9 @@ class CompletionContextParser {
         return undefined;
     }
 
-    private propertyListPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*:/
-    private propertyGroupPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*{/
-    private propertyGroupSuffix = /^\s*}/
+    private propertyListPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*:/;
+    private propertyGroupPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*{/;
+    private propertyGroupSuffix = /^\s*}/;
 
     private isInPropertList(): boolean {
         const lineText = this.getLineTextAt(this.getLogicalLineBeginPosition(this.position));
@@ -86,8 +86,7 @@ class CompletionContextParser {
 }
 
 export class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
-
-    static register(context: vscode.ExtensionContext) {
+    static register(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
             'sbss',
             new this(),

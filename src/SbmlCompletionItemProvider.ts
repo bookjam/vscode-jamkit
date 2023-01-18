@@ -16,7 +16,6 @@ class CompletionContextParser {
     }
 
     parseContext(): CompletionContext | undefined {
-
         const lineText = utils.getLineTextAt(this.document, this.position).substring(0, this.position.character);
         const triggerChar = lineText.trimEnd().slice(-1);
 
