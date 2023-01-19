@@ -1,7 +1,8 @@
-import { assert } from 'console';
 import * as vscode from 'vscode';
+import { assert } from 'console';
 import { getKnownAttributeValues } from './KnownAttributes';
 import { PropertyListParser, PropertyRange } from './PropertyList';
+import { stripQuote } from './utils';
 
 const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
 const END_PATTERN = /^\s*=end(\s+(.+))?/;
@@ -58,9 +59,9 @@ export class SbmlDiagnosticCollector {
                     if (context.type == DirectiveType.Begin ||
                         context.type == DirectiveType.Object ||
                         context.type == DirectiveType.Style) {
-                        const propertyListMarkerIndex = lineText.indexOf(':');
-                        if (propertyListMarkerIndex > 0) {
-                            propListParser = new PropertyListParser(i, propertyListMarkerIndex + 1);
+                        const propListMarkerIndex = lineText.indexOf(':');
+                        if (propListMarkerIndex > 0) {
+                            propListParser = new PropertyListParser(i, propListMarkerIndex + 1);
                         }
                     }
                 } else {
@@ -70,14 +71,13 @@ export class SbmlDiagnosticCollector {
 
             if (propListParser) {
                 propListParser.parseLine(lineText).forEach(
-                    propRange => this.checkPropertyDiagnostic(propRange)
+                    propRange => this.verifyProperty(propRange)
                 );
             }
 
             // collect more diagnostics based on lineKind ...
 
             isConnectedLine = lineText.endsWith('\\');
-
             if (!isConnectedLine) {
                 propListParser = null;
             }
@@ -172,17 +172,9 @@ export class SbmlDiagnosticCollector {
         }
     }
 
-    // This doesn't handle escaped characters properly but that's ok here.
-    private quoteStripped(value: string): string {
-        if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
-            return value.substring(1, value.length - 1);
-        }
-        return value;
-    }
-
-    private checkPropertyDiagnostic(propRange: PropertyRange): void {
+    private verifyProperty(propRange: PropertyRange): void {
         const name = this.document.getText(propRange.nameRange);
-        const value = this.quoteStripped(this.document.getText(propRange.valueRange));
+        const value = stripQuote(this.document.getText(propRange.valueRange));
 
         const knownValues = getKnownAttributeValues(name);
 
@@ -195,4 +187,3 @@ export class SbmlDiagnosticCollector {
         }
     }
 }
-

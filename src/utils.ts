@@ -15,18 +15,10 @@ export function getLogicalLineBeginPosition(document: vscode.TextDocument, posit
     return lineBeginPosition;
 }
 
-export class Stack<T> {
-    private array: T[] = [];
-
-    pop(): T | undefined {
-        return this.isEmpty() ? undefined : this.array.pop();
+export function stripQuote(value: string): string {
+    if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
+        // TODO: remove escape char '\\'
+        return value.substring(1, value.length - 1);
     }
-
-    push(data: T): void {
-        this.array.push(data);
-    }
-
-    isEmpty(): boolean {
-        return this.array.length === 0;
-    }
+    return value;
 }

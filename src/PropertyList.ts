@@ -1,5 +1,5 @@
-import { assert } from 'console';
 import * as vscode from 'vscode';
+import { assert } from 'console';
 
 export enum PropertyListParseState {
     BeforeName,
@@ -77,8 +77,10 @@ export class PropertyListParser {
                     assert(this.nameEndPos);
                     if (ch !== ' ' && ch !== '\t') {
                         if (ch === "'" || ch === '"') {
-                            this.valueQuoteChar = ch;
                             this.valueEscaped = false;
+                            this.valueQuoteChar = ch;
+                        } else {
+                            this.valueQuoteChar = undefined;
                         }
                         this.valueBeginPos = new vscode.Position(this.line, i);
                         this.state = PropertyListParseState.InValue;
@@ -108,7 +110,7 @@ export class PropertyListParser {
                                 PropertyListParseState.AfterValue;
                         }
                     }
-
+                    // force value reading at EOL
                     if (!this.valueEndPos && i == lineText.length - 1) {
                         this.valueEndPos = new vscode.Position(this.line, i + 1);
                     }
@@ -123,17 +125,15 @@ export class PropertyListParser {
                     break;
             }
 
-            if (this.valueEndPos) {
+            if (this.nameBeginPos && this.nameEndPos && this.valueBeginPos && this.valueEndPos) {
                 propRanges.push({
-                    nameRange: new vscode.Range(this.nameBeginPos!, this.nameEndPos!),
-                    valueRange: new vscode.Range(this.valueBeginPos!, this.valueEndPos)
+                    nameRange: new vscode.Range(this.nameBeginPos, this.nameEndPos),
+                    valueRange: new vscode.Range(this.valueBeginPos, this.valueEndPos)
                 });
-
                 this.nameBeginPos = undefined;
                 this.nameEndPos = undefined;
                 this.valueBeginPos = undefined;
                 this.valueEndPos = undefined;
-                this.valueQuoteChar = undefined;
             }
         }
 

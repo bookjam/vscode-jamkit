@@ -90,15 +90,15 @@ def _make_known_pair_str(sep, term):
     with open('./known-attributes.json', 'r') as file:
         known_attributes = json.load(file)
     prop_pair_patterns = []
-    for key, values in known_attributes.items():
-        # reverse sort to match "list-item" first and then "list"
-        values.sort(reverse=True)
-        s = _KNOWN_PAIR_PATTERN_TEMPLATE\
-                .replace('__SEP__', sep)\
-                .replace('__TERM__', term)\
-                .replace('__KEY__', key.replace('-', '\\\\-'))\
-                .replace('__VALUE_REGEX__', '|'.join([value.replace('-', '\\\\-') for value in values]))
-        prop_pair_patterns.append(s)
+    # for key, values in known_attributes.items():
+    #     # reverse sort to match "list-item" first and then "list"
+    #     values.sort(reverse=True)
+    #     s = _KNOWN_PAIR_PATTERN_TEMPLATE\
+    #             .replace('__SEP__', sep)\
+    #             .replace('__TERM__', term)\
+    #             .replace('__KEY__', key.replace('-', '\\\\-'))\
+    #             .replace('__VALUE_REGEX__', '|'.join([value.replace('-', '\\\\-') for value in values]))
+    #     prop_pair_patterns.append(s)
     s = _GENERAL_PAIR_PATTERN_TEMPLATE\
             .replace('__SEP__', sep)\
             .replace('__TERM__', term)
