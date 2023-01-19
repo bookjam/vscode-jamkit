@@ -2,21 +2,9 @@
 
 import os
 import sys
-import json
-
-_KNOWN_PAIR_PATTERN_TEMPLATE = r'''
-{
-    "match": "(__KEY__)\\s*__SEP__\\s*(((\\$[A-Z_]+)|(__VALUE_REGEX__)|('(__VALUE_REGEX__)')|(\"(__VALUE_REGEX__)\"))|([^__TERM__]*))",
-    "captures": {
-        "1": { "name": "__STYLE_PROP_NAME__" },
-        "3": { "name": "__STYLE_PROP_VALUE__" },
-        "4": { "name": "__STYLE_VARIABLE__" },
-        "10": { "name": "__STYLE_INVALID__" }
-    }
-}'''
 
 
-_GENERAL_PAIR_PATTERN_TEMPLATE = r'''
+_PROP_PAIR_PATTERN_TEMPLATE = r'''
 {
     "match": "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^__TERM__]*))",
     "captures": {
@@ -81,44 +69,29 @@ _STYLE_MAP = {
 }
 
 
-def _read_file_content(filename):
+def _make_prop_pair_pattern(sep, term):
+    return _PROP_PAIR_PATTERN_TEMPLATE.replace('__SEP__', sep).replace('__TERM__', term)
+
+
+def _read_file(filename):
     with open(filename, 'r') as file:
         return file.read()
 
 
-def _make_known_pair_str(sep, term):
-    with open('./known-attributes.json', 'r') as file:
-        known_attributes = json.load(file)
-    prop_pair_patterns = []
-    for key, values in known_attributes.items():
-        # reverse sort to match "list-item" first and then "list"
-        values.sort(reverse=True)
-        s = _KNOWN_PAIR_PATTERN_TEMPLATE\
-                .replace('__SEP__', sep)\
-                .replace('__TERM__', term)\
-                .replace('__KEY__', key.replace('-', '\\\\-'))\
-                .replace('__VALUE_REGEX__', '|'.join([value.replace('-', '\\\\-') for value in values]))
-        prop_pair_patterns.append(s)
-    s = _GENERAL_PAIR_PATTERN_TEMPLATE\
-            .replace('__SEP__', sep)\
-            .replace('__TERM__', term)
-    prop_pair_patterns.append(s)
-    return ','.join(prop_pair_patterns)
+def _write_file(filename, content):
+    with open(filename, 'w') as file:
+        file.write(content)
 
 
 def _generate_syntax(lang):
-    content = _read_file_content(lang + '.tmLanguage.template.json')
-    
-    content = content.replace('"__PROP_LIST_PATTERNS__"', _make_known_pair_str('=', ','))
-    content = content.replace('"__PROP_GROUP_PATTERNS__"', _make_known_pair_str(':', ';'))
+    content = _read_file(lang + '.tmLanguage.template.json')
+    content = content.replace('"__PROP_LIST_PATTERNS__"', _make_prop_pair_pattern('=', ','))
+    content = content.replace('"__PROP_GROUP_PATTERNS__"', _make_prop_pair_pattern(':', ';'))
     content = content.replace('"__EXPRESSION_PATTERNS__"', _EXPRESSION_PATTERNS)
-    
     for key, value in _STYLE_MAP.items():
         content = content.replace(key, value)
-        
-    with open('syntaxes/' + lang + '.tmLanguage.json', 'w') as file:
-        file.write(content)  
-    
+    _write_file('syntaxes/' + lang + '.tmLanguage.json', content)
+
 
 if __name__ == '__main__':
     if not os.path.exists('syntaxes'):

@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
+import { DiagnosticCollector } from './DiagnosticCollector';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
+import { SbssDiagnosticCollector } from './SbssDiagnosticCollector';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
@@ -16,11 +18,14 @@ export class SyntaxAnalyser {
         }));
 
         context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-            console.log(`onDidChangeTextDocument - ${event.contentChanges.length}`);
-
-            if (event.contentChanges.length > 0) {
-                instance.applyDocumentChange(event.document);
+            if (event.contentChanges.length == 0) {
+                return;
             }
+            if (instance.currentFileName === event.document.fileName) {
+                instance.updateDiagnostics(event.document);
+            } else {
+                instance.clearDiagnostics(event.document);
+            } \
         }));
     }
 
@@ -31,7 +36,7 @@ export class SyntaxAnalyser {
         this.collection = collection;
     }
 
-    setActiveDocument(document: vscode.TextDocument | undefined): void {
+    private setActiveDocument(document: vscode.TextDocument | undefined): void {
         if (document) {
             if (this.currentFileName !== document.fileName) {
                 this.currentFileName = document.fileName;
@@ -44,25 +49,24 @@ export class SyntaxAnalyser {
         }
     }
 
-    applyDocumentChange(document: vscode.TextDocument): void {
-        if (this.currentFileName === document.fileName) {
-            this.updateDiagnostics(document);
-        } else {
-            this.collection.delete(document.uri);
+    private updateDiagnostics(document: vscode.TextDocument): void {
+        console.log(`updateDiagnostics: ${document.fileName}`);
+
+        const diagnosticCollector = (() => {
+            if (document.fileName.endsWith('.sbml'))
+                return new SbmlDiagnosticCollector(document);
+            if (document.fileName.endsWith('.sbss'))
+                return new SbssDiagnosticCollector(document);
+        })();
+        if (diagnosticCollector) {
+            this.collection.set(document.uri, diagnosticCollector.collect());
         }
     }
 
-    updateDiagnostics(document: vscode.TextDocument): void {
-        console.log("updateDiagnostics");
+    private clearDiagnostics(document: vscode.TextDocument): void {
+        console.log(`clearDiagnostics: ${document.fileName}`);
 
-        if (document.fileName.endsWith('.sbml')) {
-            const diagnosticCollector = new SbmlDiagnosticCollector(document);
-            this.collection.set(document.uri, diagnosticCollector.collect());
-        }
-        else if (document.fileName.endsWith('.sbss')) {
-            // TODO: collect sbss diagnostics
-            this.collection.set(document.uri, []);
-        }
+        this.collection.delete(document.uri);
     }
 }
 
