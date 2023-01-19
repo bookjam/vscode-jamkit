@@ -1,4 +1,5 @@
 import { assert } from 'console';
+import { setFlagsFromString } from 'v8';
 import * as vscode from 'vscode';
 
 const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
@@ -23,20 +24,10 @@ enum DirectiveType {
     Else,
 }
 
-interface TagInfo {
-    name: string;
-    index: number;
-}
-
 interface DirectiveContext {
-    line: number;
     type: DirectiveType;
-    tag?: TagInfo;
-}
-
-interface DirectiveParseInfo {
-    name: string;
-    taggable: boolean;
+    line: number;
+    tag?: string;
 }
 
 export class SbmlDiagnosticCollector {
@@ -54,17 +45,27 @@ export class SbmlDiagnosticCollector {
         this.openContextStack.length = 0;
 
         let isConnectedLine = false;
+        let directiveType: DirectiveType | undefined;
         for (let i = 0; i < this.document.lineCount; ++i) {
-            const lineText = this.document.lineAt(i).text.trimStart();
+            const lineText = this.document.lineAt(i).text;
 
             if (!isConnectedLine) {
                 const context = this.parseDirective(i, lineText);
 
                 if (context) {
+                    directiveType = context.type;
                     this.handleContext(context);
                 } else {
-                    // text 
+                    directiveType = undefined;
                 }
+            }
+
+            if (directiveType == DirectiveType.Begin ||
+                directiveType == DirectiveType.Object ||
+                directiveType == DirectiveType.Image ||
+                directiveType == DirectiveType.Style) {
+
+                const propertListOffset = isConnectedLine ? 0 : (lineText.indexOf(':') + 1);
             }
 
             // collect more diagnostics based on lineKind ...
@@ -77,45 +78,34 @@ export class SbmlDiagnosticCollector {
 
     private parseDirective(line: number, lineText: string): DirectiveContext | undefined {
 
-        const makeTagInfo = (matchArray: RegExpMatchArray, directiveOffset: number): TagInfo | undefined => {
-            const name = matchArray[2] ? matchArray[2].trim() : undefined;
-            if (name) {
-                const leadingOffset = lineText.length - lineText.trimStart().length;
-                const index = lineText.indexOf(name, leadingOffset + directiveOffset + 1);
-                assert(index !== undefined);
-                return { name, index };
-            }
-            return undefined;
-        };
-
         let m;
 
         if (m = lineText.match(BEGIN_PATTERN)) {
-            return { line, type: DirectiveType.Begin, tag: makeTagInfo(m, /*"=begin"*/ 6) };
+            return { type: DirectiveType.Begin, line, tag: m[2] };
         }
         if (m = lineText.match(END_PATTERN)) {
-            return { line, type: DirectiveType.End, tag: makeTagInfo(m, /*"=end"*/ 4) };
+            return { type: DirectiveType.End, line, tag: m[2] };
         }
         if (m = lineText.match(OBJECT_PATTERN)) {
-            return { line, type: DirectiveType.Object, tag: makeTagInfo(m, /*"=object"*/ 7) };
+            return { type: DirectiveType.Object, line, tag: m[2] };
         }
         if (m = lineText.match(IMAGE_PATTERN)) {
-            return { line, type: DirectiveType.Image, tag: makeTagInfo(m, /*"=image"*/ 6) };
+            return { type: DirectiveType.Image, line, tag: m[2] };
         }
         if (m = lineText.match(STYLE_PATTERN)) {
-            return { line, type: DirectiveType.Style, tag: makeTagInfo(m, /*"=style"*/ 5) };
+            return { type: DirectiveType.Style, line, tag: m[2] };
         }
         if (m = lineText.match(COMMENT_PATTERN)) {
-            return { line, type: DirectiveType.Comment };
+            return { type: DirectiveType.Comment, line };
         }
         if (m = lineText.match(IF_PATTERN)) {
-            return { line, type: DirectiveType.If };
+            return { type: DirectiveType.If, line };
         }
         if (m = lineText.match(ELIF_PATTERN)) {
-            return { line, type: DirectiveType.Elif };
+            return { type: DirectiveType.Elif, line };
         }
         if (m = lineText.match(ELSE_PATTERN)) {
-            return { line, type: DirectiveType.Else };
+            return { type: DirectiveType.Else, line };
         }
 
         return undefined;
@@ -132,12 +122,18 @@ export class SbmlDiagnosticCollector {
             if (openContext) {
                 assert(openContext.type == DirectiveType.Begin || openContext.type == DirectiveType.If);
 
-                if (context.tag && openContext.tag?.name !== context.tag.name) {
-                    const endTagRange = new vscode.Range(
-                        context.line, context.tag.index,
-                        context.line, context.tag.index + context.tag.name.length
-                    );
+                if (context.tag && openContext.tag !== context.tag) {
 
+                    const endTagRange = ((): vscode.Range => {
+                        const lineText = this.document.lineAt(context.line).text;
+                        const leadingOffset = lineText.length - lineText.trimStart().length;
+                        const endTagIndex = lineText.indexOf(context.tag, leadingOffset + 5);
+                        assert(endTagIndex !== undefined);
+                        return new vscode.Range(
+                            context.line, endTagIndex,
+                            context.line, endTagIndex + context.tag.length
+                        );
+                    })();
                     const relatedInfo = new vscode.DiagnosticRelatedInformation(
                         new vscode.Location(
                             this.document.uri,
@@ -148,7 +144,7 @@ export class SbmlDiagnosticCollector {
                     );
                     this.diagnostics.push({
                         message: openContext.type == DirectiveType.Begin ?
-                            `section tag mismatch: "${openContext.tag?.name ? openContext.tag?.name : ""}" != "${context.tag.name}"` :
+                            `section tag mismatch: "${openContext.tag ? openContext.tag : ""}" != "${context.tag}"` :
                             "if statment can't have an ending tag",
                         range: endTagRange,
                         severity: vscode.DiagnosticSeverity.Warning,
