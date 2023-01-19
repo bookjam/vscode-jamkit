@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
 
-export class SyntaxChecker {
+export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
         const collection = vscode.languages.createDiagnosticCollection('jamkit');
-        const instance = new SyntaxChecker(collection);
+        const instance = new SyntaxAnalyser(collection);
 
         const currentDocument = vscode.window.activeTextEditor?.document;
         if (currentDocument) {

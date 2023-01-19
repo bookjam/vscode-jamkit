@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as utils from './DocumentUtils';
+import * as utils from './utils';
 import { getKnownAttributeValues } from './KnownAttributes';
 
 interface CompletionContext {
