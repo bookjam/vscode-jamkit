@@ -333,7 +333,7 @@ export class SbmlDiagnosticCollector {
 
         if (knownValues && !knownValues.includes(value)) {
             this.diagnostics.push({
-                message: `"${value}" is not a valid choice for "${name}"`,
+                message: `"${value}" is not a valid value for "${name}"`,
                 range: valueRange,
                 severity: vscode.DiagnosticSeverity.Error
             });
