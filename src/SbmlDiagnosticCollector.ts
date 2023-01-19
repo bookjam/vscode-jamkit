@@ -1,7 +1,7 @@
 import { assert } from 'console';
 import * as vscode from 'vscode';
 import { getKnownAttributeValues } from './KnownAttributes';
-import { parsePropertyList, PropertyListParseContext, PropertyListParseState, PropertyRange, PropertyTarget } from './PropertyList';
+import { PropertyListParser, PropertyRange } from './PropertyList';
 
 const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
 const END_PATTERN = /^\s*=end(\s+(.+))?/;
@@ -29,15 +29,6 @@ interface DirectiveContext {
     tag?: string;
 }
 
-function toPropertyTarget(directiveType: DirectiveType): PropertyTarget {
-    if (directiveType == DirectiveType.Begin)
-        return PropertyTarget.Section;
-    if (directiveType == DirectiveType.Object)
-        return PropertyTarget.Object;
-    assert(directiveType === DirectiveType.Style);
-    return PropertyTarget.Unknown;
-}
-
 export class SbmlDiagnosticCollector {
     private readonly document: vscode.TextDocument;
     private readonly diagnostics: vscode.Diagnostic[] = [];
@@ -53,7 +44,7 @@ export class SbmlDiagnosticCollector {
         this.openContextStack.length = 0;
 
         let isConnectedLine = false;
-        let propListParseContext: PropertyListParseContext | null = null;
+        let propListParser: PropertyListParser | null = null;
 
         for (let i = 0; i < this.document.lineCount; ++i) {
             const lineText = this.document.lineAt(i).text;
@@ -69,11 +60,7 @@ export class SbmlDiagnosticCollector {
                         context.type == DirectiveType.Style) {
                         const propertyListMarkerIndex = lineText.indexOf(':');
                         if (propertyListMarkerIndex > 0) {
-                            propListParseContext = {
-                                offset: propertyListMarkerIndex + 1,
-                                target: toPropertyTarget(context.type),
-                                state: PropertyListParseState.BeforeName
-                            };
+                            propListParser = new PropertyListParser(i, propertyListMarkerIndex + 1);
                         }
                     }
                 } else {
@@ -81,12 +68,8 @@ export class SbmlDiagnosticCollector {
                 }
             }
 
-            if (propListParseContext) {
-                if (isConnectedLine) {
-                    propListParseContext.offset = 0;
-                }
-
-                parsePropertyList(i, lineText, propListParseContext).forEach(
+            if (propListParser) {
+                propListParser.parseLine(lineText).forEach(
                     propRange => this.checkPropertyDiagnostic(propRange)
                 );
             }
@@ -96,7 +79,7 @@ export class SbmlDiagnosticCollector {
             isConnectedLine = lineText.endsWith('\\');
 
             if (!isConnectedLine) {
-                propListParseContext = null;
+                propListParser = null;
             }
         }
 
