@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { DiagnosticCollector } from './DiagnosticCollector';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
 import { SbssDiagnosticCollector } from './SbssDiagnosticCollector';
 
@@ -54,14 +55,15 @@ export class SyntaxAnalyser {
     }
 
     updateDiagnostics(document: vscode.TextDocument): void {
-        console.log("updateDiagnostics");
+        console.log(`updateDiagnostics: ${document.fileName}`);
 
-        if (document.fileName.endsWith('.sbml')) {
-            const diagnosticCollector = new SbmlDiagnosticCollector(document);
-            this.collection.set(document.uri, diagnosticCollector.collect());
-        }
-        else if (document.fileName.endsWith('.sbss')) {
-            const diagnosticCollector = new SbssDiagnosticCollector(document);
+        const diagnosticCollector = (() => {
+            if (document.fileName.endsWith('.sbml'))
+                return new SbmlDiagnosticCollector(document);
+            if (document.fileName.endsWith('.sbss'))
+                return new SbssDiagnosticCollector(document);
+        })();
+        if (diagnosticCollector) {
             this.collection.set(document.uri, diagnosticCollector.collect());
         }
     }
