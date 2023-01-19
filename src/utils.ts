@@ -14,11 +14,3 @@ export function getLogicalLineBeginPosition(document: vscode.TextDocument, posit
     }
     return lineBeginPosition;
 }
-
-export function stripQuote(value: string): string {
-    if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
-        // TODO: remove escape char '\\'
-        return value.substring(1, value.length - 1);
-    }
-    return value;
-}

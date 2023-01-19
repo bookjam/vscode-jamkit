@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { getKnownAttributeValues } from './KnownAttributes';
 import { PropertyRange } from './PropertyParser';
-import { stripQuote } from './utils';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
@@ -44,4 +43,12 @@ export abstract class DiagnosticCollector {
             });
         }
     }
+}
+
+function stripQuote(value: string): string {
+    if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
+        // TODO: remove escape char '\\'
+        return value.substring(1, value.length - 1);
+    }
+    return value;
 }
