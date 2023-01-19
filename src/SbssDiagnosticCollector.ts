@@ -1,9 +1,5 @@
-import { assert } from 'console';
-import * as vscode from 'vscode';
 import { DiagnosticCollector } from './DiagnosticCollector';
-import { getKnownAttributeValues } from './KnownAttributes';
-import { PropertyListParser, PropertyRange } from './PropertyList';
-import { stripQuote } from './utils';
+import { PropertyListParser } from './PropertyParser';
 
 const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
 

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getKnownAttributeValues } from './KnownAttributes';
-import { PropertyListParser, PropertyRange } from './PropertyList';
+import { PropertyRange } from './PropertyParser';
 import { stripQuote } from './utils';
 
 export abstract class DiagnosticCollector {

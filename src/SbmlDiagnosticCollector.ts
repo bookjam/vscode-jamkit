@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
-import { getKnownAttributeValues } from './KnownAttributes';
-import { PropertyListParser, PropertyRange } from './PropertyList';
-import { stripQuote } from './utils';
+import { PropertyListParser } from './PropertyParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 
 const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
