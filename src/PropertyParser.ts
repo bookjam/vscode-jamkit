@@ -20,8 +20,7 @@ function isSpace(ch: string) {
     return ch === ' ' || ch === '\t';
 }
 
-
-class PropertyParser {
+export class PropertyParser {
     private readonly separator: string;
     private readonly terminator: string;
     private state: PropertyParseState = PropertyParseState.BeforeName;
@@ -47,7 +46,7 @@ class PropertyParser {
             const ch = text[i];
 
             if (ch == '\\' && i == text.length - 1) {
-                // line concatnation char - ignore.
+                // line continuation char - ignore.
                 break;
             }
 
@@ -61,9 +60,9 @@ class PropertyParser {
 
                 case PropertyParseState.InName:
                     assert(this.nameBeginPos);
-                    if (ch == '=' || isSpace(ch)) {
+                    if (ch == this.separator || isSpace(ch)) {
                         this.nameEndPos = new vscode.Position(line, i);
-                        this.state = (ch == '=') ?
+                        this.state = (ch == this.separator) ?
                             PropertyParseState.BeforeValue :
                             PropertyParseState.AfterName;
                     }
@@ -72,7 +71,7 @@ class PropertyParser {
                 case PropertyParseState.AfterName:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
-                    if (ch == '=') {
+                    if (ch == this.separator) {
                         this.state = PropertyParseState.BeforeValue;
                     } else if (!isSpace(ch)) {
                         // unexpected residue... report?
@@ -109,14 +108,16 @@ class PropertyParser {
                         } else {
                             this.valueEscaped = false;
                         }
-                    } else if (ch === ',') {
-                        // trim end
-                        let nonSpaceIndex = i - 1;
-                        while (text[nonSpaceIndex] == ' ' || text[nonSpaceIndex] == '\t') {
-                            nonSpaceIndex--;
+                    } else {
+                        if (ch === this.terminator) {
+                            // trim end
+                            let nonSpaceIndex = i - 1;
+                            while (isSpace(text[nonSpaceIndex])) {
+                                nonSpaceIndex--;
+                            }
+                            this.valueEndPos = new vscode.Position(line, nonSpaceIndex + 1);
+                            this.state = PropertyParseState.BeforeName;
                         }
-                        this.valueEndPos = new vscode.Position(line, nonSpaceIndex + 1);
-                        this.state = PropertyParseState.BeforeName;
                     }
                     // force value reading at EOL
                     if (!this.valueEndPos && i == text.length - 1) {
@@ -125,7 +126,7 @@ class PropertyParser {
                     break;
 
                 case PropertyParseState.AfterValue:
-                    if (ch === ',') {
+                    if (ch === this.terminator) {
                         this.state = PropertyParseState.BeforeName;
                     } else if (!isSpace(ch)) {
                         // unexepcted residue... report?
@@ -151,12 +152,12 @@ class PropertyParser {
 
 export class PropertyListParser extends PropertyParser {
     constructor() {
-        super('=', ',');
+        super(/*sep*/ '=', /*term*/ ',');
     }
 }
 
 export class PropertyGroupParser extends PropertyParser {
     constructor() {
-        super(':', ';');
+        super(/*sep*/ ':', /*term*/ ';');
     }
 }

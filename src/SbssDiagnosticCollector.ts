@@ -1,7 +1,13 @@
+import { assert } from 'console';
 import { DiagnosticCollector } from './DiagnosticCollector';
-import { PropertyListParser } from './PropertyParser';
+import {
+    PropertyParser,
+    PropertyListParser,
+    PropertyGroupParser,
+} from './PropertyParser';
 
 const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
+const PROP_GROUP_END_PATTERN = /^\s*}/;
 
 interface StyleDefinition {
     selector: string;
@@ -10,31 +16,45 @@ interface StyleDefinition {
 
 export class SbssDiagnosticCollector extends DiagnosticCollector {
 
-    private propListParser: PropertyListParser | null = null;
+    private propParser: PropertyParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
-        let propListOffset = 0;
-        if (!isContinued) {
-            this.propListParser = null;
+        if (this.propParser instanceof PropertyGroupParser) {
+            if (text.match(PROP_GROUP_END_PATTERN)) {
+                this.propParser = null;
+            } else {
+                this.propParser.parse(line, 0, text).forEach(
+                    property => this.verifyProperty(property)
+                );
+            }
+            return;
+        }
 
+        if (isContinued && this.propParser instanceof PropertyListParser) {
+            this.propParser.parse(line, 0, text).forEach(
+                property => this.verifyProperty(property)
+            );
+            return;
+        }
+
+        if (!isContinued) {
             const styleDef = this.parseStyleDefinition(text);
             if (styleDef) {
                 if (styleDef.isPropList) {
-                    this.propListParser = new PropertyListParser();
-                    propListOffset = text.indexOf(':') + 1;
+                    this.propParser = new PropertyListParser();
+                    this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
+                        property => this.verifyProperty(property)
+                    );
                 } else {
-                    // TODO: start propGroupParser
+                    this.propParser = new PropertyGroupParser();
                 }
-            } else {
-                // TODO: do text related stuff
+                return;
             }
-        }
 
-        if (this.propListParser) {
-            this.propListParser.parse(line, propListOffset, text).forEach(
-                propRange => this.verifyProperty(propRange)
-            );
+            this.propParser = null;
+
+            // TODO: do import/if/else related stuff
         }
     }
 
