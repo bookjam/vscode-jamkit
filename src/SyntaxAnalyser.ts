@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
+import { SbssDiagnosticCollector } from './SbssDiagnosticCollector';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
@@ -60,8 +61,8 @@ export class SyntaxAnalyser {
             this.collection.set(document.uri, diagnosticCollector.collect());
         }
         else if (document.fileName.endsWith('.sbss')) {
-            // TODO: collect sbss diagnostics
-            this.collection.set(document.uri, []);
+            const diagnosticCollector = new SbssDiagnosticCollector(document);
+            this.collection.set(document.uri, diagnosticCollector.collect());
         }
     }
 }

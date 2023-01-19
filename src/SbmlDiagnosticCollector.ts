@@ -3,6 +3,7 @@ import { assert } from 'console';
 import { getKnownAttributeValues } from './KnownAttributes';
 import { PropertyListParser, PropertyRange } from './PropertyList';
 import { stripQuote } from './utils';
+import { DiagnosticCollector } from './DiagnosticCollector';
 
 const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
 const END_PATTERN = /^\s*=end(\s+(.+))?/;
@@ -30,60 +31,38 @@ interface DirectiveContext {
     tag?: string;
 }
 
-export class SbmlDiagnosticCollector {
-    private readonly document: vscode.TextDocument;
-    private readonly diagnostics: vscode.Diagnostic[] = [];
+export class SbmlDiagnosticCollector extends DiagnosticCollector {
+
     private readonly openContextStack: DirectiveContext[] = [];
+    private propListParser: PropertyListParser | null = null;
 
-    constructor(document: vscode.TextDocument) {
-        this.document = document;
-    }
+    processLine(line: number, text: string, isContinued: boolean): void {
+        if (!isContinued) {
+            this.propListParser = null;
 
-    collect(): vscode.Diagnostic[] {
+            const context = this.parseDirective(line, text);
 
-        this.diagnostics.length = 0;
-        this.openContextStack.length = 0;
+            if (context) {
+                this.handleContext(context);
 
-        let isConnectedLine = false;
-        let propListParser: PropertyListParser | null = null;
-
-        for (let i = 0; i < this.document.lineCount; ++i) {
-            const lineText = this.document.lineAt(i).text;
-
-            if (!isConnectedLine) {
-                const context = this.parseDirective(i, lineText);
-
-                if (context) {
-                    this.handleContext(context);
-
-                    if (context.type == DirectiveType.Begin ||
-                        context.type == DirectiveType.Object ||
-                        context.type == DirectiveType.Style) {
-                        const propListMarkerIndex = lineText.indexOf(':');
-                        if (propListMarkerIndex > 0) {
-                            propListParser = new PropertyListParser(i, propListMarkerIndex + 1);
-                        }
+                if (context.type == DirectiveType.Begin ||
+                    context.type == DirectiveType.Object ||
+                    context.type == DirectiveType.Style) {
+                    const propListMarkerIndex = text.indexOf(':');
+                    if (propListMarkerIndex > 0) {
+                        this.propListParser = new PropertyListParser(line, propListMarkerIndex + 1);
                     }
-                } else {
-                    // TODO: do text related stuff
                 }
-            }
-
-            if (propListParser) {
-                propListParser.parseLine(lineText).forEach(
-                    propRange => this.verifyProperty(propRange)
-                );
-            }
-
-            // collect more diagnostics based on lineKind ...
-
-            isConnectedLine = lineText.endsWith('\\');
-            if (!isConnectedLine) {
-                propListParser = null;
+            } else {
+                // TODO: do text related stuff
             }
         }
 
-        return this.diagnostics;
+        if (this.propListParser) {
+            this.propListParser.parseLine(text).forEach(
+                propRange => this.verifyProperty(propRange)
+            );
+        }
     }
 
     private parseDirective(line: number, lineText: string): DirectiveContext | undefined {
@@ -169,21 +148,6 @@ export class SbmlDiagnosticCollector {
         }
         else {
             // TODO: ...
-        }
-    }
-
-    private verifyProperty(propRange: PropertyRange): void {
-        const name = this.document.getText(propRange.nameRange);
-        const value = stripQuote(this.document.getText(propRange.valueRange));
-
-        const knownValues = getKnownAttributeValues(name);
-
-        if (knownValues && !knownValues.includes(value)) {
-            this.diagnostics.push({
-                message: `"${value}" is not a valid value for "${name}"`,
-                range: propRange.valueRange,
-                severity: vscode.DiagnosticSeverity.Error
-            });
         }
     }
 }

@@ -5,8 +5,7 @@ import { getKnownAttributeValues } from './KnownAttributes';
 import { PropertyListParser, PropertyRange } from './PropertyList';
 import { stripQuote } from './utils';
 
-const PROP_LIST_PATTERN = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*:/;
-//const PROP_GROUP_PATTERN = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*{/;
+const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
 
 interface StyleDefinition {
     selector: string;
@@ -17,15 +16,15 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
 
     private propListParser: PropertyListParser | null = null;
 
-    processLine(line: number, lineText: string, isContinued: boolean): void {
+    processLine(line: number, text: string, isContinued: boolean): void {
 
         if (!isContinued) {
             this.propListParser = null;
 
-            const styleDef = this.parseStyleDefinition(lineText);
+            const styleDef = this.parseStyleDefinition(text);
             if (styleDef) {
                 if (styleDef.isPropList) {
-                    this.propListParser = new PropertyListParser(line, lineText.indexOf(':') + 1);
+                    this.propListParser = new PropertyListParser(line, text.indexOf(':') + 1);
                 } else {
                     // TODO: start propGroupParser
                 }
@@ -35,16 +34,16 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
         }
 
         if (this.propListParser) {
-            this.propListParser.parseLine(lineText).forEach(
+            this.propListParser.parseLine(text).forEach(
                 propRange => this.verifyProperty(propRange)
             );
         }
     }
 
     private parseStyleDefinition(lineText: string): StyleDefinition | undefined {
-        const m = lineText.match(PROP_LIST_PATTERN);
+        const m = lineText.match(STYLE_DEFINITION_PATTERN);
         if (m) {
-            return { selector: m[1], isPropList: true };
+            return { selector: m[1], isPropList: m[3] == ':' };
         }
         return undefined;
     }

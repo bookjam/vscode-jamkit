@@ -4,8 +4,8 @@ import { PropertyListParser, PropertyRange } from './PropertyList';
 import { stripQuote } from './utils';
 
 export abstract class DiagnosticCollector {
-    private readonly document: vscode.TextDocument;
-    private readonly diagnostics: vscode.Diagnostic[] = [];
+    protected readonly document: vscode.TextDocument;
+    protected readonly diagnostics: vscode.Diagnostic[] = [];
 
     constructor(document: vscode.TextDocument) {
         this.document = document;
