@@ -2,21 +2,8 @@
 
 import os
 import sys
-import json
 
-_KNOWN_PAIR_PATTERN_TEMPLATE = r'''
-{
-    "match": "(__KEY__)\\s*__SEP__\\s*(((\\$[A-Z_]+)|(__VALUE_REGEX__)|('(__VALUE_REGEX__)')|(\"(__VALUE_REGEX__)\"))|([^__TERM__]*))",
-    "captures": {
-        "1": { "name": "__STYLE_PROP_NAME__" },
-        "3": { "name": "__STYLE_PROP_VALUE__" },
-        "4": { "name": "__STYLE_VARIABLE__" },
-        "10": { "name": "__STYLE_INVALID__" }
-    }
-}'''
-
-
-_GENERAL_PAIR_PATTERN_TEMPLATE = r'''
+_PROP_PAIR_PATTERN_TEMPLATE = r'''
 {
     "match": "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^__TERM__]*))",
     "captures": {
@@ -87,23 +74,7 @@ def _read_file_content(filename):
 
 
 def _make_known_pair_str(sep, term):
-    with open('./known-attributes.json', 'r') as file:
-        known_attributes = json.load(file)
-    prop_pair_patterns = []
-    # for key, values in known_attributes.items():
-    #     # reverse sort to match "list-item" first and then "list"
-    #     values.sort(reverse=True)
-    #     s = _KNOWN_PAIR_PATTERN_TEMPLATE\
-    #             .replace('__SEP__', sep)\
-    #             .replace('__TERM__', term)\
-    #             .replace('__KEY__', key.replace('-', '\\\\-'))\
-    #             .replace('__VALUE_REGEX__', '|'.join([value.replace('-', '\\\\-') for value in values]))
-    #     prop_pair_patterns.append(s)
-    s = _GENERAL_PAIR_PATTERN_TEMPLATE\
-            .replace('__SEP__', sep)\
-            .replace('__TERM__', term)
-    prop_pair_patterns.append(s)
-    return ','.join(prop_pair_patterns)
+    return _PROP_PAIR_PATTERN_TEMPLATE.replace('__SEP__', sep).replace('__TERM__', term)
 
 
 def _generate_syntax(lang):
