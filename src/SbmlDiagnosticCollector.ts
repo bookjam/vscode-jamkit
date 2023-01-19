@@ -85,35 +85,45 @@ export class SbmlDiagnosticCollector {
             return { line, type: DirectiveType.End, tag };
         }
 
+        if (m = lineText.match(IF_PATTERN)) {
+            return { line, type: DirectiveType.If };
+        }
+
         return undefined;
     }
 
     private handleContext(context: DirectiveContext): void {
 
-        if (context.type == DirectiveType.Begin) {
+        if (context.type == DirectiveType.Begin || context.type == DirectiveType.If) {
             this.openContextStack.push(context);
         }
         else if (context.type == DirectiveType.End) {
             const openContext = this.openContextStack.pop();
 
             if (openContext) {
+                assert(openContext.type == DirectiveType.Begin || openContext.type == DirectiveType.If);
+
                 if (context.tag && openContext.tag?.name !== context.tag.name) {
                     const endTagRange = new vscode.Range(
                         context.line, context.tag.index,
                         context.line, context.tag.index + context.tag.name.length
                     );
-                    const beginInfo = new vscode.DiagnosticRelatedInformation(
+
+                    const relatedInfo = new vscode.DiagnosticRelatedInformation(
                         new vscode.Location(
                             this.document.uri,
                             new vscode.Range(context.line, 0, context.line, 0)
                         ),
-                        'the section begins here.'
+                        openContext.type == DirectiveType.Begin ?
+                            'the section starts here' : 'if statement starts here'
                     );
                     this.diagnostics.push({
-                        message: `section tag mismatch: "${openContext.tag?.name ? openContext.tag?.name : ""}" != "${context.tag.name}"`,
+                        message: openContext.type == DirectiveType.Begin ?
+                            `section tag mismatch: "${openContext.tag?.name ? openContext.tag?.name : ""}" != "${context.tag.name}"` :
+                            "if statment can't have an ending tag",
                         range: endTagRange,
                         severity: vscode.DiagnosticSeverity.Warning,
-                        relatedInformation: [beginInfo]
+                        relatedInformation: [relatedInfo]
                     });
                 }
             } else {
