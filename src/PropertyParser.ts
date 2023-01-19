@@ -1,7 +1,12 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
 
-export enum PropertyListParseState {
+export interface PropertyRange {
+    nameRange: vscode.Range;
+    valueRange: vscode.Range;
+}
+
+enum PropertyParseState {
     BeforeName,
     InName,
     AfterName,
@@ -10,15 +15,16 @@ export enum PropertyListParseState {
     AfterValue
 }
 
-export interface PropertyRange {
-    nameRange: vscode.Range;
-    valueRange: vscode.Range;
+function isSpace(ch: string) {
+    assert(ch.length == 1);
+    return ch === ' ' || ch === '\t';
 }
 
-export class PropertyListParser {
-    private line: number;
-    private offset: number;
-    private state: PropertyListParseState = PropertyListParseState.BeforeName;
+
+class PropertyParser {
+    private readonly separator: string;
+    private readonly terminator: string;
+    private state: PropertyParseState = PropertyParseState.BeforeName;
 
     private nameBeginPos?: vscode.Position;
     private nameEndPos?: vscode.Position;
@@ -27,67 +33,68 @@ export class PropertyListParser {
     private valueQuoteChar?: string;
     private valueEscaped?: boolean;
 
-    constructor(line: number, character: number) {
-        this.line = line;
-        this.offset = character;
+    constructor(separator: string, terminator: string) {
+        assert(separator);
+        this.separator = separator;
+        this.terminator = terminator;
     }
 
-    parseLine(lineText: string): PropertyRange[] {
+    parse(line: number, offset: number, text: string): PropertyRange[] {
 
         const propRanges: PropertyRange[] = [];
 
-        for (let i = this.offset; i < lineText.length; ++i) {
-            const ch = lineText[i];
+        for (let i = offset; i < text.length; ++i) {
+            const ch = text[i];
 
-            if (ch == '\\' && i == lineText.length - 1) {
+            if (ch == '\\' && i == text.length - 1) {
                 // line concatnation char - ignore.
                 break;
             }
 
             switch (this.state) {
-                case PropertyListParseState.BeforeName:
-                    if (ch !== ' ' && ch !== '\t') {
-                        this.nameBeginPos = new vscode.Position(this.line, i);
-                        this.state = PropertyListParseState.InName;
+                case PropertyParseState.BeforeName:
+                    if (!isSpace(ch)) {
+                        this.nameBeginPos = new vscode.Position(line, i);
+                        this.state = PropertyParseState.InName;
                     }
                     break;
 
-                case PropertyListParseState.InName:
+                case PropertyParseState.InName:
                     assert(this.nameBeginPos);
-                    if (ch == ' ' || ch == '=') {
-                        this.nameEndPos = new vscode.Position(this.line, i);
-                        this.state = (ch == ' ') ?
-                            PropertyListParseState.AfterName :
-                            PropertyListParseState.BeforeValue;
+                    if (ch == '=' || isSpace(ch)) {
+                        this.nameEndPos = new vscode.Position(line, i);
+                        this.state = (ch == '=') ?
+                            PropertyParseState.BeforeValue :
+                            PropertyParseState.AfterName;
                     }
                     break;
 
-                case PropertyListParseState.AfterName:
+                case PropertyParseState.AfterName:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
                     if (ch == '=') {
-                        this.state = PropertyListParseState.BeforeValue;
-                    } else if (ch !== ' ' && ch !== '\t') {
+                        this.state = PropertyParseState.BeforeValue;
+                    } else if (!isSpace(ch)) {
                         // unexpected residue... report?
                     }
                     break;
 
-                case PropertyListParseState.BeforeValue:
+                case PropertyParseState.BeforeValue:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
-                    if (ch !== ' ' && ch !== '\t') {
+                    if (!isSpace(ch)) {
                         if (ch === "'" || ch === '"') {
                             this.valueEscaped = false;
                             this.valueQuoteChar = ch;
                         } else {
                             this.valueQuoteChar = undefined;
                         }
-                        this.valueBeginPos = new vscode.Position(this.line, i);
-                        this.state = PropertyListParseState.InValue;
+                        this.valueBeginPos = new vscode.Position(line, i);
+                        this.state = PropertyParseState.InValue;
                     }
                     break;
 
-                case PropertyListParseState.InValue:
+                case PropertyParseState.InValue:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
                     assert(this.valueBeginPos);
@@ -96,30 +103,31 @@ export class PropertyListParser {
                             this.valueEscaped = !this.valueEscaped;
                         } else if (ch === this.valueQuoteChar) {
                             if (!this.valueEscaped) {
-                                this.valueEndPos = new vscode.Position(this.line, i + 1);
-                                this.state = PropertyListParseState.AfterValue;
+                                this.valueEndPos = new vscode.Position(line, i + 1);
+                                this.state = PropertyParseState.AfterValue;
                             }
                         } else {
                             this.valueEscaped = false;
                         }
-                    } else {
-                        if (ch === ',' || ch === ' ' || ch === '\t') {
-                            this.valueEndPos = new vscode.Position(this.line, i);
-                            this.state = ch === ',' ?
-                                PropertyListParseState.BeforeName :
-                                PropertyListParseState.AfterValue;
+                    } else if (ch === ',') {
+                        // trim end
+                        let nonSpaceIndex = i - 1;
+                        while (text[nonSpaceIndex] == ' ' || text[nonSpaceIndex] == '\t') {
+                            nonSpaceIndex--;
                         }
+                        this.valueEndPos = new vscode.Position(line, nonSpaceIndex + 1);
+                        this.state = PropertyParseState.BeforeName;
                     }
                     // force value reading at EOL
-                    if (!this.valueEndPos && i == lineText.length - 1) {
-                        this.valueEndPos = new vscode.Position(this.line, i + 1);
+                    if (!this.valueEndPos && i == text.length - 1) {
+                        this.valueEndPos = new vscode.Position(line, i + 1);
                     }
                     break;
 
-                case PropertyListParseState.AfterValue:
+                case PropertyParseState.AfterValue:
                     if (ch === ',') {
-                        this.state = PropertyListParseState.BeforeName;
-                    } else if (ch !== ' ' && ch !== '\t') {
+                        this.state = PropertyParseState.BeforeName;
+                    } else if (!isSpace(ch)) {
                         // unexepcted residue... report?
                     }
                     break;
@@ -137,9 +145,18 @@ export class PropertyListParser {
             }
         }
 
-        this.line += 1;
-        this.offset = 0;
-
         return propRanges;
+    }
+}
+
+export class PropertyListParser extends PropertyParser {
+    constructor() {
+        super('=', ',');
+    }
+}
+
+export class PropertyGroupParser extends PropertyParser {
+    constructor() {
+        super(':', ';');
     }
 }

@@ -35,6 +35,8 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
     private propListParser: PropertyListParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
+
+        let propListOffset = 0;
         if (!isContinued) {
             this.propListParser = null;
 
@@ -48,7 +50,8 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                     context.type == DirectiveType.Style) {
                     const propListMarkerIndex = text.indexOf(':');
                     if (propListMarkerIndex > 0) {
-                        this.propListParser = new PropertyListParser(line, propListMarkerIndex + 1);
+                        propListOffset = propListMarkerIndex + 1;
+                        this.propListParser = new PropertyListParser();
                     }
                 }
             } else {
@@ -57,7 +60,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         }
 
         if (this.propListParser) {
-            this.propListParser.parseLine(text).forEach(
+            this.propListParser.parse(line, propListOffset, text).forEach(
                 propRange => this.verifyProperty(propRange)
             );
         }

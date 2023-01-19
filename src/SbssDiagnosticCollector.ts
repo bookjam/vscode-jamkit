@@ -14,13 +14,15 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
+        let propListOffset = 0;
         if (!isContinued) {
             this.propListParser = null;
 
             const styleDef = this.parseStyleDefinition(text);
             if (styleDef) {
                 if (styleDef.isPropList) {
-                    this.propListParser = new PropertyListParser(line, text.indexOf(':') + 1);
+                    this.propListParser = new PropertyListParser();
+                    propListOffset = text.indexOf(':') + 1;
                 } else {
                     // TODO: start propGroupParser
                 }
@@ -30,7 +32,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
         }
 
         if (this.propListParser) {
-            this.propListParser.parseLine(text).forEach(
+            this.propListParser.parse(line, propListOffset, text).forEach(
                 propRange => this.verifyProperty(propRange)
             );
         }
