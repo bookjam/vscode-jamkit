@@ -18,11 +18,14 @@ export class SyntaxAnalyser {
         }));
 
         context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-            console.log(`onDidChangeTextDocument - ${event.contentChanges.length}`);
-
-            if (event.contentChanges.length > 0) {
-                instance.applyDocumentChange(event.document);
+            if (event.contentChanges.length == 0) {
+                return;
             }
+            if (instance.currentFileName === event.document.fileName) {
+                instance.updateDiagnostics(event.document);
+            } else {
+                instance.clearDiagnostics(event.document);
+            } \
         }));
     }
 
@@ -33,7 +36,7 @@ export class SyntaxAnalyser {
         this.collection = collection;
     }
 
-    setActiveDocument(document: vscode.TextDocument | undefined): void {
+    private setActiveDocument(document: vscode.TextDocument | undefined): void {
         if (document) {
             if (this.currentFileName !== document.fileName) {
                 this.currentFileName = document.fileName;
@@ -46,15 +49,7 @@ export class SyntaxAnalyser {
         }
     }
 
-    applyDocumentChange(document: vscode.TextDocument): void {
-        if (this.currentFileName === document.fileName) {
-            this.updateDiagnostics(document);
-        } else {
-            this.collection.delete(document.uri);
-        }
-    }
-
-    updateDiagnostics(document: vscode.TextDocument): void {
+    private updateDiagnostics(document: vscode.TextDocument): void {
         console.log(`updateDiagnostics: ${document.fileName}`);
 
         const diagnosticCollector = (() => {
@@ -66,6 +61,12 @@ export class SyntaxAnalyser {
         if (diagnosticCollector) {
             this.collection.set(document.uri, diagnosticCollector.collect());
         }
+    }
+
+    private clearDiagnostics(document: vscode.TextDocument): void {
+        console.log(`clearDiagnostics: ${document.fileName}`);
+
+        this.collection.delete(document.uri);
     }
 }
 
