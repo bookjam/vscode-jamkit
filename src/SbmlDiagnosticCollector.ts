@@ -1,20 +1,26 @@
 import { assert } from 'console';
 import * as vscode from 'vscode';
-import * as utils from './utils';
 
 const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
 const END_PATTERN = /^\s*=end(\s+(.+))?/;
-const IF_PATTERN = /^\s*=if(\s+.+)?/;
+const OBJECT_PATTERN = /^\s*=object(\s+([^:]+))?/;
+const IMAGE_PATTERN = /^\s*=image(\s+([^:]+))?/;
+const STYLE_PATTERN = /^\s*=style(\s+([^:]+))?/;
+const COMMENT_PATTERN = /^\s*=comment\b/;
+const IF_PATTERN = /^\s*=if\b/;
+const ELIF_PATTERN = /^\s*=elif\b/;
+const ELSE_PATTERN = /^\s*=else\b/;
 
 enum DirectiveType {
-    Begin,      // =begin
-    End,        // =end
-    Object,     // =object, =image
-    Comment,    // =comment
-    Style,      // =style
-    If,         // =if
-    Elif,       // =elif
-    Else,       // =else
+    Begin,
+    End,
+    Object,
+    Image,
+    Style,
+    Comment,
+    If,
+    Elif,
+    Else,
 }
 
 interface TagInfo {
@@ -26,6 +32,11 @@ interface DirectiveContext {
     line: number;
     type: DirectiveType;
     tag?: TagInfo;
+}
+
+interface DirectiveParseInfo {
+    name: string;
+    taggable: boolean;
 }
 
 export class SbmlDiagnosticCollector {
@@ -66,27 +77,45 @@ export class SbmlDiagnosticCollector {
 
     private parseDirective(line: number, lineText: string): DirectiveContext | undefined {
 
-        const getTagIndex = (tag: string, directiveOffset: number): number => {
-            const leadingSpeacesOffset = lineText.length - lineText.trimStart().length;
-            const index = lineText.indexOf(tag, leadingSpeacesOffset + directiveOffset + 1);
-            assert(index !== undefined);
-            return index;
+        const makeTagInfo = (matchArray: RegExpMatchArray, directiveOffset: number): TagInfo | undefined => {
+            const name = matchArray[2] ? matchArray[2].trim() : undefined;
+            if (name) {
+                const leadingOffset = lineText.length - lineText.trimStart().length;
+                const index = lineText.indexOf(name, leadingOffset + directiveOffset + 1);
+                assert(index !== undefined);
+                return { name, index };
+            }
+            return undefined;
         };
 
         let m;
 
         if (m = lineText.match(BEGIN_PATTERN)) {
-            const tag = m[2] ? { name: m[2], index: getTagIndex(m[2], /*"=begin"*/ 6) } : undefined;
-            return { line, type: DirectiveType.Begin, tag };
+            return { line, type: DirectiveType.Begin, tag: makeTagInfo(m, /*"=begin"*/ 6) };
         }
-
         if (m = lineText.match(END_PATTERN)) {
-            const tag = m[2] ? { name: m[2], index: getTagIndex(m[2], /*"=end"*/ 4) } : undefined;
-            return { line, type: DirectiveType.End, tag };
+            return { line, type: DirectiveType.End, tag: makeTagInfo(m, /*"=end"*/ 4) };
         }
-
+        if (m = lineText.match(OBJECT_PATTERN)) {
+            return { line, type: DirectiveType.Object, tag: makeTagInfo(m, /*"=object"*/ 7) };
+        }
+        if (m = lineText.match(IMAGE_PATTERN)) {
+            return { line, type: DirectiveType.Image, tag: makeTagInfo(m, /*"=image"*/ 6) };
+        }
+        if (m = lineText.match(STYLE_PATTERN)) {
+            return { line, type: DirectiveType.Style, tag: makeTagInfo(m, /*"=style"*/ 5) };
+        }
+        if (m = lineText.match(COMMENT_PATTERN)) {
+            return { line, type: DirectiveType.Comment };
+        }
         if (m = lineText.match(IF_PATTERN)) {
             return { line, type: DirectiveType.If };
+        }
+        if (m = lineText.match(ELIF_PATTERN)) {
+            return { line, type: DirectiveType.Elif };
+        }
+        if (m = lineText.match(ELSE_PATTERN)) {
+            return { line, type: DirectiveType.Else };
         }
 
         return undefined;
