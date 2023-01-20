@@ -143,7 +143,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 this.diagnostics.push({
                     message: `no matching =begin`,
                     range: new vscode.Range(context.line, 0, context.line, /*eol*/999),
-                    severity: vscode.DiagnosticSeverity.Warning,
+                    severity: vscode.DiagnosticSeverity.Error,
                 });
             }
         }
