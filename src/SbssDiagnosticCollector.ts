@@ -1,4 +1,3 @@
-import { assert } from 'console';
 import { DiagnosticCollector } from './DiagnosticCollector';
 import {
     PropertyParser,

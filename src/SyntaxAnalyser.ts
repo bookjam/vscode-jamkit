@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { DiagnosticCollector } from './DiagnosticCollector';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
 import { SbssDiagnosticCollector } from './SbssDiagnosticCollector';
 
