@@ -83,13 +83,18 @@ def _write_file(filename, content):
         file.write(content)
 
 
+def _apply_styles(content):
+    for key, value in _STYLE_MAP.items():
+        content = content.replace(key, value)
+    return content
+
+
 def _generate_syntax(lang):
     content = _read_file(lang + '.tmLanguage.template.json')
     content = content.replace('"__PROP_LIST_PATTERNS__"', _make_prop_pair_pattern('=', ','))
     content = content.replace('"__PROP_GROUP_PATTERNS__"', _make_prop_pair_pattern(':', ';'))
     content = content.replace('"__EXPRESSION_PATTERNS__"', _EXPRESSION_PATTERNS)
-    for key, value in _STYLE_MAP.items():
-        content = content.replace(key, value)
+    content = _apply_styles(content)
     _write_file('syntaxes/' + lang + '.tmLanguage.json', content)
 
 
