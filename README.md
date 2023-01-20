@@ -14,6 +14,14 @@
 
 ## TODO
 
-- Diagnostic via extension
-- Context-sensative attribute auto-completion
-- Syntax highlighting via extension
+- Auto-completion
+   - Directives
+   - Property names
+   - Trigger suggestion via word characters (currently, triggered only via ':' & '=')
+- Diagnostics
+   - import file check - exists?, is sbss?, ...
+   - if/elif/else/end match in *.sbss
+   - ...
+- Code Actions
+   - All possible fixes for diagnostics
+- Addition syntax highlighting via extension
