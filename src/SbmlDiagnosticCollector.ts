@@ -1,13 +1,9 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
+import * as patterns from './patterns';
 import { PropertyListParser } from './PropertyParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 
-const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
-const END_PATTERN = /^\s*=end(\s+(.+))?/;
-const OBJECT_PATTERN = /^\s*=(object|image)(\s+([^:]+))?/;
-const STYLE_PATTERN = /^\s*=style(\s+([^:]+))?/;
-const COMMENT_PATTERN = /^\s*=comment\b/;
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
 const ELSE_PATTERN = /^\s*=else\b/;
@@ -70,32 +66,37 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
         let m;
 
-        if (m = lineText.match(BEGIN_PATTERN)) {
-            return { type: DirectiveType.Begin, line, tag: m[2] };
+        if (m = lineText.match(patterns.SBML_PROP_LIST_PREFIX)) {
+            const type = (() => {
+                if (m[1] == "begin")
+                    return DirectiveType.Begin;
+                if (m[1] == "object" || m[1] == "image")
+                    return DirectiveType.Object;
+                assert(m[1] == "style");
+                return DirectiveType.Style;
+            })();
+            return { type, line, tag: m[3] };
         }
-        if (m = lineText.match(END_PATTERN)) {
+
+        if (m = lineText.match(patterns.SBML_END)) {
             return { type: DirectiveType.End, line, tag: m[2] };
         }
-        if (m = lineText.match(OBJECT_PATTERN)) {
-            return { type: DirectiveType.Object, line, tag: m[2] };
-        }
-        if (m = lineText.match(STYLE_PATTERN)) {
-            return { type: DirectiveType.Style, line, tag: m[2] };
-        }
-        if (m = lineText.match(COMMENT_PATTERN)) {
+
+        if (m = lineText.match(patterns.SBML_COMMENT)) {
             return { type: DirectiveType.Comment, line };
         }
+
         if (m = lineText.match(IF_PATTERN)) {
             return { type: DirectiveType.If, line };
         }
+
         if (m = lineText.match(ELIF_PATTERN)) {
             return { type: DirectiveType.Elif, line };
         }
+
         if (m = lineText.match(ELSE_PATTERN)) {
             return { type: DirectiveType.Else, line };
         }
-
-        return undefined;
     }
 
     private handleContext(context: DirectiveContext): void {

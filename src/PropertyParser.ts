@@ -38,6 +38,27 @@ export class PropertyParser {
         this.terminator = terminator;
     }
 
+    getState(): PropertyParseState {
+        return this.state;
+    }
+
+    getNameRange(): vscode.Range {
+        if (this.nameBeginPos && this.nameEndPos) {
+            return new vscode.Range(this.nameBeginPos, this.nameEndPos);
+        } else {
+            throw Error("Check the state first to see if you can call `getNameRange()`.");
+        }
+    }
+
+    getValueBeginPosition(): vscode.Position {
+        if (this.valueBeginPos) {
+            return this.valueBeginPos;
+        }
+        else {
+            throw Error("Check the state first to see if you can call `getValueBeginPosition()`.");
+        }
+    }
+
     parse(line: number, offset: number, text: string): PropertyRange[] {
 
         const propRanges: PropertyRange[] = [];
