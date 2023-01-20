@@ -25,7 +25,7 @@ export class SyntaxAnalyser {
                 instance.updateDiagnostics(event.document);
             } else {
                 instance.clearDiagnostics(event.document);
-            } \
+            }
         }));
     }
 
