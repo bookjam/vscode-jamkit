@@ -5,7 +5,12 @@
 ## Features
 
 - Syntax highlighting for SBML & SBSS
-- Property auto-completion
+- Auto-completion
+   - well-known property values
+- Diagnostics
+   - Error for invalid value for well-known property
+   - Error for dangling `=end` in *.sbml
+   - Warning `=begin` / `=end` tag mismatch in *.sbml
 
 ## TODO
 
