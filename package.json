@@ -2,7 +2,7 @@
     "name": "jamkit-tools",
     "displayName": "Jamkit Tools",
     "description": "The offical tools for Jamkit",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publisher": "bookjam",
     "engines": {
         "vscode": "^1.32.0"
