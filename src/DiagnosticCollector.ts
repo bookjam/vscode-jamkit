@@ -33,6 +33,11 @@ export abstract class DiagnosticCollector {
         const name = this.document.getText(propRange.nameRange);
         const value = stripQuote(this.document.getText(propRange.valueRange));
 
+        if (value.startsWith('$')) {
+            // No diagnostic for a variable.
+            return;
+        }
+
         const knownValues = getKnownAttributeValues(name);
 
         if (knownValues && !knownValues.includes(value)) {
