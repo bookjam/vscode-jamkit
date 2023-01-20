@@ -1,0 +1,29 @@
+{
+    "display": [
+        "none",
+        "block"
+    ],
+    "position": [
+        "absolute",
+        "static",
+        "top",
+        "bottom"
+    ],
+    "gravity": [
+        "center",
+        "left",
+        "top",
+        "right",
+        "bottom",
+        "left-top",
+        "top-left",
+        "left-bottom",
+        "bottom-left",
+        "right-top",
+        "top-right",
+        "right-bottom",
+        "bottom-right"
+    ],
+    "x": "#length",
+    "y": "#length"
+}
