@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as utils from './utils';
 import { getKnownAttributeNames, getKnownAttributeValues } from './KnownAttributes';
 import { SBML_PROP_LIST_PREFIX } from './patterns';
-import { PropertyListParser, PropertyParseState, PropertyParser } from './PropertyParser';
+import { PropertyListParser, PropertyParseState } from './PropertyParser';
 import { assert } from 'console';
 
 interface PropListContext {
@@ -111,12 +111,21 @@ class CompletionContextParser {
     }
 }
 
-class SbmlCompletionItemProvider implements vscode.CompletionItemProvider {
+class CompletionItemProvider {
+    readonly document: vscode.TextDocument;
+    readonly position: vscode.Position;
+    readonly contextParser: CompletionContextParser;
 
-    provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-        console.log(`provideCompletionItems: ${position.line}:${position.character}`);
+    constructor(document: vscode.TextDocument, position: vscode.Position) {
+        this.document = document;
+        this.position = position;
+        this.contextParser = new CompletionContextParser(document, position);
+    }
 
-        const context = parseCompletionContext(document, position);
+    provide() {
+        console.log(`provideCompletionItems: ${this.position.line}:${this.position.character}`);
+
+        const context = this.contextParser.parse();
         console.log(context);
 
         if (context instanceof PropertyNameCompletionContext) {
@@ -136,7 +145,15 @@ class SbmlCompletionItemProvider implements vscode.CompletionItemProvider {
                 const namePrefix = context.namePrefix;
                 names = names.filter(name => name.startsWith(namePrefix));
             }
-            return names.map(name => new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember));
+            const preceedingChar = this.document.getText(
+                new vscode.Range(new vscode.Position(this.position.line, this.position.character - 1), this.position));
+            return names.map(name => {
+                const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
+                if (preceedingChar == ',') {
+                    item.insertText = ` ${name}`;
+                }
+                return item;
+            });
         }
     }
 
@@ -153,14 +170,16 @@ class SbmlCompletionItemProvider implements vscode.CompletionItemProvider {
     }
 }
 
-function parseCompletionContext(document: vscode.TextDocument, position: vscode.Position): PropertyCompletionContext | undefined {
-    return new CompletionContextParser(document, position).parse();
-}
-
 export class SbmlCompletionHandler {
     static register(context: vscode.ExtensionContext) {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-            'sbml', new SbmlCompletionItemProvider(), ':', ',', '='
+            'sbml',
+            {
+                provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+                    return new CompletionItemProvider(document, position).provide();
+                }
+            },
+            ':', ',', '='
         ));
     }
 }
