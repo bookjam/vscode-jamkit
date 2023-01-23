@@ -1,6 +1,6 @@
 import { ExtensionContext } from 'vscode';
-import { SbssCompletionItemProvider } from './SbssCompletionItemProvider';
-import { SbmlCompletionItemProvider } from './SbmlCompletionItemProvider';
+import { SbssCompletionItemProvider } from './SbssCompletionHandler';
+import { SbmlCompletionItemProvider } from './SbmlCompletionHandler';
 import { SyntaxAnalyser } from './SyntaxAnalyser';
 
 export function activate(context: ExtensionContext) {

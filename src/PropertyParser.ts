@@ -6,18 +6,13 @@ export interface PropertyRange {
     valueRange: vscode.Range;
 }
 
-enum PropertyParseState {
+export enum PropertyParseState {
     BeforeName,
     InName,
     AfterName,
     BeforeValue,
     InValue,
     AfterValue
-}
-
-function isSpace(ch: string) {
-    assert(ch.length == 1);
-    return ch === ' ' || ch === '\t';
 }
 
 export class PropertyParser {
@@ -42,6 +37,15 @@ export class PropertyParser {
         return this.state;
     }
 
+    getNameBeginPos(): vscode.Position {
+        if (this.nameBeginPos) {
+            return this.nameBeginPos;
+        }
+        else {
+            throw Error("Check the state first to see if you can call `getNameBeginPos()`.");
+        }
+    }
+
     getNameRange(): vscode.Range {
         if (this.nameBeginPos && this.nameEndPos) {
             return new vscode.Range(this.nameBeginPos, this.nameEndPos);
@@ -50,12 +54,12 @@ export class PropertyParser {
         }
     }
 
-    getValueBeginPosition(): vscode.Position {
+    getValueBeginPos(): vscode.Position {
         if (this.valueBeginPos) {
             return this.valueBeginPos;
         }
         else {
-            throw Error("Check the state first to see if you can call `getValueBeginPosition()`.");
+            throw Error("Check the state first to see if you can call `getValueBeginPos()`.");
         }
     }
 
@@ -181,4 +185,9 @@ export class PropertyGroupParser extends PropertyParser {
     constructor() {
         super(/*sep*/ ':', /*term*/ ';');
     }
+}
+
+function isSpace(ch: string) {
+    assert(ch.length == 1);
+    return ch === ' ' || ch === '\t';
 }

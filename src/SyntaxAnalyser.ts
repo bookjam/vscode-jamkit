@@ -49,8 +49,6 @@ export class SyntaxAnalyser {
     }
 
     private updateDiagnostics(document: vscode.TextDocument): void {
-        console.log(`updateDiagnostics: ${document.fileName}`);
-
         const diagnosticCollector = (() => {
             if (document.fileName.endsWith('.sbml'))
                 return new SbmlDiagnosticCollector(document);
@@ -59,6 +57,7 @@ export class SyntaxAnalyser {
         })();
         if (diagnosticCollector) {
             this.collection.set(document.uri, diagnosticCollector.collect());
+            //vscode.commands.executeCommand("editor.action.triggerSuggest");
         }
     }
 
