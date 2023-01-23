@@ -85,15 +85,7 @@ class CompletionContextParser {
     }
 }
 
-export class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
-    static register(context: vscode.ExtensionContext): void {
-        context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-            'sbss',
-            new this(),
-            '=', ':'
-        ));
-    }
-
+class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
         const contextParser = new CompletionContextParser(document, position);
         const context = contextParser.parseContext();
@@ -110,5 +102,13 @@ export class SbssCompletionItemProvider implements vscode.CompletionItemProvider
             }
         }
         return undefined;
+    }
+}
+
+export class SbssCompletionHandler {
+    static register(context: vscode.ExtensionContext): void {
+        context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
+            'sbss', new SbssCompletionItemProvider(), '=', ':'
+        ));
     }
 }

@@ -111,13 +111,7 @@ class CompletionContextParser {
     }
 }
 
-export class SbmlCompletionItemProvider implements vscode.CompletionItemProvider {
-
-    static register(context: vscode.ExtensionContext) {
-        context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-            'sbml', new this(), ':', ',', '='
-        ));
-    }
+class SbmlCompletionItemProvider implements vscode.CompletionItemProvider {
 
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
         console.log(`provideCompletionItems: ${position.line}:${position.character}`);
@@ -161,4 +155,12 @@ export class SbmlCompletionItemProvider implements vscode.CompletionItemProvider
 
 function parseCompletionContext(document: vscode.TextDocument, position: vscode.Position): PropertyCompletionContext | undefined {
     return new CompletionContextParser(document, position).parse();
+}
+
+export class SbmlCompletionHandler {
+    static register(context: vscode.ExtensionContext) {
+        context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
+            'sbml', new SbmlCompletionItemProvider(), ':', ',', '='
+        ));
+    }
 }
