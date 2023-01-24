@@ -36,31 +36,29 @@ export class CompletionItemProvider {
 
     private getPropertyNameCompletionItems(context: PropertyNameCompletionContext) {
         console.log(`property name: namePrefix=${context.namePrefix}`);
-        let names = getKnownAttributeNames();
-        if (names) {
-            if (context.namePrefix) {
-                const namePrefix = context.namePrefix;
-                names = names.filter(name => name.startsWith(namePrefix));
-            }
-            return names.map(name => {
-                const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
-                if (this.triggerChar == ',') {
-                    item.insertText = ` ${name}`;
-                }
-                return item;
-            });
+
+        let names = getKnownAttributeNames(context.target);
+        if (context.namePrefix) {
+            const namePrefix = context.namePrefix;
+            names = names.filter(name => name.startsWith(namePrefix));
         }
+        return names.map(name => {
+            const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
+            if (this.triggerChar == ',') {
+                item.insertText = ` ${name}`;
+            }
+            return item;
+        });
     }
 
     private getPropertyValueCompletionItems(context: PropertyValueCompletionContext) {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
-        let values = getKnownAttributeValues(context.name);
-        if (values) {
-            if (context.valuePrefix) {
-                const valuePrefix = context.valuePrefix;
-                values = values.filter(value => value.startsWith(valuePrefix));
-            }
-            return values.map(value => new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
+
+        let values = getKnownAttributeValues(context.target, context.name);
+        if (context.valuePrefix) {
+            const valuePrefix = context.valuePrefix;
+            values = values.filter(value => value.startsWith(valuePrefix));
         }
+        return values.map(value => new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
     }
 }
