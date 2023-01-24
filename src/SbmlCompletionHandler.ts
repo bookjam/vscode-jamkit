@@ -1,172 +1,22 @@
 import * as vscode from 'vscode';
-import * as utils from './utils';
-import { getKnownAttributeNames, getKnownAttributeValues } from './KnownAttributes';
+import { CompletionItemProvider } from './CompletionItemProvider';
+import { CompletionContextParser, PropGroupContext, PropListContext } from './CompletionContextParser';
 import { SBML_PROP_LIST_PREFIX } from './patterns';
-import { PropertyListParser, PropertyParseState } from './PropertyParser';
-import { assert } from 'console';
 
-interface PropListContext {
-    directive: string;
-    beginPos: vscode.Position;
-};
-
-enum PropertyTarget {
-    Unknown,
-    Section,
-    BlockObject,
-    InlineObject,
-}
-
-class PropertyNameCompletionContext {
-    target: PropertyTarget;
-    namePrefix?: string;
-
-    constructor(target: PropertyTarget, namePrefix?: string) {
-        this.target = target;
-        this.namePrefix = namePrefix;
-    }
-}
-
-class PropertyValueCompletionContext {
-    target: PropertyTarget;
-    name: string;
-    valuePrefix?: string;
-
-    constructor(target: PropertyTarget, name: string, valuePrefix?: string) {
-        this.target = target;
-        this.name = name;
-    }
-}
-
-type PropertyCompletionContext = PropertyNameCompletionContext | PropertyValueCompletionContext;
-
-class CompletionContextParser {
-    readonly document: vscode.TextDocument;
-    readonly position: vscode.Position;
-
-    constructor(document: vscode.TextDocument, position: vscode.Position) {
-        this.document = document;
-        this.position = position;
-    }
-
-    parse(): PropertyCompletionContext | undefined {
-        const propListContext = this.getPropListContext();
-        if (propListContext) {
-            const target = (() => {
-                if (propListContext.directive == "begin")
-                    return PropertyTarget.Section;
-                if (propListContext.directive == "object" || propListContext.directive == "image")
-                    return PropertyTarget.BlockObject;
-                return PropertyTarget.Unknown;
-            })();
-
-            const propListBeginPos = propListContext.beginPos;
-            const propParser = new PropertyListParser();
-            for (let line = propListBeginPos.line; line <= this.position.line; ++line) {
-                const offset = line == propListBeginPos.line ? propListBeginPos.character : 0;
-                const text = (() => {
-                    const text = this.document.lineAt(line).text;
-                    if (line < this.position.line) {
-                        return text;
-                    }
-                    return text.substring(0, this.position.character);
-                })();
-                propParser.parse(line, offset, text);
-            }
-
-            const propParseState = propParser.getState();
-            if (propParseState == PropertyParseState.BeforeName) {
-                return new PropertyNameCompletionContext(target);
-            }
-
-            if (propParseState == PropertyParseState.InName) {
-                const namePrefix = this.document.getText(new vscode.Range(propParser.getNameBeginPos(), this.position));
-                return new PropertyNameCompletionContext(target, namePrefix);
-            }
-
-            if (propParseState == PropertyParseState.BeforeValue) {
-                const name = this.document.getText(propParser.getNameRange());
-                return new PropertyValueCompletionContext(target, name);
-            }
-
-            if (propParseState == PropertyParseState.InValue) {
-                const name = this.document.getText(propParser.getNameRange());
-                const valuePrefix = this.document.getText(new vscode.Range(propParser.getValueBeginPos(), this.position));
-                return new PropertyValueCompletionContext(target, name, valuePrefix);
-            }
-
-            assert(propParseState == PropertyParseState.AfterName || propParseState == PropertyParseState.AfterValue);
-            return undefined; // no completion
-        }
-    }
-
-    private getPropListContext(): PropListContext | null {
-        const pos = utils.getLogicalLineBeginPosition(this.document, this.position);
-        const text = utils.getLineTextAt(this.document, pos);
+class SbmlCompletionContextParser extends CompletionContextParser {
+    getPropListContext(): PropListContext | null {
+        const line = this.getLogicalLineBeginPos().line;
+        const text = this.document.lineAt(line).text;
         const m = text.match(SBML_PROP_LIST_PREFIX);
         if (m && m[4] == ':') {
-            return { directive: m[1], beginPos: new vscode.Position(pos.line, text.indexOf(':')) };
+            const beginIndex = text.indexOf(':') + 1;
+            return { directive: m[1], beginPos: new vscode.Position(line, beginIndex) };
         }
         return null;
     }
-}
 
-class CompletionItemProvider {
-    readonly document: vscode.TextDocument;
-    readonly position: vscode.Position;
-    readonly contextParser: CompletionContextParser;
-
-    constructor(document: vscode.TextDocument, position: vscode.Position) {
-        this.document = document;
-        this.position = position;
-        this.contextParser = new CompletionContextParser(document, position);
-    }
-
-    provide() {
-        console.log(`provideCompletionItems: ${this.position.line}:${this.position.character}`);
-
-        const context = this.contextParser.parse();
-        console.log(context);
-
-        if (context instanceof PropertyNameCompletionContext) {
-            return this.getPropertyNameCompletionItems(context);
-        }
-
-        if (context instanceof PropertyValueCompletionContext) {
-            return this.getPropertyValueCompletionItems(context);
-        }
-    }
-
-    private getPropertyNameCompletionItems(context: PropertyNameCompletionContext) {
-        console.log(`property name: namePrefix=${context.namePrefix}`);
-        let names = getKnownAttributeNames();
-        if (names) {
-            if (context.namePrefix) {
-                const namePrefix = context.namePrefix;
-                names = names.filter(name => name.startsWith(namePrefix));
-            }
-            const preceedingChar = this.document.getText(
-                new vscode.Range(new vscode.Position(this.position.line, this.position.character - 1), this.position));
-            return names.map(name => {
-                const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
-                if (preceedingChar == ',') {
-                    item.insertText = ` ${name}`;
-                }
-                return item;
-            });
-        }
-    }
-
-    private getPropertyValueCompletionItems(context: PropertyValueCompletionContext) {
-        console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
-        let values = getKnownAttributeValues(context.name);
-        if (values) {
-            if (context.valuePrefix) {
-                const valuePrefix = context.valuePrefix;
-                values = values.filter(value => value.startsWith(valuePrefix));
-            }
-            return values.map(value => new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
-        }
+    getPropGroupContext(): PropGroupContext | null {
+        return null;
     }
 }
 
@@ -175,8 +25,14 @@ export class SbmlCompletionHandler {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
             'sbml',
             {
-                provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-                    return new CompletionItemProvider(document, position).provide();
+                provideCompletionItems(
+                    document: vscode.TextDocument,
+                    position: vscode.Position,
+                    _token: vscode.CancellationToken,
+                    context: vscode.CompletionContext
+                ) {
+                    const contextParser = new SbmlCompletionContextParser(document, position);
+                    return new CompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
                 }
             },
             ':', ',', '='

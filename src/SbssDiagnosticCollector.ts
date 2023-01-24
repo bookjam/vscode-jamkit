@@ -1,8 +1,8 @@
 import { DiagnosticCollector } from './DiagnosticCollector';
 import {
-    PropertyParser,
-    PropertyListParser,
-    PropertyGroupParser,
+    PropParser,
+    PropListParser,
+    PropGroupParser,
 } from './PropertyParser';
 
 const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
@@ -15,11 +15,11 @@ interface StyleDefinition {
 
 export class SbssDiagnosticCollector extends DiagnosticCollector {
 
-    private propParser: PropertyParser | null = null;
+    private propParser: PropParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
-        if (this.propParser instanceof PropertyGroupParser) {
+        if (this.propParser instanceof PropGroupParser) {
             if (text.match(PROP_GROUP_END_PATTERN)) {
                 this.propParser = null;
             } else {
@@ -30,7 +30,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
             return;
         }
 
-        if (isContinued && this.propParser instanceof PropertyListParser) {
+        if (isContinued && this.propParser instanceof PropListParser) {
             this.propParser.parse(line, 0, text).forEach(
                 property => this.verifyProperty(property)
             );
@@ -41,12 +41,12 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
             const styleDef = this.parseStyleDefinition(text);
             if (styleDef) {
                 if (styleDef.isPropList) {
-                    this.propParser = new PropertyListParser();
+                    this.propParser = new PropListParser();
                     this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
                         property => this.verifyProperty(property)
                     );
                 } else {
-                    this.propParser = new PropertyGroupParser();
+                    this.propParser = new PropGroupParser();
                 }
                 return;
             }

@@ -1,7 +1,11 @@
 import * as vscode from 'vscode';
 import * as utils from './utils';
 import { getKnownAttributeValues } from './KnownAttributes';
+import { SBSS_PROP_GROUP_PREFIX, SBSS_PROP_GROUP_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
+import { CompletionContextParser, PropGroupContext, PropListContext } from './CompletionContextParser';
+import { CompletionItemProvider } from './CompletionItemProvider';
 
+/*
 enum CompletionContextKind {
     InPropertyList,
     InPropertyGroup,
@@ -51,38 +55,6 @@ class CompletionContextParser {
 
         return undefined;
     }
-
-    private propertyListPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*:/;
-    private propertyGroupPrefix = /^\s*(@root|(#|%)[\.\w- ]+|\/[\/\.\w- ]+)\s*{/;
-    private propertyGroupSuffix = /^\s*}/;
-
-    private isInPropertList(): boolean {
-        const lineText = this.getLineTextAt(this.getLogicalLineBeginPosition(this.position));
-        return this.propertyListPrefix.test(lineText);
-    }
-
-    private isInPropertyGroup(): boolean {
-        for (let pos = this.getLogicalLineBeginPosition(this.position); pos; pos = pos.with(pos.line - 1)) {
-            const lineText = this.getLineTextAt(pos);
-            if (this.propertyGroupPrefix.test(lineText)) {
-                return true;
-            }
-            if (this.propertyListPrefix.test(lineText) || this.propertyGroupSuffix.test(lineText)) {
-                break;
-            }
-            if (pos.line == 0)
-                break;
-        }
-        return false;
-    }
-
-    private getLineTextAt(position: vscode.Position): string {
-        return utils.getLineTextAt(this.document, position);
-    }
-
-    private getLogicalLineBeginPosition(position: vscode.Position): vscode.Position {
-        return utils.getLogicalLineBeginPosition(this.document, position);
-    }
 }
 
 class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
@@ -103,12 +75,51 @@ class SbssCompletionItemProvider implements vscode.CompletionItemProvider {
         }
         return undefined;
     }
+}*/
+
+class SbssCompletionContextParser extends CompletionContextParser {
+    getPropListContext(): PropListContext | null {
+        const line = this.getLogicalLineBeginPos().line;
+        const text = this.document.lineAt(line).text;
+        const m = text.match(SBSS_PROP_LIST_PREFIX);
+        if (m) {
+            const beginIndex = text.indexOf(':') + 1;
+            return { directive: m[1], beginPos: new vscode.Position(line, beginIndex) };
+        }
+        return null;
+    }
+
+    getPropGroupContext(): PropGroupContext | null {
+        for (let pos = this.getLogicalLineBeginPos(); pos && pos.line > 0; pos = pos.with(pos.line - 1)) {
+            const text = this.getLineTextAt(pos.line);
+            const m = text.match(SBSS_PROP_GROUP_PREFIX);
+            if (m) {
+                return { selector: m[1], beginPos: new vscode.Position(pos.line + 1, 0) };
+            }
+            if (SBSS_PROP_LIST_PREFIX.test(text) || SBSS_PROP_GROUP_SUFFIX.test(text)) {
+                break;
+            }
+        }
+        return null;
+    }
 }
 
 export class SbssCompletionHandler {
     static register(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-            'sbss', new SbssCompletionItemProvider(), '=', ':'
+            'sbss',
+            {
+                provideCompletionItems(
+                    document: vscode.TextDocument,
+                    position: vscode.Position,
+                    _token: vscode.CancellationToken,
+                    context: vscode.CompletionContext
+                ) {
+                    const contextParser = new SbssCompletionContextParser(document, position);
+                    return new CompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
+                }
+            },
+            ':', ',', '='
         ));
     }
 }

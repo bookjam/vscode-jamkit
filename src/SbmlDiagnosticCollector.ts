@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
 import * as patterns from './patterns';
-import { PropertyListParser } from './PropertyParser';
+import { PropListParser } from './PropertyParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 
 const IF_PATTERN = /^\s*=if\b/;
@@ -34,7 +34,7 @@ interface Context {
 export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
     private readonly contextStack: Context[] = [];
-    private propParser: PropertyListParser | null = null;
+    private propParser: PropListParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
@@ -49,7 +49,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 if (canHavePropList(context.type)) {
                     const propListMarkerIndex = text.indexOf(':');
                     if (propListMarkerIndex > 0) {
-                        this.propParser = new PropertyListParser();
+                        this.propParser = new PropListParser();
 
                         const offset = propListMarkerIndex + 1;
                         this.propParser.parse(line, offset, text).forEach(
