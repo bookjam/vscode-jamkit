@@ -59,6 +59,12 @@ export class CompletionItemProvider {
             const valuePrefix = context.valuePrefix;
             values = values.filter(value => value.startsWith(valuePrefix));
         }
-        return values.map(value => new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember));
+        return values.map(value => {
+            const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember);
+            if (this.triggerChar == ':') {
+                item.insertText = ` ${value}`;
+            }
+            return item;
+        });
     }
 }
