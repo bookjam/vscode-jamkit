@@ -57,7 +57,6 @@ export class SyntaxAnalyser {
         })();
         if (diagnosticCollector) {
             this.collection.set(document.uri, diagnosticCollector.collect());
-            //vscode.commands.executeCommand("editor.action.triggerSuggest");
         }
     }
 
