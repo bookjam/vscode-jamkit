@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import { getKnownAttributeNames, getKnownAttributeValues } from './KnownAttributes';
 import {
     CompletionContextParser,
-    PropertyNameCompletionContext,
-    PropertyValueCompletionContext
+    PropNameCompletionContext,
+    PropValueCompletionContext
 } from './CompletionContextParser';
 
 export class CompletionItemProvider {
@@ -25,16 +25,16 @@ export class CompletionItemProvider {
         const context = this.contextParser.parse();
         console.log(context);
 
-        if (context instanceof PropertyNameCompletionContext) {
+        if (context instanceof PropNameCompletionContext) {
             return this.getPropertyNameCompletionItems(context);
         }
 
-        if (context instanceof PropertyValueCompletionContext) {
+        if (context instanceof PropValueCompletionContext) {
             return this.getPropertyValueCompletionItems(context);
         }
     }
 
-    private getPropertyNameCompletionItems(context: PropertyNameCompletionContext) {
+    private getPropertyNameCompletionItems(context: PropNameCompletionContext) {
         console.log(`property name: namePrefix=${context.namePrefix}`);
 
         let names = getKnownAttributeNames(context.target);
@@ -51,7 +51,7 @@ export class CompletionItemProvider {
         });
     }
 
-    private getPropertyValueCompletionItems(context: PropertyValueCompletionContext) {
+    private getPropertyValueCompletionItems(context: PropValueCompletionContext) {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
         let values = getKnownAttributeValues(context.target, context.name);

@@ -19,7 +19,7 @@ export interface PropGroupContext {
     beginPos: vscode.Position;
 };
 
-export class PropertyNameCompletionContext {
+export class PropNameCompletionContext {
     target: PropTarget;
     namePrefix?: string;
 
@@ -29,7 +29,7 @@ export class PropertyNameCompletionContext {
     }
 }
 
-export class PropertyValueCompletionContext {
+export class PropValueCompletionContext {
     target: PropTarget;
     name: string;
     valuePrefix?: string;
@@ -37,10 +37,11 @@ export class PropertyValueCompletionContext {
     constructor(target: PropTarget, name: string, valuePrefix?: string) {
         this.target = target;
         this.name = name;
+        this.valuePrefix = valuePrefix;
     }
 }
 
-export type PropertyCompletionContext = PropertyNameCompletionContext | PropertyValueCompletionContext;
+export type PropCompletionContext = PropNameCompletionContext | PropValueCompletionContext;
 
 export abstract class CompletionContextParser {
     readonly document: vscode.TextDocument;
@@ -51,7 +52,7 @@ export abstract class CompletionContextParser {
         this.position = position;
     }
 
-    parse(): PropertyCompletionContext | undefined {
+    parse(): PropCompletionContext | undefined {
         const propParseContext = this.getPropParseContext();
         if (propParseContext) {
             const target = propParseContext.target;
@@ -71,23 +72,23 @@ export abstract class CompletionContextParser {
 
             const parseState = parser.getState();
             if (parseState == PropParseState.BeforeName) {
-                return new PropertyNameCompletionContext(target);
+                return new PropNameCompletionContext(target);
             }
 
             if (parseState == PropParseState.InName) {
                 const namePrefix = this.getTextFrom(parser.getNameBeginPos());
-                return new PropertyNameCompletionContext(target, namePrefix);
+                return new PropNameCompletionContext(target, namePrefix);
             }
 
             if (parseState == PropParseState.BeforeValue) {
                 const name = this.getText(parser.getNameRange());
-                return new PropertyValueCompletionContext(target, name);
+                return new PropValueCompletionContext(target, name);
             }
 
             if (parseState == PropParseState.InValue) {
                 const name = this.getText(parser.getNameRange());
                 const valuePrefix = this.getTextFrom(parser.getValueBeginPos());
-                return new PropertyValueCompletionContext(target, name, valuePrefix);
+                return new PropValueCompletionContext(target, name, valuePrefix);
             }
 
             assert(parseState == PropParseState.AfterName || parseState == PropParseState.AfterValue);
