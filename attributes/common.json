@@ -19,14 +19,6 @@
         "vi",
         "vi-VN"
     ],
-    "line-height": "#length",
-    "line-spacing": "#length",
-    "paragraph-spacing": "#length",
-    "spacing": "?",
-    "spacing-no-scale": [
-        "yes",
-        "no"
-    ],
     "font-weight": [
         "normal",
         "bold"
@@ -44,20 +36,6 @@
         "upright",
         "sideways",
         "sideways-right"
-    ],
-    "text-combine-horizontal": [
-        "none",
-        "all",
-        "digits 2",
-        "digits 3",
-        "digits 4"
-    ],
-    "display": [
-        "none",
-        "block",
-        "list",
-        "list-item",
-        "table"
     ],
     "position": [
         "absolute",
@@ -83,10 +61,6 @@
         "left",
         "right",
         "center"
-    ],
-    "avoid-bottom": [
-        "yes",
-        "no"
     ],
     "text-decoration": [
         "underline",
@@ -117,10 +91,6 @@
     "width": "#length",
     "height": "#length",
     "filename": "#image-filename",
-    "max-width": "#length",
-    "min-width": "#length",
-    "max-height": "#length",
-    "min-height": "#length",
     "margin": "#length",
     "margin-top": "#length",
     "margin-right": "#length",
@@ -136,10 +106,6 @@
     "border-right-width": "#length",
     "border-bottom-width": "#length",
     "border-left-width": "#length",
-    "border-collapse": [
-        "collapse",
-        "separate"
-    ],
     "border-spacing": "#length",
     "border-style": "?",
     "border-top-style": "?",

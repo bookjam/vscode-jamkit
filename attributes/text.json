@@ -1,3 +1,10 @@
 {
-    "ruby": []
+    "ruby": [],
+    "text-combine-horizontal": [
+        "none",
+        "all",
+        "digits 2",
+        "digits 3",
+        "digits 4"
+    ]
 }
