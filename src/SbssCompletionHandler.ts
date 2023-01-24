@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
-import { CompletionContextParser, PropGroupContext, PropListContext } from './CompletionContextParser';
+import { CompletionContextParser, PropGroupContext, PropGroupKind } from './CompletionContextParser';
 import { CompletionItemProvider } from './CompletionItemProvider';
 import { PropTargetKind } from './Attributes';
 
 class SbssCompletionContextParser extends CompletionContextParser {
-    getPropListContext(): PropListContext | null {
+
+    parsePropGroupContext(): PropGroupContext | null {
         const line = this.getLogicalLineBeginPos().line;
         const text = this.document.lineAt(line).text;
         const m = text.match(SBSS_PROP_LIST_PREFIX);
@@ -22,13 +23,10 @@ class SbssCompletionContextParser extends CompletionContextParser {
                 }
             })();
             const beginPos = new vscode.Position(line, text.indexOf(':') + 1);
-            return { target, beginPos };
+            return { kind: PropGroupKind.List, target, beginPos };
         }
-        return null;
-    }
 
-    getPropGroupContext(): PropGroupContext | null {
-        for (let pos = this.getLogicalLineBeginPos(); pos && pos.line > 0; pos = pos.with(pos.line - 1)) {
+        for (let pos = new vscode.Position(line - 1, 0); pos && pos.line > 0; pos = pos.with(pos.line - 1)) {
             const text = this.document.lineAt(pos.line).text;
             const m = text.match(SBSS_PROP_BLOCK_PREFIX);
             if (m) {
@@ -44,12 +42,13 @@ class SbssCompletionContextParser extends CompletionContextParser {
                     }
                 })();
                 const beginPos = new vscode.Position(pos.line + 1, 0);
-                return { target, beginPos };
+                return { kind: PropGroupKind.Block, target, beginPos };
             }
             if (SBSS_PROP_LIST_PREFIX.test(text) || SBSS_PROP_BLOCK_SUFFIX.test(text)) {
                 break;
             }
         }
+
         return null;
     }
 }

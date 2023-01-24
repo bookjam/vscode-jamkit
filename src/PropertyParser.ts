@@ -187,7 +187,7 @@ export class PropListParser extends PropParser {
     }
 }
 
-export class PropGroupParser extends PropParser {
+export class PropBlockParser extends PropParser {
     constructor() {
         super(/*sep*/ ':', /*term*/ ';');
     }

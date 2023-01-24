@@ -2,7 +2,7 @@ import { DiagnosticCollector } from './DiagnosticCollector';
 import {
     PropParser,
     PropListParser,
-    PropGroupParser,
+    PropBlockParser,
 } from './PropertyParser';
 
 const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
@@ -19,7 +19,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
-        if (this.propParser instanceof PropGroupParser) {
+        if (this.propParser instanceof PropBlockParser) {
             if (text.match(PROP_GROUP_END_PATTERN)) {
                 this.propParser = null;
             } else {
@@ -46,7 +46,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
                         property => this.verifyProperty(property)
                     );
                 } else {
-                    this.propParser = new PropGroupParser();
+                    this.propParser = new PropBlockParser();
                 }
                 return;
             }

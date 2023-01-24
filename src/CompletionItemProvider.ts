@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getKnownPropNames, getKnownPropValues } from './Attributes';
 import {
     CompletionContextParser,
+    PropGroupKind,
     PropNameCompletionContext,
     PropValueCompletionContext
 } from './CompletionContextParser';
@@ -45,10 +46,9 @@ export class CompletionItemProvider {
         }
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
-            if (this.contextParser.propListContext) {
+            if (this.contextParser.propGroupContext?.kind == PropGroupKind.List) {
                 item.insertText = (this.triggerChar == ',' ? ' ' : '') + `${name}=`;
             } else {
-                assert(this.contextParser.propGroupContext);
                 item.insertText = new vscode.SnippetString(name + ': ${1};');
             }
             item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };

@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { CompletionItemProvider } from './CompletionItemProvider';
-import { CompletionContextParser, PropGroupContext, PropListContext } from './CompletionContextParser';
+import { CompletionContextParser, PropGroupContext, PropGroupKind } from './CompletionContextParser';
 import { SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from './Attributes';
 
 class SbmlCompletionContextParser extends CompletionContextParser {
-    getPropListContext(): PropListContext | null {
+    parsePropGroupContext(): PropGroupContext | null {
         const line = this.getLogicalLineBeginPos().line;
         const text = this.document.lineAt(line).text;
         const m = text.match(SBML_PROP_LIST_PREFIX);
@@ -20,12 +20,8 @@ class SbmlCompletionContextParser extends CompletionContextParser {
                 return { kind: PropTargetKind.Unknown };
             })();
             const beginIndex = text.indexOf(':') + 1;
-            return { target, beginPos: new vscode.Position(line, beginIndex) };
+            return { kind: PropGroupKind.List, target, beginPos: new vscode.Position(line, beginIndex) };
         }
-        return null;
-    }
-
-    getPropGroupContext(): PropGroupContext | null {
         return null;
     }
 }
