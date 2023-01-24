@@ -1,9 +1,9 @@
 import { DiagnosticCollector } from './DiagnosticCollector';
 import {
-    PropParser,
+    PropGroupParser,
     PropListParser,
     PropBlockParser,
-} from './PropertyParser';
+} from './PropGroupParser';
 
 const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
 const PROP_GROUP_END_PATTERN = /^\s*}/;
@@ -15,7 +15,7 @@ interface StyleDefinition {
 
 export class SbssDiagnosticCollector extends DiagnosticCollector {
 
-    private propParser: PropParser | null = null;
+    private propParser: PropGroupParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
@@ -24,7 +24,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
                 this.propParser = null;
             } else {
                 this.propParser.parse(line, 0, text).forEach(
-                    property => this.verifyProperty(property)
+                    prop => this.verifyProperty(prop)
                 );
             }
             return;

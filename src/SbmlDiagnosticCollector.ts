@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
 import * as patterns from './patterns';
-import { PropListParser } from './PropertyParser';
+import { PropListParser } from './PropGroupParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 
 const IF_PATTERN = /^\s*=if\b/;

@@ -2,10 +2,9 @@ import * as vscode from 'vscode';
 import { assert } from 'console';
 import {
     PropParseState,
-    PropParser,
     PropListParser,
     PropBlockParser,
-} from './PropertyParser';
+} from './PropGroupParser';
 import { PropTarget } from './Attributes';
 
 export enum PropGroupKind {

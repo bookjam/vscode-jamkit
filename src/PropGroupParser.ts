@@ -15,7 +15,7 @@ export enum PropParseState {
     AfterValue
 }
 
-export class PropParser {
+export class PropGroupParser {
     private readonly separator: string;
     private readonly terminator: string;
     private state: PropParseState = PropParseState.BeforeName;
@@ -181,13 +181,13 @@ export class PropParser {
     }
 }
 
-export class PropListParser extends PropParser {
+export class PropListParser extends PropGroupParser {
     constructor() {
         super(/*sep*/ '=', /*term*/ ',');
     }
 }
 
-export class PropBlockParser extends PropParser {
+export class PropBlockParser extends PropGroupParser {
     constructor() {
         super(/*sep*/ ':', /*term*/ ';');
     }

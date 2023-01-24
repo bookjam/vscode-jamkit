@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { PropTargetKind, getKnownPropValues } from './Attributes';
-import { PropRange } from './PropertyParser';
+import { PropRange } from './PropGroupParser';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
