@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as utils from './utils';
 import { assert } from 'console';
 import {
     PropParseState,
@@ -19,7 +18,7 @@ export interface PropGroupContext {
     beginPos: vscode.Position;
 };
 
-export class PropertyNameCompletionContext {
+export class PropNameCompletionContext {
     target: PropTarget;
     namePrefix?: string;
 
@@ -29,7 +28,7 @@ export class PropertyNameCompletionContext {
     }
 }
 
-export class PropertyValueCompletionContext {
+export class PropValueCompletionContext {
     target: PropTarget;
     name: string;
     valuePrefix?: string;
@@ -37,10 +36,11 @@ export class PropertyValueCompletionContext {
     constructor(target: PropTarget, name: string, valuePrefix?: string) {
         this.target = target;
         this.name = name;
+        this.valuePrefix = valuePrefix;
     }
 }
 
-export type PropertyCompletionContext = PropertyNameCompletionContext | PropertyValueCompletionContext;
+export type PropCompletionContext = PropNameCompletionContext | PropValueCompletionContext;
 
 export abstract class CompletionContextParser {
     readonly document: vscode.TextDocument;
@@ -51,7 +51,7 @@ export abstract class CompletionContextParser {
         this.position = position;
     }
 
-    parse(): PropertyCompletionContext | undefined {
+    parse(): PropCompletionContext | undefined {
         const propParseContext = this.getPropParseContext();
         if (propParseContext) {
             const target = propParseContext.target;
@@ -66,28 +66,30 @@ export abstract class CompletionContextParser {
                     }
                     return text.substring(0, this.position.character);
                 })();
+
+                // TODO: collect already appeared prop names and pass them as a part of context
                 parser.parse(line, offset, text);
             }
 
             const parseState = parser.getState();
             if (parseState == PropParseState.BeforeName) {
-                return new PropertyNameCompletionContext(target);
+                return new PropNameCompletionContext(target);
             }
 
             if (parseState == PropParseState.InName) {
                 const namePrefix = this.getTextFrom(parser.getNameBeginPos());
-                return new PropertyNameCompletionContext(target, namePrefix);
+                return new PropNameCompletionContext(target, namePrefix);
             }
 
             if (parseState == PropParseState.BeforeValue) {
-                const name = this.getText(parser.getNameRange());
-                return new PropertyValueCompletionContext(target, name);
+                const name = this.document.getText(parser.getNameRange());
+                return new PropValueCompletionContext(target, name);
             }
 
             if (parseState == PropParseState.InValue) {
-                const name = this.getText(parser.getNameRange());
+                const name = this.document.getText(parser.getNameRange());
                 const valuePrefix = this.getTextFrom(parser.getValueBeginPos());
-                return new PropertyValueCompletionContext(target, name, valuePrefix);
+                return new PropValueCompletionContext(target, name, valuePrefix);
             }
 
             assert(parseState == PropParseState.AfterName || parseState == PropParseState.AfterValue);
@@ -98,43 +100,56 @@ export abstract class CompletionContextParser {
     abstract getPropListContext(): PropListContext | null;
     abstract getPropGroupContext(): PropGroupContext | null;
 
+    get propListContext(): PropListContext | null {
+        if (this._propListContext == undefined) {
+            this._propListContext = this.getPropListContext();
+        }
+        return this._propListContext;
+    }
+    private _propListContext: PropListContext | null | undefined;
+
+    get propGroupContext(): PropGroupContext | null {
+        if (this._propGroupContext == undefined) {
+            this._propGroupContext = this.getPropGroupContext();
+        }
+        return this._propGroupContext;
+    }
+    private _propGroupContext: PropGroupContext | null | undefined;
+
     getPropParseContext(): { target: PropTarget; parser: PropParser; beginPos: vscode.Position; } | null {
 
-        const propListContext = this.getPropListContext();
-        if (propListContext) {
+        if (this.propListContext) {
             const target = (() => {
-                if (propListContext.directive == "begin")
+                if (this.propListContext.directive == "begin")
                     return PropTarget.Section;
-                if (propListContext.directive == "object" || propListContext.directive == "image")
+                if (this.propListContext.directive == "object" || this.propListContext.directive == "image")
                     return PropTarget.BlockObject;
                 return PropTarget.Unknown;
             })();
 
-            return { target, beginPos: propListContext.beginPos, parser: new PropListParser() };
+            return { target, beginPos: this.propListContext.beginPos, parser: new PropListParser() };
         }
 
-        const propGroupContext = this.getPropGroupContext();
-        if (propGroupContext) {
+        if (this.propGroupContext) {
             const target = (() => {
-                if (propGroupContext.selector[0] == '@' || propGroupContext.selector[0] == '%' ||
-                    propGroupContext.selector[0] == '/') {
-                    return PropTarget.Section;
+                switch (this.propGroupContext.selector[0]) {
+                    case '@':
+                    case '/':
+                    case '%':
+                        return PropTarget.Section;
+                    default:
+                        return PropTarget.Unknown;
                 }
-                return PropTarget.Unknown;
             })();
 
-            return { target, beginPos: propGroupContext.beginPos, parser: new PropGroupParser() };
+            return { target, beginPos: this.propGroupContext.beginPos, parser: new PropGroupParser() };
         }
 
         return null;
     }
 
-    getText(range: vscode.Range): string {
-        return this.document.getText(range);
-    }
-
     getTextFrom(beginPos: vscode.Position): string {
-        return this.getText(new vscode.Range(beginPos, this.position));
+        return this.document.getText(new vscode.Range(beginPos, this.position));
     }
 
     getLineTextAt(line: number) {
@@ -142,6 +157,12 @@ export abstract class CompletionContextParser {
     }
 
     getLogicalLineBeginPos(): vscode.Position {
-        return utils.getLogicalLineBeginPosition(this.document, this.position);
+        let line = this.position.line;
+        while (line > 0) {
+            if (!this.document.lineAt(line - 1).text.endsWith('\\'))
+                break;
+            line -= 1;
+        }
+        return new vscode.Position(line, 0);
     }
 }
