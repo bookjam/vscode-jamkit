@@ -107,14 +107,20 @@ export class PropParser {
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
                     if (!isSpace(ch)) {
-                        if (ch === "'" || ch === '"') {
-                            this.valueEscaped = false;
-                            this.valueQuoteChar = ch;
+                        if (ch == this.terminator) {
+                            this.valueBeginPos = new vscode.Position(line, i - 1);
+                            this.valueEndPos = this.valueBeginPos;
+                            this.state = PropParseState.BeforeName;
                         } else {
-                            this.valueQuoteChar = undefined;
+                            if (ch === "'" || ch === '"') {
+                                this.valueEscaped = false;
+                                this.valueQuoteChar = ch;
+                            } else {
+                                this.valueQuoteChar = undefined;
+                            }
+                            this.valueBeginPos = new vscode.Position(line, i);
+                            this.state = PropParseState.InValue;
                         }
-                        this.valueBeginPos = new vscode.Position(line, i);
-                        this.state = PropParseState.InValue;
                     }
                     break;
 

@@ -66,6 +66,8 @@ export abstract class CompletionContextParser {
                     }
                     return text.substring(0, this.position.character);
                 })();
+
+                // TODO: collect already appeared prop names and pass them as a part of context
                 parser.parse(line, offset, text);
             }
 
@@ -98,32 +100,49 @@ export abstract class CompletionContextParser {
     abstract getPropListContext(): PropListContext | null;
     abstract getPropGroupContext(): PropGroupContext | null;
 
+    get propListContext(): PropListContext | null {
+        if (this._propListContext == undefined) {
+            this._propListContext = this.getPropListContext();
+        }
+        return this._propListContext;
+    }
+    private _propListContext: PropListContext | null | undefined;
+
+    get propGroupContext(): PropGroupContext | null {
+        if (this._propGroupContext == undefined) {
+            this._propGroupContext = this.getPropGroupContext();
+        }
+        return this._propGroupContext;
+    }
+    private _propGroupContext: PropGroupContext | null | undefined;
+
     getPropParseContext(): { target: PropTarget; parser: PropParser; beginPos: vscode.Position; } | null {
 
-        const propListContext = this.getPropListContext();
-        if (propListContext) {
+        if (this.propListContext) {
             const target = (() => {
-                if (propListContext.directive == "begin")
+                if (this.propListContext.directive == "begin")
                     return PropTarget.Section;
-                if (propListContext.directive == "object" || propListContext.directive == "image")
+                if (this.propListContext.directive == "object" || this.propListContext.directive == "image")
                     return PropTarget.BlockObject;
                 return PropTarget.Unknown;
             })();
 
-            return { target, beginPos: propListContext.beginPos, parser: new PropListParser() };
+            return { target, beginPos: this.propListContext.beginPos, parser: new PropListParser() };
         }
 
-        const propGroupContext = this.getPropGroupContext();
-        if (propGroupContext) {
+        if (this.propGroupContext) {
             const target = (() => {
-                if (propGroupContext.selector[0] == '@' || propGroupContext.selector[0] == '%' ||
-                    propGroupContext.selector[0] == '/') {
-                    return PropTarget.Section;
+                switch (this.propGroupContext.selector[0]) {
+                    case '@':
+                    case '/':
+                    case '%':
+                        return PropTarget.Section;
+                    default:
+                        return PropTarget.Unknown;
                 }
-                return PropTarget.Unknown;
             })();
 
-            return { target, beginPos: propGroupContext.beginPos, parser: new PropGroupParser() };
+            return { target, beginPos: this.propGroupContext.beginPos, parser: new PropGroupParser() };
         }
 
         return null;

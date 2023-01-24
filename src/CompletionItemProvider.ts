@@ -5,6 +5,7 @@ import {
     PropNameCompletionContext,
     PropValueCompletionContext
 } from './CompletionContextParser';
+import { assert } from 'console';
 
 export class CompletionItemProvider {
     readonly contextParser: CompletionContextParser;
@@ -44,8 +45,11 @@ export class CompletionItemProvider {
         }
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
-            if (this.triggerChar == ',') {
-                item.insertText = ` ${name}=`;
+            if (this.contextParser.propListContext) {
+                item.insertText = (this.triggerChar == ',' ? ' ' : '') + `${name}=`;
+            } else {
+                assert(this.contextParser.propGroupContext);
+                item.insertText = new vscode.SnippetString(name + ': ${1};');
             }
             item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };
             return item;
