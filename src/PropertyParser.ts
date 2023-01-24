@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
 
-export interface PropertyRange {
+export interface PropRange {
     nameRange: vscode.Range;
     valueRange: vscode.Range;
 }
 
-enum PropertyParseState {
+export enum PropParseState {
     BeforeName,
     InName,
     AfterName,
@@ -15,15 +15,10 @@ enum PropertyParseState {
     AfterValue
 }
 
-function isSpace(ch: string) {
-    assert(ch.length == 1);
-    return ch === ' ' || ch === '\t';
-}
-
-export class PropertyParser {
+export class PropParser {
     private readonly separator: string;
     private readonly terminator: string;
-    private state: PropertyParseState = PropertyParseState.BeforeName;
+    private state: PropParseState = PropParseState.BeforeName;
 
     private nameBeginPos?: vscode.Position;
     private nameEndPos?: vscode.Position;
@@ -38,9 +33,39 @@ export class PropertyParser {
         this.terminator = terminator;
     }
 
-    parse(line: number, offset: number, text: string): PropertyRange[] {
+    getState(): PropParseState {
+        return this.state;
+    }
 
-        const propRanges: PropertyRange[] = [];
+    getNameBeginPos(): vscode.Position {
+        if (this.nameBeginPos) {
+            return this.nameBeginPos;
+        }
+        else {
+            throw Error("Check the state first to see if you can call `getNameBeginPos()`.");
+        }
+    }
+
+    getNameRange(): vscode.Range {
+        if (this.nameBeginPos && this.nameEndPos) {
+            return new vscode.Range(this.nameBeginPos, this.nameEndPos);
+        } else {
+            throw Error("Check the state first to see if you can call `getNameRange()`.");
+        }
+    }
+
+    getValueBeginPos(): vscode.Position {
+        if (this.valueBeginPos) {
+            return this.valueBeginPos;
+        }
+        else {
+            throw Error("Check the state first to see if you can call `getValueBeginPos()`.");
+        }
+    }
+
+    parse(line: number, offset: number, text: string): PropRange[] {
+
+        const propRanges: PropRange[] = [];
 
         for (let i = offset; i < text.length; ++i) {
             const ch = text[i];
@@ -51,34 +76,34 @@ export class PropertyParser {
             }
 
             switch (this.state) {
-                case PropertyParseState.BeforeName:
+                case PropParseState.BeforeName:
                     if (!isSpace(ch)) {
                         this.nameBeginPos = new vscode.Position(line, i);
-                        this.state = PropertyParseState.InName;
+                        this.state = PropParseState.InName;
                     }
                     break;
 
-                case PropertyParseState.InName:
+                case PropParseState.InName:
                     assert(this.nameBeginPos);
                     if (ch == this.separator || isSpace(ch)) {
                         this.nameEndPos = new vscode.Position(line, i);
                         this.state = (ch == this.separator) ?
-                            PropertyParseState.BeforeValue :
-                            PropertyParseState.AfterName;
+                            PropParseState.BeforeValue :
+                            PropParseState.AfterName;
                     }
                     break;
 
-                case PropertyParseState.AfterName:
+                case PropParseState.AfterName:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
                     if (ch == this.separator) {
-                        this.state = PropertyParseState.BeforeValue;
+                        this.state = PropParseState.BeforeValue;
                     } else if (!isSpace(ch)) {
                         // unexpected residue... report?
                     }
                     break;
 
-                case PropertyParseState.BeforeValue:
+                case PropParseState.BeforeValue:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
                     if (!isSpace(ch)) {
@@ -89,11 +114,11 @@ export class PropertyParser {
                             this.valueQuoteChar = undefined;
                         }
                         this.valueBeginPos = new vscode.Position(line, i);
-                        this.state = PropertyParseState.InValue;
+                        this.state = PropParseState.InValue;
                     }
                     break;
 
-                case PropertyParseState.InValue:
+                case PropParseState.InValue:
                     assert(this.nameBeginPos);
                     assert(this.nameEndPos);
                     assert(this.valueBeginPos);
@@ -103,7 +128,7 @@ export class PropertyParser {
                         } else if (ch === this.valueQuoteChar) {
                             if (!this.valueEscaped) {
                                 this.valueEndPos = new vscode.Position(line, i + 1);
-                                this.state = PropertyParseState.AfterValue;
+                                this.state = PropParseState.AfterValue;
                             }
                         } else {
                             this.valueEscaped = false;
@@ -116,7 +141,7 @@ export class PropertyParser {
                                 nonSpaceIndex--;
                             }
                             this.valueEndPos = new vscode.Position(line, nonSpaceIndex + 1);
-                            this.state = PropertyParseState.BeforeName;
+                            this.state = PropParseState.BeforeName;
                         }
                     }
                     // force value reading at EOL
@@ -125,9 +150,9 @@ export class PropertyParser {
                     }
                     break;
 
-                case PropertyParseState.AfterValue:
+                case PropParseState.AfterValue:
                     if (ch === this.terminator) {
-                        this.state = PropertyParseState.BeforeName;
+                        this.state = PropParseState.BeforeName;
                     } else if (!isSpace(ch)) {
                         // unexepcted residue... report?
                     }
@@ -150,14 +175,19 @@ export class PropertyParser {
     }
 }
 
-export class PropertyListParser extends PropertyParser {
+export class PropListParser extends PropParser {
     constructor() {
         super(/*sep*/ '=', /*term*/ ',');
     }
 }
 
-export class PropertyGroupParser extends PropertyParser {
+export class PropGroupParser extends PropParser {
     constructor() {
         super(/*sep*/ ':', /*term*/ ';');
     }
+}
+
+function isSpace(ch: string) {
+    assert(ch.length == 1);
+    return ch === ' ' || ch === '\t';
 }
