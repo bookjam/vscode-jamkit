@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { getKnownAttributeValues } from './KnownAttributes';
-import { PropertyRange } from './PropertyParser';
+import { PropTarget, getKnownAttributeValues } from './KnownAttributes';
+import { PropRange } from './PropertyParser';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
@@ -29,11 +29,16 @@ export abstract class DiagnosticCollector {
 
     abstract processLine(line: number, lineText: string, isContinued: boolean): void;
 
-    verifyProperty(propRange: PropertyRange): void {
+    verifyProperty(propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
         const value = stripQuote(this.document.getText(propRange.valueRange));
 
-        const knownValues = getKnownAttributeValues(name);
+        if (value.startsWith('$')) {
+            // No diagnostic for a variable.
+            return;
+        }
+
+        const knownValues = getKnownAttributeValues(/*FIXME*/ PropTarget.Unknown, name);
 
         if (knownValues && !knownValues.includes(value)) {
             this.diagnostics.push({

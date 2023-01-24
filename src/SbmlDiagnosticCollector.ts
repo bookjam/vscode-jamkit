@@ -1,13 +1,9 @@
 import * as vscode from 'vscode';
 import { assert } from 'console';
-import { PropertyListParser } from './PropertyParser';
+import * as patterns from './patterns';
+import { PropListParser } from './PropertyParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 
-const BEGIN_PATTERN = /^\s*=begin(\s+([^:]+))?/;
-const END_PATTERN = /^\s*=end(\s+(.+))?/;
-const OBJECT_PATTERN = /^\s*=(object|image)(\s+([^:]+))?/;
-const STYLE_PATTERN = /^\s*=style(\s+([^:]+))?/;
-const COMMENT_PATTERN = /^\s*=comment\b/;
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
 const ELSE_PATTERN = /^\s*=else\b/;
@@ -23,35 +19,43 @@ enum DirectiveType {
     Else,
 }
 
-interface DirectiveContext {
+interface Directive {
     type: DirectiveType;
-    line: number;
     tag?: string;
+}
+
+interface Context {
+    line: number;
+    type: DirectiveType.Begin | DirectiveType.If;
+    tag?: string;
+    else_seen?: boolean; // used when type == DirectiveType.If
 }
 
 export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
-    private readonly openContextStack: DirectiveContext[] = [];
-    private propListParser: PropertyListParser | null = null;
+    private readonly contextStack: Context[] = [];
+    private propParser: PropListParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
-        let propListOffset = 0;
         if (!isContinued) {
-            this.propListParser = null;
+            this.propParser = null;
 
-            const context = this.parseDirective(line, text);
+            const context = this.parseDirective(text);
 
             if (context) {
-                this.handleContext(context);
+                this.handleDirective(line, context);
 
-                if (context.type == DirectiveType.Begin ||
-                    context.type == DirectiveType.Object ||
-                    context.type == DirectiveType.Style) {
+                if (canHavePropList(context.type)) {
                     const propListMarkerIndex = text.indexOf(':');
                     if (propListMarkerIndex > 0) {
-                        propListOffset = propListMarkerIndex + 1;
-                        this.propListParser = new PropertyListParser();
+                        this.propParser = new PropListParser();
+
+                        const offset = propListMarkerIndex + 1;
+                        this.propParser.parse(line, offset, text).forEach(
+                            propRange => this.verifyProperty(propRange)
+                        );
+                        return;
                     }
                 }
             } else {
@@ -59,79 +63,84 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             }
         }
 
-        if (this.propListParser) {
-            this.propListParser.parse(line, propListOffset, text).forEach(
+        if (this.propParser) {
+            this.propParser.parse(line, 0, text).forEach(
                 propRange => this.verifyProperty(propRange)
             );
         }
     }
 
-    private parseDirective(line: number, lineText: string): DirectiveContext | undefined {
+    private parseDirective(lineText: string): Directive | undefined {
 
         let m;
 
-        if (m = lineText.match(BEGIN_PATTERN)) {
-            return { type: DirectiveType.Begin, line, tag: m[2] };
-        }
-        if (m = lineText.match(END_PATTERN)) {
-            return { type: DirectiveType.End, line, tag: m[2] };
-        }
-        if (m = lineText.match(OBJECT_PATTERN)) {
-            return { type: DirectiveType.Object, line, tag: m[2] };
-        }
-        if (m = lineText.match(STYLE_PATTERN)) {
-            return { type: DirectiveType.Style, line, tag: m[2] };
-        }
-        if (m = lineText.match(COMMENT_PATTERN)) {
-            return { type: DirectiveType.Comment, line };
-        }
-        if (m = lineText.match(IF_PATTERN)) {
-            return { type: DirectiveType.If, line };
-        }
-        if (m = lineText.match(ELIF_PATTERN)) {
-            return { type: DirectiveType.Elif, line };
-        }
-        if (m = lineText.match(ELSE_PATTERN)) {
-            return { type: DirectiveType.Else, line };
+        if (m = lineText.match(patterns.SBML_PROP_LIST_PREFIX)) {
+            const type = (() => {
+                if (m[1] == "begin")
+                    return DirectiveType.Begin;
+                if (m[1] == "object" || m[1] == "image")
+                    return DirectiveType.Object;
+                assert(m[1] == "style");
+                return DirectiveType.Style;
+            })();
+            return { type, tag: m[3] };
         }
 
-        return undefined;
+        if (m = lineText.match(patterns.SBML_END)) {
+            return { type: DirectiveType.End, tag: m[2] };
+        }
+
+        if (m = lineText.match(patterns.SBML_COMMENT)) {
+            return { type: DirectiveType.Comment };
+        }
+
+        if (m = lineText.match(IF_PATTERN)) {
+            return { type: DirectiveType.If };
+        }
+
+        if (m = lineText.match(ELIF_PATTERN)) {
+            return { type: DirectiveType.Elif };
+        }
+
+        if (m = lineText.match(ELSE_PATTERN)) {
+            return { type: DirectiveType.Else };
+        }
     }
 
-    private handleContext(context: DirectiveContext): void {
+    private handleDirective(line: number, directive: Directive): void {
 
-        if (context.type == DirectiveType.Begin || context.type == DirectiveType.If) {
-            this.openContextStack.push(context);
+        if (directive.type == DirectiveType.Begin || directive.type == DirectiveType.If) {
+            this.contextStack.push({ line, type: directive.type, tag: directive.tag });
         }
-        else if (context.type == DirectiveType.End) {
-            const openContext = this.openContextStack.pop();
+        else if (directive.type == DirectiveType.End) {
+            const context = this.contextStack.pop();
 
-            if (openContext) {
-                assert(openContext.type == DirectiveType.Begin || openContext.type == DirectiveType.If);
+            if (context) {
+                assert(context.type == DirectiveType.Begin || context.type == DirectiveType.If);
 
-                if (context.tag && openContext.tag !== context.tag) {
+                if (directive.tag && context.tag !== directive.tag) {
 
                     const endTagRange = ((): vscode.Range => {
-                        const lineText = this.document.lineAt(context.line).text;
+                        const lineText = this.document.lineAt(line).text;
                         const leadingOffset = lineText.length - lineText.trimStart().length;
-                        const endTagIndex = lineText.indexOf(context.tag, leadingOffset + 5);
+                        const endTagIndex = lineText.indexOf(directive.tag, leadingOffset + 5);
                         assert(endTagIndex !== undefined);
                         return new vscode.Range(
-                            context.line, endTagIndex,
-                            context.line, endTagIndex + context.tag.length
+                            line, endTagIndex,
+                            line, endTagIndex + directive.tag.length
                         );
                     })();
                     const relatedInfo = new vscode.DiagnosticRelatedInformation(
                         new vscode.Location(
                             this.document.uri,
-                            new vscode.Range(context.line, 0, context.line, 0)
+                            new vscode.Range(line, 0, line, 0)
                         ),
-                        openContext.type == DirectiveType.Begin ?
+                        context.type == DirectiveType.Begin ?
                             'the section starts here' : 'if statement starts here'
                     );
                     this.diagnostics.push({
-                        message: openContext.type == DirectiveType.Begin ?
-                            `section tag mismatch: "${openContext.tag ? openContext.tag : ""}" != "${context.tag}"` :
+                        message: context.type == DirectiveType.Begin ?
+                            `section tag mismatch: "${context.tag ? context.tag : ""}" != "${directive.tag}"` :
                             "if statment can't have an ending tag",
                         range: endTagRange,
                         severity: vscode.DiagnosticSeverity.Warning,
@@ -142,7 +151,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 // dangling =end directive
                 this.diagnostics.push({
                     message: `no matching =begin`,
-                    range: new vscode.Range(context.line, 0, context.line, /*eol*/999),
+                    range: new vscode.Range(line, 0, line, /*eol*/999),
                     severity: vscode.DiagnosticSeverity.Error,
                 });
             }
@@ -151,4 +160,8 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             // TODO: ...
         }
     }
+}
+
+function canHavePropList(type: DirectiveType): boolean {
+    return type == DirectiveType.Begin || type == DirectiveType.Object || type == DirectiveType.Style;
 }
