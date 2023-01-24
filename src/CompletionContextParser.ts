@@ -81,12 +81,12 @@ export abstract class CompletionContextParser {
             }
 
             if (parseState == PropParseState.BeforeValue) {
-                const name = this.getText(parser.getNameRange());
+                const name = this.document.getText(parser.getNameRange());
                 return new PropValueCompletionContext(target, name);
             }
 
             if (parseState == PropParseState.InValue) {
-                const name = this.getText(parser.getNameRange());
+                const name = this.document.getText(parser.getNameRange());
                 const valuePrefix = this.getTextFrom(parser.getValueBeginPos());
                 return new PropValueCompletionContext(target, name, valuePrefix);
             }
@@ -130,12 +130,8 @@ export abstract class CompletionContextParser {
         return null;
     }
 
-    getText(range: vscode.Range): string {
-        return this.document.getText(range);
-    }
-
     getTextFrom(beginPos: vscode.Position): string {
-        return this.getText(new vscode.Range(beginPos, this.position));
+        return this.document.getText(new vscode.Range(beginPos, this.position));
     }
 
     getLineTextAt(line: number) {
@@ -143,6 +139,12 @@ export abstract class CompletionContextParser {
     }
 
     getLogicalLineBeginPos(): vscode.Position {
-        return utils.getLogicalLineBeginPosition(this.document, this.position);
+        let line = this.position.line;
+        while (line > 0) {
+            if (!this.document.lineAt(line - 1).text.endsWith('\\'))
+                break;
+            line -= 1;
+        }
+        return new vscode.Position(line, 0);
     }
 }

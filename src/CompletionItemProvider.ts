@@ -45,8 +45,9 @@ export class CompletionItemProvider {
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
             if (this.triggerChar == ',') {
-                item.insertText = ` ${name}`;
+                item.insertText = ` ${name}=`;
             }
+            item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };
             return item;
         });
     }

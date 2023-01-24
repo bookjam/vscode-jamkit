@@ -17,7 +17,7 @@ class SbssCompletionContextParser extends CompletionContextParser {
 
     getPropGroupContext(): PropGroupContext | null {
         for (let pos = this.getLogicalLineBeginPos(); pos && pos.line > 0; pos = pos.with(pos.line - 1)) {
-            const text = this.getLineTextAt(pos.line);
+            const text = this.document.lineAt(pos.line).text;
             const m = text.match(SBSS_PROP_GROUP_PREFIX);
             if (m) {
                 return { selector: m[1], beginPos: new vscode.Position(pos.line + 1, 0) };
