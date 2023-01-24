@@ -6,15 +6,15 @@ import {
     PropListParser,
     PropGroupParser,
 } from './PropertyParser';
-import { PropTarget } from './KnownAttributes';
+import { PropTarget, PropTargetKind } from './Attributes';
 
 export interface PropListContext {
-    directive: string;
+    target: PropTarget;
     beginPos: vscode.Position;
 };
 
 export interface PropGroupContext {
-    selector: string;
+    target: PropTarget;
     beginPos: vscode.Position;
 };
 
@@ -119,30 +119,11 @@ export abstract class CompletionContextParser {
     getPropParseContext(): { target: PropTarget; parser: PropParser; beginPos: vscode.Position; } | null {
 
         if (this.propListContext) {
-            const target = (() => {
-                if (this.propListContext.directive == "begin")
-                    return PropTarget.Section;
-                if (this.propListContext.directive == "object" || this.propListContext.directive == "image")
-                    return PropTarget.BlockObject;
-                return PropTarget.Unknown;
-            })();
-
-            return { target, beginPos: this.propListContext.beginPos, parser: new PropListParser() };
+            return { target: this.propListContext.target, beginPos: this.propListContext.beginPos, parser: new PropListParser() };
         }
 
         if (this.propGroupContext) {
-            const target = (() => {
-                switch (this.propGroupContext.selector[0]) {
-                    case '@':
-                    case '/':
-                    case '%':
-                        return PropTarget.Section;
-                    default:
-                        return PropTarget.Unknown;
-                }
-            })();
-
-            return { target, beginPos: this.propGroupContext.beginPos, parser: new PropGroupParser() };
+            return { target: this.propGroupContext.target, beginPos: this.propGroupContext.beginPos, parser: new PropGroupParser() };
         }
 
         return null;

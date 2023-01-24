@@ -101,7 +101,7 @@
     "line-height": "#length",
     "line-spacing": "#length",
     "paragraph-spacing": "#length",
-    "spacing": "?",
+    "spacing": "#length",
     "spacing-no-scale": [
         "yes",
         "no"

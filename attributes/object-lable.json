@@ -1,0 +1,15 @@
+{
+    "content-size": "?",
+    "content-padding": "?",
+    "text": "?",
+    "font": "?",
+    "line-spacing": "?",
+    "line-break-mode": [
+        "word-wrap",
+        "character-wrap",
+        "tail-truncation",
+        "middle-truncation",
+        "head-truncation"
+    ],
+    "number-of-lines": "?"
+}

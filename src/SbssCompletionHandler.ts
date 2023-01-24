@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { SBSS_PROP_GROUP_PREFIX, SBSS_PROP_GROUP_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
+import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
 import { CompletionContextParser, PropGroupContext, PropListContext } from './CompletionContextParser';
 import { CompletionItemProvider } from './CompletionItemProvider';
+import { PropTargetKind } from './Attributes';
 
 class SbssCompletionContextParser extends CompletionContextParser {
     getPropListContext(): PropListContext | null {
@@ -9,8 +10,19 @@ class SbssCompletionContextParser extends CompletionContextParser {
         const text = this.document.lineAt(line).text;
         const m = text.match(SBSS_PROP_LIST_PREFIX);
         if (m) {
-            const beginIndex = text.indexOf(':') + 1;
-            return { directive: m[1], beginPos: new vscode.Position(line, beginIndex) };
+            const target = (() => {
+                const selector = m[1];
+                switch (selector[0]) {
+                    case '@':
+                    case '/':
+                    case '%':
+                        return { kind: PropTargetKind.Section };
+                    default:
+                        return { kind: PropTargetKind.Unknown };
+                }
+            })();
+            const beginPos = new vscode.Position(line, text.indexOf(':') + 1);
+            return { target, beginPos };
         }
         return null;
     }
@@ -18,11 +30,23 @@ class SbssCompletionContextParser extends CompletionContextParser {
     getPropGroupContext(): PropGroupContext | null {
         for (let pos = this.getLogicalLineBeginPos(); pos && pos.line > 0; pos = pos.with(pos.line - 1)) {
             const text = this.document.lineAt(pos.line).text;
-            const m = text.match(SBSS_PROP_GROUP_PREFIX);
+            const m = text.match(SBSS_PROP_BLOCK_PREFIX);
             if (m) {
-                return { selector: m[1], beginPos: new vscode.Position(pos.line + 1, 0) };
+                const target = (() => {
+                    const selector = m[1];
+                    switch (selector[0]) {
+                        case '@':
+                        case '/':
+                        case '%':
+                            return { kind: PropTargetKind.Section };
+                        default:
+                            return { kind: PropTargetKind.Unknown };
+                    }
+                })();
+                const beginPos = new vscode.Position(pos.line + 1, 0);
+                return { target, beginPos };
             }
-            if (SBSS_PROP_LIST_PREFIX.test(text) || SBSS_PROP_GROUP_SUFFIX.test(text)) {
+            if (SBSS_PROP_LIST_PREFIX.test(text) || SBSS_PROP_BLOCK_SUFFIX.test(text)) {
                 break;
             }
         }

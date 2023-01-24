@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { PropTarget, getKnownAttributeValues } from './KnownAttributes';
+import { PropTargetKind, getKnownPropValues } from './Attributes';
 import { PropRange } from './PropertyParser';
 
 export abstract class DiagnosticCollector {
@@ -38,7 +38,7 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        const knownValues = getKnownAttributeValues(/*FIXME*/ PropTarget.Unknown, name);
+        const knownValues = getKnownPropValues(/*FIXME*/ { kind: PropTargetKind.Unknown }, name);
 
         if (knownValues && !knownValues.includes(value)) {
             this.diagnostics.push({
