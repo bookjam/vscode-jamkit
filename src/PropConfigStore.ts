@@ -22,14 +22,20 @@ export class PropConfigStore {
     static init(context: vscode.ExtensionContext): void {
         this.extensionPath = context.extensionPath;
 
-        readdirSync(`${this.extensionPath}/attributes`).forEach(filename => {
-            const obj = require(`../attributes/${filename}`);
-            try {
-                const config = new Map<string, any>(Object.entries(obj));
-                this.propFileMap.set(filename, config);
-            } catch (e) {
-                console.error(e);
-            }
+        const proConfigDirs = ['attributes', 'attributes/objects'];
+
+        proConfigDirs.forEach(propConfigDir => {
+            readdirSync(`${this.extensionPath}/${propConfigDir}`).forEach(filename => {
+                if (!filename.endsWith('.json'))
+                    return;
+                const obj = require(`../${propConfigDir}/${filename}`);
+                try {
+                    const config = new Map<string, any>(Object.entries(obj));
+                    this.propFileMap.set(filename, config);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
         });
     }
 
@@ -75,24 +81,24 @@ export class PropConfigStore {
 
     private static getPropFileSequence(target: PropTarget): string[] {
         if (target.kind == PropTargetKind.Text) {
-            return ['text.json', 'common.json'];
+            return ['core.text.json', 'core.common.json'];
         }
 
         if (target.kind == PropTargetKind.Section) {
-            return ['section.json', 'common.json'];
+            return ['core.section.json', 'core.common.json'];
         }
 
         if (target.kind == PropTargetKind.BlockObject || target.kind == PropTargetKind.InlineObject) {
             const display = target.kind == PropTargetKind.BlockObject ? "block" : "inline";
             if (target.objectType) {
                 return [
-                    `object-${target.objectType}.json`,
-                    `object.${display}.json`,
-                    'object.json',
-                    'common.json'
+                    `${target.objectType}.json`,
+                    `core.object.${display}.json`,
+                    'core.object.json',
+                    'core.common.json'
                 ];
             }
-            return [`object.${display}.json`, 'object.json', 'common.json'];
+            return [`core.object.${display}.json`, 'core.object.json', 'core.common.json'];
         }
 
         assert(target.kind == PropTargetKind.Unknown);
