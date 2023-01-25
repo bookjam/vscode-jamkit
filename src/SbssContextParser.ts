@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
-import { CompletionContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
+import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { PropTarget, PropTargetKind } from './PropConfigStore';
 
-export class SbssContextParser extends CompletionContextParser {
+export class SbssContextParser extends ContextParser {
 
     parsePropGroupContext(): PropGroupContext | null {
         const line = this.getLogicalLineBeginPos().line;

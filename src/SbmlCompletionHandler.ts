@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CompletionItemProvider } from './CompletionItemProvider';
+import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbmlContextParser } from './SbmlContextParser';
 
 export class SbmlCompletionHandler {
@@ -14,7 +14,7 @@ export class SbmlCompletionHandler {
                     context: vscode.CompletionContext
                 ) {
                     const contextParser = new SbmlContextParser(document, position);
-                    return new CompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
+                    return new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
                 }
             },
             ':', ',', '='

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CompletionItemProvider } from './CompletionItemProvider';
+import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbssContextParser } from './SbssContextParser';
 export class SbssCompletionHandler {
     static register(context: vscode.ExtensionContext): void {
@@ -13,7 +13,7 @@ export class SbssCompletionHandler {
                     context: vscode.CompletionContext
                 ) {
                     const contextParser = new SbssContextParser(document, position);
-                    return new CompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
+                    return new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
                 }
             },
             ':', ',', '='
