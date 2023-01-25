@@ -1,8 +1,6 @@
-import { stringify } from "querystring";
-
-const KNOWN_ATTRIBUTES = require('../attributes/object.block.json');
-
-const PROP_FILE_MAP = new Map<string, object>();
+import { assert } from "console";
+import * as fs from 'node:fs';
+import { getExtensionPath } from "./extension";
 
 export enum PropTargetKind {
     Unknown,
@@ -17,47 +15,59 @@ export interface PropTarget {
     objectType?: string;
 }
 
-function loadPropFile(filename: string): object {
-    const obj = PROP_FILE_MAP.get(filename);
-    if (obj) {
-        return obj;
-    }
-
-    PROP_FILE_MAP.set(filename, (() => {
-        try {
-            return require(`../attributes/${filename}`);
+export function getKnownPropNames(target: PropTarget): string[] {
+    const propNameSet = new Set<string>();
+    getPropFileSequence(target).forEach(filename => {
+        const obj = getPropFileMap().get(filename);
+        if (obj) {
+            Object.keys(obj).forEach(propName => propNameSet.add(propName));
         }
-        catch (e) {
-            return {};
-        }
-    })());
-    return PROP_FILE_MAP.get(filename)!;
+    });
+    return Array.from(propNameSet);
 }
 
-export function getKnownPropNames(target: PropTarget): string[] {
-
+export function getKnownPropValues(target: PropTarget, propName: string): string[] {
     if (target.kind == PropTargetKind.Unknown) {
-        // enumerate names from all files
+
     } else {
 
     }
-
-    const propFileSequence = (() => {
-        switch (target.kind) {
-            case PropTargetKind.Text:
-                return ['text.json', 'common.json'];
-            case PropTargetKind.Section:
-                return ['section.json', 'common.json'];
-            case PropTargetKind.BlockObject:
-                return ['object.block.json', 'object.json', 'common.json'];
-            case PropTargetKind.InlineObject:
-                return ['object.inline.json', 'object.json', 'common.json'];
-        }
-    })();
-    const names = Object.keys(KNOWN_ATTRIBUTES);
-    return names ? names : [];
+    return [];
 }
 
-export function getKnownPropValues(_target: PropTarget, propName: string): string[] {
-    return KNOWN_ATTRIBUTES[propName];
+const _PROP_FILE_MAP = new Map<string, object>();
+function getPropFileMap(): Map<string, object> {
+    if (_PROP_FILE_MAP.size == 0) {
+        fs.readdirSync(`${getExtensionPath()}/attributes`).forEach(file => {
+            const obj = require(`../attributes/${file}`);
+            _PROP_FILE_MAP.set(file, obj);
+        });
+    }
+    return _PROP_FILE_MAP;
+};
+
+function getPropFileSequence(target: PropTarget): string[] {
+    if (target.kind == PropTargetKind.Text) {
+        return ['text.json', 'common.json'];
+    }
+
+    if (target.kind == PropTargetKind.Section) {
+        return ['section.json', 'common.json'];
+    }
+
+    if (target.kind == PropTargetKind.BlockObject || target.kind == PropTargetKind.InlineObject) {
+        const display = target.kind == PropTargetKind.BlockObject ? "block" : "inline";
+        if (target.objectType) {
+            return [
+                `object-${target.objectType}.json`,
+                `object.${display}.json`,
+                'object.json',
+                'common.json'
+            ];
+        }
+        return [`object.${display}.json`, 'object.json', 'common.json'];
+    }
+
+    assert(target.kind == PropTargetKind.Unknown);
+    return Array.from(getPropFileMap().keys());
 }
