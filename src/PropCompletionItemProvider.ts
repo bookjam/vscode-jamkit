@@ -1,20 +1,20 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import {
-    CompletionContextParser,
+    ContextParser,
     PropGroupKind,
     PropNameCompletionContext,
     PropValueCompletionContext
 } from './ContextParser';
 import { assert } from 'console';
 
-export class CompletionItemProvider {
-    readonly contextParser: CompletionContextParser;
+export class PropCompletionItemProvider {
+    readonly contextParser: ContextParser;
     readonly document: vscode.TextDocument;
     readonly position: vscode.Position;
     readonly triggerChar: string | undefined;
 
-    constructor(contextParser: CompletionContextParser, document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined) {
+    constructor(contextParser: ContextParser, document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined) {
         this.contextParser = contextParser;
         this.document = document;
         this.position = position;

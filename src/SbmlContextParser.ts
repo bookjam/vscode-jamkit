@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { CompletionContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
+import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from './PropConfigStore';
 
-export class SbmlContextParser extends CompletionContextParser {
+export class SbmlContextParser extends ContextParser {
     parsePropGroupContext(): PropGroupContext | null {
         const line = this.getLogicalLineBeginPos().line;
         const text = this.document.lineAt(line).text;

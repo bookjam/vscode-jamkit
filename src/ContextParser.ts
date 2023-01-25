@@ -41,7 +41,7 @@ export class PropValueCompletionContext {
 
 export type PropCompletionContext = PropNameCompletionContext | PropValueCompletionContext;
 
-export abstract class CompletionContextParser {
+export abstract class ContextParser {
     readonly document: vscode.TextDocument;
     readonly position: vscode.Position;
 
