@@ -37,29 +37,46 @@ export class PropConfigStore {
 
     static getKnownPropNames(target: PropTarget): string[] {
         const propNameSet = new Set<string>();
-        this.getPropFileSequence(target).forEach(filename => {
-            const config = this.propFileMap.get(filename);
-            if (config) {
-                Object.keys(config).forEach(propName => propNameSet.add(propName));
-            }
-        });
+        if (target.kind == PropTargetKind.Unknown) {
+            this.propFileMap.forEach(config => {
+                for (let propName in config.keys()) {
+                    propNameSet.add(propName);
+                }
+            });
+        } else {
+            this.getPropFileSequence(target).forEach(filename => {
+                const config = this.propFileMap.get(filename);
+                if (config) {
+                    for (let propName in config.keys()) {
+                        propNameSet.add(propName);
+                    }
+                }
+            });
+        }
         return Array.from(propNameSet);
     }
 
     static getKnownPropValues(target: PropTarget, propName: string): string[] {
+        const valueSet = new Set<string>();
         if (target.kind == PropTargetKind.Unknown) {
-            const valueSet = new Set<string>();
             this.propFileMap.forEach(config => {
                 const propValues = config.get(propName);
                 if (Array.isArray(propValues)) {
                     propValues.forEach(value => valueSet.add(value));
                 }
             });
-            return Array.from(valueSet);
         } else {
-
+            this.getPropFileSequence(target).forEach(filename => {
+                const config = this.propFileMap.get(filename);
+                if (config) {
+                    const propValues = config.get(propName);
+                    if (Array.isArray(propValues)) {
+                        propValues.forEach(value => valueSet.add(value));
+                    }
+                }
+            });
         }
-        return [];
+        return Array.from(valueSet);
     }
 
     private static getPropFileSequence(target: PropTarget): string[] {

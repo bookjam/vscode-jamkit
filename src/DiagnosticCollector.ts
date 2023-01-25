@@ -38,8 +38,12 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        const knownValues = PropConfigStore.getKnownPropValues(/*FIXME*/ { kind: PropTargetKind.Unknown }, name);
+        if (value.startsWith('@{') && value.startsWith('}')) {
+            // No diagnostic for a variable.
+            return;
+        }
 
+        const knownValues = PropConfigStore.getKnownPropValues(target, name);
         if (knownValues && !knownValues.includes(value)) {
             this.diagnostics.push({
                 message: `"${value}" is not a valid value for "${name}"`,

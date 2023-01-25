@@ -8,6 +8,7 @@ import {
     PropBlockParser,
 } from './PropGroupParser';
 import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX } from './patterns';
+import { assert } from 'console';
 
 interface PropGroupBeginContext {
     kind: PropGroupKind;
@@ -25,6 +26,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
             if (text.match(SBSS_PROP_BLOCK_SUFFIX)) {
                 this.propParser = null;
             } else {
+                assert(this.propTarget);
                 this.propParser.parse(line, 0, text).forEach(
                     propRange => this.verifyProperty(this.propTarget!, propRange)
                 );
@@ -33,6 +35,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
         }
 
         if (isContinued && this.propParser instanceof PropListParser) {
+            assert(this.propTarget);
             this.propParser.parse(line, 0, text).forEach(
                 propRange => this.verifyProperty(this.propTarget!, propRange)
             );

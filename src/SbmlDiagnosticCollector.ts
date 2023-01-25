@@ -3,7 +3,7 @@ import { assert } from 'console';
 import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
-import { PropTargetKind } from './PropConfigStore';
+import { PropTarget, PropTargetKind } from './PropConfigStore';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -35,6 +35,7 @@ interface Context {
 export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
     private readonly contextStack: Context[] = [];
+    private propTarget: PropTarget | null = null;
     private propParser: PropListParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
@@ -53,8 +54,16 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                         this.propParser = new PropListParser();
 
                         const offset = propListMarkerIndex + 1;
+                        this.propTarget = {
+                            kind: context.type == DirectiveType.Begin ?
+                                PropTargetKind.Section :
+                                (context.type == DirectiveType.Object ?
+                                    PropTargetKind.BlockObject :
+                                    PropTargetKind.Unknown),
+                            objectType: context.type == DirectiveType.Object ? context.tag : undefined
+                        };
                         this.propParser.parse(line, offset, text).forEach(
-                            propRange => this.verifyProperty(/*FIXME*/{ kind: PropTargetKind.Unknown }, propRange)
+                            propRange => this.verifyProperty(this.propTarget!, propRange)
                         );
                         return;
                     }
@@ -66,7 +75,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
         if (this.propParser) {
             this.propParser.parse(line, 0, text).forEach(
-                propRange => this.verifyProperty(/*FIXME*/{ kind: PropTargetKind.Unknown }, propRange)
+                propRange => this.verifyProperty(this.propTarget!, propRange)
             );
         }
     }
