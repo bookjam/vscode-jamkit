@@ -1,0 +1,51 @@
+{
+    "lang": [
+        "de",
+        "de-DE",
+        "en",
+        "en-US",
+        "el",
+        "el-GR",
+        "es",
+        "es-ES",
+        "fr",
+        "fr-FR",
+        "it",
+        "it-IT",
+        "pt",
+        "pt-PT",
+        "ru",
+        "ru-RU",
+        "vi",
+        "vi-VN"
+    ],
+    "font-weight": [
+        "normal",
+        "bold"
+    ],
+    "font-style": [
+        "normal",
+        "italic"
+    ],
+    "font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "text-orientation": [
+        "mixed",
+        "upright",
+        "sideways",
+        "sideways-right"
+    ],
+    "text-color": "#color",
+    "text-decoration": [
+        "underline",
+        "overline",
+        "line-through",
+        "cross-out",
+        "sidedot",
+        "side-dot",
+        "outline"
+    ],
+    "filename": "#image-filename"
+}

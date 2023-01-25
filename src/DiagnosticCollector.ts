@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { PropTarget, getKnownAttributeValues } from './KnownAttributes';
-import { PropRange } from './PropertyParser';
+import { PropTargetKind, PropConfigStore, PropTarget } from './PropConfigStore';
+import { PropRange } from './PropGroupParser';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
@@ -29,7 +29,7 @@ export abstract class DiagnosticCollector {
 
     abstract processLine(line: number, lineText: string, isContinued: boolean): void;
 
-    verifyProperty(propRange: PropRange): void {
+    verifyProperty(target: PropTarget, propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
         const value = stripQuote(this.document.getText(propRange.valueRange));
 
@@ -38,9 +38,35 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        const knownValues = getKnownAttributeValues(/*FIXME*/ PropTarget.Unknown, name);
+        if (value.startsWith('@{') && value.startsWith('}')) {
+            // No diagnostic for a template placeholder.
+            return;
+        }
 
-        if (knownValues && !knownValues.includes(value)) {
+        const knownNames = PropConfigStore.getKnownPropNames(target);
+        if (!knownNames.includes(name)) {
+            if (target.kind != PropTargetKind.Unknown) {
+                const message = (() => {
+                    switch (target.kind) {
+                        case PropTargetKind.Section:
+                            return `"${name}" might not be applicable to a section.`;
+                        case PropTargetKind.BlockObject:
+                        case PropTargetKind.InlineObject:
+                            return `"${name}" might not be applicable to this object.`;
+                    }
+                    return `"${name}" might not be applicable here.`;
+                })();
+                this.diagnostics.push({
+                    message,
+                    range: new vscode.Range(propRange.nameRange.start, propRange.valueRange.end),
+                    severity: vscode.DiagnosticSeverity.Warning
+                });
+            }
+            return;
+        }
+
+        const knownValues = PropConfigStore.getKnownPropValues(target, name);
+        if (knownValues.length > 0 && !knownValues.includes(value)) {
             this.diagnostics.push({
                 message: `"${value}" is not a valid value for "${name}"`,
                 range: propRange.valueRange,

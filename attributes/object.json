@@ -1,0 +1,8 @@
+{
+    "width": "#length",
+    "height": "#length",
+    "max-width": "#length",
+    "min-width": "#length",
+    "max-height": "#length",
+    "min-height": "#length"
+}

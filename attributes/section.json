@@ -1,0 +1,117 @@
+{
+    "title": "?",
+    "toc": "?",
+    "episode": "?",
+    "reading-track": "?",
+    "audio-track": "?",
+    "no-search": "?",
+    "exam": "?",
+    "page-title-color": "#color",
+    "page-number-color": "#color",
+    "page-header-hidden": [
+        "yes",
+        "no"
+    ],
+    "page-footer-hidden": [
+        "yes",
+        "no"
+    ],
+    "page-background": "?",
+    "page-background-color": "#color",
+    "page-background-image": "#image-filename",
+    "page-background-image-type": [
+        "stretch",
+        "pattern"
+    ],
+    "rowspan": "?",
+    "colspan": "?",
+    "pack": [
+        "yes",
+        "no"
+    ],
+    "clear": [
+        "none",
+        "left",
+        "right",
+        "both"
+    ],
+    "begin-new-page": [
+        "yes",
+        "no"
+    ],
+    "writing-mode": [
+        "horizontal-tb",
+        "vertical-rl"
+    ],
+    "shut-in-adaptives": [
+        "yes",
+        "no"
+    ],
+    "page-side": [
+        "verso",
+        "recto",
+        "auto"
+    ],
+    "text-align": [
+        "justify",
+        "center",
+        "right",
+        "left"
+    ],
+    "text-justify": [
+        "auto",
+        "distribute-all-lines"
+    ],
+    "vertical-align": [
+        "baseline",
+        "top",
+        "middle",
+        "bottom"
+    ],
+    "line-break-mode": [
+        "auto",
+        "word-wrap",
+        "character-wrap"
+    ],
+    "bullet-text-align": [
+        "left",
+        "right",
+        "center"
+    ],
+    "bullet-font-weight": [
+        "normal",
+        "bold"
+    ],
+    "bullet-font-style": [
+        "normal",
+        "italic"
+    ],
+    "bullet-font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "display": [
+        "none",
+        "section",
+        "block",
+        "list",
+        "list-item",
+        "table"
+    ],
+    "line-height": "#length",
+    "line-spacing": "#length",
+    "paragraph-spacing": "#length",
+    "spacing": "#length",
+    "spacing-no-scale": [
+        "yes",
+        "no"
+    ],
+    "avoid-bottom": [
+        "yes",
+        "no"
+    ],
+    "border-collapse": [
+        "collapse",
+        "separate"
+    ]
+}

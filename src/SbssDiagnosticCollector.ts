@@ -1,52 +1,58 @@
+import * as vscode from 'vscode';
+import { PropGroupKind } from './ContextParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
+import { PropTarget, PropTargetKind } from './PropConfigStore';
 import {
-    PropParser,
-    PropListParser,
     PropGroupParser,
-} from './PropertyParser';
+    PropListParser,
+    PropBlockParser,
+} from './PropGroupParser';
+import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX } from './patterns';
+import { assert } from 'console';
 
-const STYLE_DEFINITION_PATTERN = /^\s*(@root|(#|%)[\.\w\- ]+|\/[\/\.\w\- ]+)\s*(:|{)/;
-const PROP_GROUP_END_PATTERN = /^\s*}/;
-
-interface StyleDefinition {
-    selector: string;
-    isPropList: boolean; // true: property list, false: property group
+interface PropGroupBeginContext {
+    kind: PropGroupKind;
+    target: PropTarget;
 }
 
 export class SbssDiagnosticCollector extends DiagnosticCollector {
 
-    private propParser: PropParser | null = null;
+    private propTarget: PropTarget | null = null;
+    private propParser: PropGroupParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
-        if (this.propParser instanceof PropGroupParser) {
-            if (text.match(PROP_GROUP_END_PATTERN)) {
+        if (this.propParser instanceof PropBlockParser) {
+            if (text.match(SBSS_PROP_BLOCK_SUFFIX)) {
                 this.propParser = null;
             } else {
+                assert(this.propTarget);
                 this.propParser.parse(line, 0, text).forEach(
-                    property => this.verifyProperty(property)
+                    propRange => this.verifyProperty(this.propTarget!, propRange)
                 );
             }
             return;
         }
 
         if (isContinued && this.propParser instanceof PropListParser) {
+            assert(this.propTarget);
             this.propParser.parse(line, 0, text).forEach(
-                property => this.verifyProperty(property)
+                propRange => this.verifyProperty(this.propTarget!, propRange)
             );
             return;
         }
 
         if (!isContinued) {
-            const styleDef = this.parseStyleDefinition(text);
-            if (styleDef) {
-                if (styleDef.isPropList) {
+            const context = this.parsePropGroupPrefix(text);
+            if (context) {
+                this.propTarget = context.target;
+                if (context.kind == PropGroupKind.List) {
                     this.propParser = new PropListParser();
                     this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
-                        property => this.verifyProperty(property)
+                        propRange => this.verifyProperty(this.propTarget!, propRange)
                     );
                 } else {
-                    this.propParser = new PropGroupParser();
+                    this.propParser = new PropBlockParser();
                 }
                 return;
             }
@@ -57,11 +63,25 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
         }
     }
 
-    private parseStyleDefinition(lineText: string): StyleDefinition | undefined {
-        const m = lineText.match(STYLE_DEFINITION_PATTERN);
+    private parsePropGroupPrefix(text: string): PropGroupBeginContext | undefined {
+        const m = text.match(SBSS_PROP_GROUP_PREFIX);
         if (m) {
-            return { selector: m[1], isPropList: m[3] == ':' };
+            return {
+                kind: m[3] == ':' ? PropGroupKind.List : PropGroupKind.Block,
+                target: this.getPropTarget(m[1])
+            };
         }
         return undefined;
+    }
+
+    private getPropTarget(selector: string): PropTarget {
+        switch (selector[0]) {
+            case '@':
+            case '/':
+            case '%':
+                return { kind: PropTargetKind.Section };
+            default:
+                return { kind: PropTargetKind.Unknown };
+        }
     }
 }

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { getKnownAttributeNames, getKnownAttributeValues } from './KnownAttributes';
+import { PropConfigStore } from './PropConfigStore';
 import {
     CompletionContextParser,
+    PropGroupKind,
     PropNameCompletionContext,
     PropValueCompletionContext
-} from './CompletionContextParser';
+} from './ContextParser';
 import { assert } from 'console';
 
 export class CompletionItemProvider {
@@ -38,17 +39,20 @@ export class CompletionItemProvider {
     private getPropertyNameCompletionItems(context: PropNameCompletionContext) {
         console.log(`property name: namePrefix=${context.namePrefix}`);
 
-        let names = getKnownAttributeNames(context.target);
+        let names = PropConfigStore.getKnownPropNames(context.target);
         if (context.namePrefix) {
             const namePrefix = context.namePrefix;
             names = names.filter(name => name.startsWith(namePrefix));
         }
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
-            if (this.contextParser.propListContext) {
-                item.insertText = (this.triggerChar == ',' ? ' ' : '') + `${name}=`;
+            if (this.contextParser.propGroupContext?.kind == PropGroupKind.List) {
+                if (this.triggerChar == ',' || this.triggerChar == ':') {
+                    item.insertText = ` ${name}=`;
+                } else {
+                    item.insertText = `${name}=`;
+                }
             } else {
-                assert(this.contextParser.propGroupContext);
                 item.insertText = new vscode.SnippetString(name + ': ${1};');
             }
             item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };
@@ -59,7 +63,7 @@ export class CompletionItemProvider {
     private getPropertyValueCompletionItems(context: PropValueCompletionContext) {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
-        let values = getKnownAttributeValues(context.target, context.name);
+        let values = PropConfigStore.getKnownPropValues(context.target, context.name);
         if (context.valuePrefix) {
             const valuePrefix = context.valuePrefix;
             values = values.filter(value => value.startsWith(valuePrefix));
