@@ -5,7 +5,7 @@ import {
     PropListParser,
     PropBlockParser,
 } from './PropGroupParser';
-import { PropTarget } from './Attributes';
+import { PropTarget } from './PropConfigStore';
 
 export enum PropGroupKind {
     List, Block

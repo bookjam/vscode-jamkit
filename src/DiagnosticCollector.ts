@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { PropTargetKind, getKnownPropValues } from './Attributes';
+import { PropTargetKind, PropConfigStore, PropTarget } from './PropConfigStore';
 import { PropRange } from './PropGroupParser';
 
 export abstract class DiagnosticCollector {
@@ -29,7 +29,7 @@ export abstract class DiagnosticCollector {
 
     abstract processLine(line: number, lineText: string, isContinued: boolean): void;
 
-    verifyProperty(propRange: PropRange): void {
+    verifyProperty(target: PropTarget, propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
         const value = stripQuote(this.document.getText(propRange.valueRange));
 
@@ -38,7 +38,7 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        const knownValues = getKnownPropValues(/*FIXME*/ { kind: PropTargetKind.Unknown }, name);
+        const knownValues = PropConfigStore.getKnownPropValues(/*FIXME*/ { kind: PropTargetKind.Unknown }, name);
 
         if (knownValues && !knownValues.includes(value)) {
             this.diagnostics.push({

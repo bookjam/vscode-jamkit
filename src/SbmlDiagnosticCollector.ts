@@ -3,6 +3,7 @@ import { assert } from 'console';
 import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
+import { PropTargetKind } from './PropConfigStore';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -53,7 +54,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
                         const offset = propListMarkerIndex + 1;
                         this.propParser.parse(line, offset, text).forEach(
-                            propRange => this.verifyProperty(propRange)
+                            propRange => this.verifyProperty(/*FIXME*/{ kind: PropTargetKind.Unknown }, propRange)
                         );
                         return;
                     }
@@ -65,7 +66,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
         if (this.propParser) {
             this.propParser.parse(line, 0, text).forEach(
-                propRange => this.verifyProperty(propRange)
+                propRange => this.verifyProperty(/*FIXME*/{ kind: PropTargetKind.Unknown }, propRange)
             );
         }
     }
