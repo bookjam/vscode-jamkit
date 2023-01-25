@@ -39,7 +39,15 @@
                 "scopeName": "source.sbml",
                 "path": "./syntaxes/sbml.tmLanguage.json"
             }
-        ]
+        ],
+        "configurationDefaults": {
+            "[sbss]": {
+                "editor.wordBasedSuggestions": false
+            },
+            "[sbml]": {
+                "editor.wordBasedSuggestions": false
+            }
+        }
     },
     "repository": {
         "type": "git",
