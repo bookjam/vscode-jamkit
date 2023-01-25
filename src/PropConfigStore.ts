@@ -23,8 +23,6 @@ export class PropConfigStore {
         this.extensionPath = context.extensionPath;
 
         readdirSync(`${this.extensionPath}/attributes`).forEach(filename => {
-
-            //const obj = JSON.parse(readFileSync(`${this.extensionPath}/attributes/${filename}`, 'utf-8'));
             const obj = require(`../attributes/${filename}`);
             try {
                 const config = new Map<string, any>(Object.entries(obj));
@@ -39,17 +37,13 @@ export class PropConfigStore {
         const propNameSet = new Set<string>();
         if (target.kind == PropTargetKind.Unknown) {
             this.propFileMap.forEach(config => {
-                for (let propName in config.keys()) {
-                    propNameSet.add(propName);
-                }
+                Array.from(config.keys()).forEach(propName => propNameSet.add(propName));
             });
         } else {
             this.getPropFileSequence(target).forEach(filename => {
                 const config = this.propFileMap.get(filename);
                 if (config) {
-                    for (let propName in config.keys()) {
-                        propNameSet.add(propName);
-                    }
+                    Array.from(config.keys()).forEach(propName => propNameSet.add(propName));
                 }
             });
         }

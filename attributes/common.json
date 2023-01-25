@@ -37,6 +37,7 @@
         "sideways",
         "sideways-right"
     ],
+    "text-color": "#color",
     "text-decoration": [
         "underline",
         "overline",

@@ -39,12 +39,34 @@ export abstract class DiagnosticCollector {
         }
 
         if (value.startsWith('@{') && value.startsWith('}')) {
-            // No diagnostic for a variable.
+            // No diagnostic for a template placeholder.
+            return;
+        }
+
+        const knownNames = PropConfigStore.getKnownPropNames(target);
+        if (!knownNames.includes(name)) {
+            if (target.kind != PropTargetKind.Unknown) {
+                const message = (() => {
+                    switch (target.kind) {
+                        case PropTargetKind.Section:
+                            return `"${name}" might not be applicable to a section.`;
+                        case PropTargetKind.BlockObject:
+                        case PropTargetKind.InlineObject:
+                            return `"${name}" might not be applicable to this object.`;
+                    }
+                    return `"${name}" might not be applicable here.`;
+                })();
+                this.diagnostics.push({
+                    message,
+                    range: new vscode.Range(propRange.nameRange.start, propRange.valueRange.end),
+                    severity: vscode.DiagnosticSeverity.Warning
+                });
+            }
             return;
         }
 
         const knownValues = PropConfigStore.getKnownPropValues(target, name);
-        if (knownValues && !knownValues.includes(value)) {
+        if (knownValues.length > 0 && !knownValues.includes(value)) {
             this.diagnostics.push({
                 message: `"${value}" is not a valid value for "${name}"`,
                 range: propRange.valueRange,
