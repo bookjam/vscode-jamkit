@@ -5,7 +5,7 @@ import {
     PropGroupKind,
     PropNameCompletionContext,
     PropValueCompletionContext
-} from './CompletionContextParser';
+} from './ContextParser';
 import { assert } from 'console';
 
 export class CompletionItemProvider {
@@ -47,7 +47,11 @@ export class CompletionItemProvider {
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
             if (this.contextParser.propGroupContext?.kind == PropGroupKind.List) {
-                item.insertText = (this.triggerChar == ',' ? ' ' : '') + `${name}=`;
+                if (this.triggerChar == ',' || this.triggerChar == ':') {
+                    item.insertText = ` ${name}=`;
+                } else {
+                    item.insertText = `${name}=`;
+                }
             } else {
                 item.insertText = new vscode.SnippetString(name + ': ${1};');
             }

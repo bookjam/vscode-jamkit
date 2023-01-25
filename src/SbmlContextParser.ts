@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CompletionContextParser, PropGroupContext, PropGroupKind } from './CompletionContextParser';
+import { CompletionContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from './PropConfigStore';
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { PropGroupKind } from './CompletionContextParser';
+import { PropGroupKind } from './ContextParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 import { PropTarget, PropTargetKind } from './PropConfigStore';
 import {

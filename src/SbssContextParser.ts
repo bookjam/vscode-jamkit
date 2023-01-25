@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
-import { CompletionContextParser, PropGroupContext, PropGroupKind } from './CompletionContextParser';
+import { CompletionContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { PropTarget, PropTargetKind } from './PropConfigStore';
 
 export class SbssContextParser extends CompletionContextParser {
