@@ -13,6 +13,14 @@ export class SbmlCompletionHandler {
                     _token: vscode.CancellationToken,
                     context: vscode.CompletionContext
                 ) {
+                    if (context.triggerCharacter == '=' &&
+                        document.lineAt(position.line).text.trim() == '=' &&
+                        (position.line == 0 || !document.lineAt(position.line - 1).text.endsWith('\\'))) {
+                        return ['begin', 'end', 'object', 'comment', 'style', 'if', 'else', 'elif'].map(directive =>
+                            new vscode.CompletionItem(directive, vscode.CompletionItemKind.Keyword)
+                        );
+                    }
+
                     const contextParser = new SbmlContextParser(document, position);
                     return new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
                 }
