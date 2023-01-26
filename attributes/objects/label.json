@@ -11,5 +11,7 @@
         "middle-truncation",
         "head-truncation"
     ],
-    "number-of-lines": "?"
+    "number-of-lines": {
+        "value-pattern": "\\d"
+    }
 }

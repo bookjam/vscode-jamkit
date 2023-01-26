@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { PropGroupKind } from './ContextParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 import { PropTarget, PropTargetKind } from "./PropTarget";

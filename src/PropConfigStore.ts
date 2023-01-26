@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
+import { PropValueSpec } from "./PropValueSpec";
 
 export class PropConfigStore {
     private static extensionPath: string;
@@ -16,9 +17,9 @@ export class PropConfigStore {
             readdirSync(`${this.extensionPath}/${propConfigDir}`).forEach(filename => {
                 if (!filename.endsWith('.json'))
                     return;
-                const obj = require(`../${propConfigDir}/${filename}`);
+                const json = require(`../${propConfigDir}/${filename}`);
                 try {
-                    const config = new Map<string, any>(Object.entries(obj));
+                    const config = new Map<string, any>(Object.entries(json));
                     this.propFileMap.set(filename, config);
                 } catch (e) {
                     console.error(e);
@@ -60,6 +61,10 @@ export class PropConfigStore {
                     const propValues = config.get(propName);
                     if (Array.isArray(propValues)) {
                         propValues.forEach(value => valueSet.add(value));
+                    }
+
+                    else if (propValues != undefined) {
+                        PropValueSpec.from(propValues);
                     }
                 }
             });
