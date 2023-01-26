@@ -4,7 +4,8 @@ import { SbmlContextParser } from './SbmlContextParser';
 
 
 // TODO: read this from object-*.json
-const OBJECT_TYPES = ["tabbar",
+const OBJECT_TYPES = [
+    "tabbar",
     "section",
     "sbml",
     "sbmls",
@@ -52,7 +53,8 @@ const OBJECT_TYPES = ["tabbar",
     "ad",
     "node",
     "hub",
-    "spoke"];
+    "spoke"
+];
 
 function shouldSuggestDirectives(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
     return (
