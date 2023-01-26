@@ -14,14 +14,4 @@
 
 ## TODO
 
-- Auto-completion
-   - Directives
-   - Property names
-   - Trigger suggestion via word characters (currently, triggered only via ':' & '=')
-- Diagnostics
-   - import file check - exists?, is sbss?, ...
-   - if/elif/else/end match in *.sbss
-   - ...
-- Code Actions
-   - All possible fixes for diagnostics
-- Addition syntax highlighting via extension
+- https://github.com/bookjam/vscode-jamkit/wiki/TODO
