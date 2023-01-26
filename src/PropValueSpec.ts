@@ -2,14 +2,12 @@ export class PropValueSpec {
     private values?: string[];
     private suggestions?: string[];
     private categories?: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
-    private snippets?: string[];
     private patterns?: string[];
 
-    constructor(values?: string[], suggestions?: string[], category?: string, snippet?: string, pattern?: string) {
+    constructor(values?: string[], suggestions?: string[], category?: string, pattern?: string) {
         this.values = values;
         this.suggestions = suggestions;
         this.categories = category ? [category] : undefined;
-        this.snippets = snippet ? [snippet] : undefined;
         this.patterns = pattern ? [pattern] : undefined;
     }
 
@@ -17,7 +15,6 @@ export class PropValueSpec {
         let values: string[] | undefined;
         let suggestions: string[] | undefined;
         let category: string | undefined;
-        let snippet: string | undefined;
         let pattern: string | undefined;
 
         if (typeof valueSpec == 'string') {
@@ -42,9 +39,6 @@ export class PropValueSpec {
                     case 'value-category':
                         category = valueSpec[key] as string;
                         break;
-                    case 'value-snippet':
-                        snippet = valueSpec[key] as string;
-                        break;
                     case 'value-pattern':
                         pattern = valueSpec[key] as string;
                         break;
@@ -52,7 +46,7 @@ export class PropValueSpec {
             });
         }
 
-        return new this(values, suggestions, category, snippet, pattern);
+        return new this(values, suggestions, category, pattern);
     }
 
     verify(value: string): boolean {
@@ -84,21 +78,27 @@ export class PropValueSpec {
         this.values = mergeUnique(this.values, other.values);
         this.suggestions = mergeUnique(this.suggestions, other.suggestions);
         this.categories = mergeUnique(this.categories, other.categories);
-        this.snippets = mergeUnique(this.snippets, other.snippets);
         this.patterns = mergeUnique(this.suggestions, other.patterns);
     }
 
     getSuggestions(): string[] | undefined {
-        return this.suggestions ?? this.values;
+        if (this.suggestions) {
+            return this.suggestions;
+        }
+
+        // TODO: categories
+
+        return this.values;
     }
 }
 
-function mergeUnique<T>(original?: T[], additions?: T[]): T[] | undefined {
-    if (original) {
-        additions?.forEach(addition => {
-            original.push(addition);
+function mergeUnique<T>(mine?: T[], others?: T[]): T[] | undefined {
+    if (mine) {
+        others?.forEach(addition => {
+            if (!mine.includes(addition))
+                mine.push(addition);
         });
-        return original;
+        return mine;
     }
-    return additions;
+    return others;
 }

@@ -20,8 +20,17 @@ export class PropConfig {
     }
 
     get(propName: string): PropValueSpec | undefined {
-        this.map.forEach;
         return this.map.get(propName);
+    }
+
+    merge(propName: string, valueSpec: PropValueSpec): void {
+        const existingSpec = this.map.get(propName);
+        if (existingSpec) {
+            existingSpec.merge(valueSpec);
+        }
+        else {
+            this.map.set(propName, valueSpec);
+        }
     }
 
     forEach(callback: (value: PropValueSpec, key: string) => void): void {
@@ -45,7 +54,7 @@ export class PropConfigStore {
                     this.configMap.set(filename, config);
 
                     config.forEach((valueSpec, propName) => {
-                        this.globalConfig.get(propName)?.merge(valueSpec);
+                        this.globalConfig.merge(propName, valueSpec);
                     });
                 } catch (e) {
                     console.error(e);
@@ -71,7 +80,7 @@ export class PropConfigStore {
 
     static getPropValueSpec(target: PropTarget, propName: string): PropValueSpec | undefined {
         if (target.kind == PropTargetKind.Unknown) {
-            this.globalConfig.get(propName);
+            return this.globalConfig.get(propName);
         }
         else {
             for (let filename of this.getPropFileSequence(target)) {
