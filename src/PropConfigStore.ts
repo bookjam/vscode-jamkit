@@ -4,23 +4,40 @@ import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
 
+export class PropConfig {
+    private readonly entries = new Map<string, PropValueSpec>();
+
+    static fromJSON(json: any): PropConfig {
+        const config = new PropConfig();
+        Object.entries(json).forEach(entry => {
+            config.entries.set(entry[0], PropValueSpec.from(entry[1] as any));
+        });
+        return config;
+    }
+
+    get propNames(): string[] {
+        return Array.from(this.entries.keys());
+    }
+
+    get(propName: string): PropValueSpec | undefined {
+        return this.entries.get(propName);
+    }
+}
+
 export class PropConfigStore {
-    private static extensionPath: string;
-    private static readonly propFileMap = new Map<string, Map<string, any>>();
+    private static readonly configMap = new Map</*filename*/string, PropConfig>();
 
     static init(context: vscode.ExtensionContext): void {
-        this.extensionPath = context.extensionPath;
+        const configDirs = ['attributes', 'attributes/objects'];
 
-        const proConfigDirs = ['attributes', 'attributes/objects'];
-
-        proConfigDirs.forEach(propConfigDir => {
-            readdirSync(`${this.extensionPath}/${propConfigDir}`).forEach(filename => {
+        configDirs.forEach(configDir => {
+            readdirSync(`${context.extensionPath}/${configDir}`).forEach(filename => {
                 if (!filename.endsWith('.json'))
                     return;
-                const json = require(`../${propConfigDir}/${filename}`);
                 try {
-                    const config = new Map<string, any>(Object.entries(json));
-                    this.propFileMap.set(filename, config);
+                    const json = require(`../${configDir}/${filename}`);
+                    const config = PropConfig.fromJSON(json);
+                    this.configMap.set(filename, config);
                 } catch (e) {
                     console.error(e);
                 }
@@ -31,14 +48,14 @@ export class PropConfigStore {
     static getKnownPropNames(target: PropTarget): string[] {
         const propNameSet = new Set<string>();
         if (target.kind == PropTargetKind.Unknown) {
-            this.propFileMap.forEach(config => {
-                Array.from(config.keys()).forEach(propName => propNameSet.add(propName));
+            this.configMap.forEach(config => {
+                config.propNames.forEach(propName => propNameSet.add(propName));
             });
         } else {
             this.getPropFileSequence(target).forEach(filename => {
-                const config = this.propFileMap.get(filename);
+                const config = this.configMap.get(filename);
                 if (config) {
-                    Array.from(config.keys()).forEach(propName => propNameSet.add(propName));
+                    config.propNames.forEach(propName => propNameSet.add(propName));
                 }
             });
         }
@@ -48,24 +65,16 @@ export class PropConfigStore {
     static getKnownPropValues(target: PropTarget, propName: string): string[] {
         const valueSet = new Set<string>();
         if (target.kind == PropTargetKind.Unknown) {
-            this.propFileMap.forEach(config => {
-                const propValues = config.get(propName);
-                if (Array.isArray(propValues)) {
-                    propValues.forEach(value => valueSet.add(value));
-                }
+            this.configMap.forEach(config => {
+                const valueSpec = config.get(propName);
+                valueSpec?.getSuggestions()?.forEach(value => valueSet.add(value));
             });
         } else {
             this.getPropFileSequence(target).forEach(filename => {
-                const config = this.propFileMap.get(filename);
+                const config = this.configMap.get(filename);
                 if (config) {
-                    const propValues = config.get(propName);
-                    if (Array.isArray(propValues)) {
-                        propValues.forEach(value => valueSet.add(value));
-                    }
-
-                    else if (propValues != undefined) {
-                        PropValueSpec.from(propValues);
-                    }
+                    const valueSpec = config.get(propName);
+                    valueSpec?.getSuggestions()?.forEach(value => valueSet.add(value));
                 }
             });
         }
@@ -95,7 +104,7 @@ export class PropConfigStore {
         }
 
         assert(target.kind == PropTargetKind.Unknown);
-        return Array.from(this.propFileMap.keys());
+        return Array.from(this.configMap.keys());
     }
 
 }

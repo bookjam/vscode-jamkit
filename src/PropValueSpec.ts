@@ -1,9 +1,9 @@
 export class PropValueSpec {
-    readonly values?: string[];
-    readonly suggestions?: string[];
-    readonly specials?: string[];  // '#image-filename', '#audio-filename', '#script-function', etc.
-    readonly snippets?: string[];
-    readonly patterns?: RegExp[];
+    private readonly values?: string[];
+    private readonly suggestions?: string[];
+    private readonly specials?: string[];  // '#image-filename', '#audio-filename', '#script-function', etc.
+    private readonly snippets?: string[];
+    private readonly patterns?: RegExp[];
 
     constructor(values?: string[], suggestions?: string[], special?: string, snippet?: string, pattern?: RegExp) {
         this.values = values;
@@ -13,34 +13,34 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : undefined;
     }
 
-    static from(obj: object) {
+    static from(valueSpec: any) {
         let values: string[] | undefined;
         let suggestions: string[] | undefined;
         let speical: string | undefined;
         let snippet: string | undefined;
         let pattern: RegExp | undefined;
 
-        if (typeof obj == 'string') {
-            const specialValue = obj as string;
+        if (typeof valueSpec == 'string') {
+            const specialValue = valueSpec as string;
             if (specialValue.startsWith('#')) {
                 speical = specialValue;
             }
-        } else if (Array.isArray(obj)) {
-            values = obj as string[];
+        } else if (Array.isArray(valueSpec)) {
+            values = valueSpec as string[];
         } else {
-            const keys = Object.keys(obj) as Array<keyof typeof obj>;
+            const keys = Object.keys(valueSpec) as Array<keyof typeof valueSpec>;
             keys.forEach(key => {
                 if (key as string === 'values') {
-                    values = obj[key] as string[];
+                    values = valueSpec[key] as string[];
                 }
                 if (key as string === 'suggestions') {
-                    suggestions = obj[key] as string[];
+                    suggestions = valueSpec[key] as string[];
                 }
                 if (key as string == 'value-snippet') {
-                    snippet = obj[key] as string;
+                    snippet = valueSpec[key] as string;
                 }
                 if (key as string == 'value-pattern') {
-                    pattern = new RegExp(obj[key] as string);
+                    pattern = new RegExp(valueSpec[key] as string);
                 }
             });
         }
