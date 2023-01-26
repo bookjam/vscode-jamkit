@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { PropTargetKind, PropConfigStore, PropTarget } from './PropConfigStore';
+import { PropConfigStore } from './PropConfigStore';
+import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropRange } from './PropGroupParser';
 
 export abstract class DiagnosticCollector {

@@ -3,13 +3,13 @@ import { assert } from 'console';
 import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
-import { PropTarget, PropTargetKind } from './PropConfigStore';
+import { PropTarget, PropTargetKind } from "./PropTarget";
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
 const ELSE_PATTERN = /^\s*=else\b/;
 
-enum DirectiveType {
+enum DirectiveKind {
     Begin,
     End,
     Object,
@@ -21,15 +21,15 @@ enum DirectiveType {
 }
 
 interface Directive {
-    type: DirectiveType;
+    kind: DirectiveKind;
     tag?: string;
 }
 
 interface Context {
     line: number;
-    type: DirectiveType.Begin | DirectiveType.If;
+    type: DirectiveKind.Begin | DirectiveKind.If;
     tag?: string;
-    else_seen?: boolean; // used when type == DirectiveType.If
+    else_seen?: boolean; // used when type == DirectiveKind.If
 }
 
 export class SbmlDiagnosticCollector extends DiagnosticCollector {
@@ -48,19 +48,19 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             if (context) {
                 this.handleDirective(line, context);
 
-                if (canHavePropList(context.type)) {
+                if (canHavePropList(context.kind)) {
                     const propListMarkerIndex = text.indexOf(':');
                     if (propListMarkerIndex > 0) {
                         this.propParser = new PropListParser();
 
                         const offset = propListMarkerIndex + 1;
                         this.propTarget = {
-                            kind: context.type == DirectiveType.Begin ?
+                            kind: context.kind == DirectiveKind.Begin ?
                                 PropTargetKind.Section :
-                                (context.type == DirectiveType.Object ?
+                                (context.kind == DirectiveKind.Object ?
                                     PropTargetKind.BlockObject :
                                     PropTargetKind.Unknown),
-                            objectType: context.type == DirectiveType.Object ? context.tag : undefined
+                            objectType: context.kind == DirectiveKind.Object ? context.tag : undefined
                         };
                         this.propParser.parse(line, offset, text).forEach(
                             propRange => this.verifyProperty(this.propTarget!, propRange)
@@ -87,46 +87,46 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         if (m = lineText.match(patterns.SBML_PROP_LIST_PREFIX)) {
             const type = (() => {
                 if (m[1] == "begin")
-                    return DirectiveType.Begin;
+                    return DirectiveKind.Begin;
                 if (m[1] == "object" || m[1] == "image")
-                    return DirectiveType.Object;
+                    return DirectiveKind.Object;
                 assert(m[1] == "style");
-                return DirectiveType.Style;
+                return DirectiveKind.Style;
             })();
-            return { type, tag: m[3] };
+            return { kind: type, tag: m[3] };
         }
 
         if (m = lineText.match(patterns.SBML_END)) {
-            return { type: DirectiveType.End, tag: m[2] };
+            return { kind: DirectiveKind.End, tag: m[2] };
         }
 
         if (m = lineText.match(patterns.SBML_COMMENT)) {
-            return { type: DirectiveType.Comment };
+            return { kind: DirectiveKind.Comment };
         }
 
         if (m = lineText.match(IF_PATTERN)) {
-            return { type: DirectiveType.If };
+            return { kind: DirectiveKind.If };
         }
 
         if (m = lineText.match(ELIF_PATTERN)) {
-            return { type: DirectiveType.Elif };
+            return { kind: DirectiveKind.Elif };
         }
 
         if (m = lineText.match(ELSE_PATTERN)) {
-            return { type: DirectiveType.Else };
+            return { kind: DirectiveKind.Else };
         }
     }
 
     private handleDirective(line: number, directive: Directive): void {
 
-        if (directive.type == DirectiveType.Begin || directive.type == DirectiveType.If) {
-            this.contextStack.push({ line, type: directive.type, tag: directive.tag });
+        if (directive.kind == DirectiveKind.Begin || directive.kind == DirectiveKind.If) {
+            this.contextStack.push({ line, type: directive.kind, tag: directive.tag });
         }
-        else if (directive.type == DirectiveType.End) {
+        else if (directive.kind == DirectiveKind.End) {
             const context = this.contextStack.pop();
 
             if (context) {
-                assert(context.type == DirectiveType.Begin || context.type == DirectiveType.If);
+                assert(context.type == DirectiveKind.Begin || context.type == DirectiveKind.If);
 
                 if (directive.tag && context.tag !== directive.tag) {
 
@@ -145,11 +145,11 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                             this.document.uri,
                             new vscode.Range(line, 0, line, 0)
                         ),
-                        context.type == DirectiveType.Begin ?
+                        context.type == DirectiveKind.Begin ?
                             'the section starts here' : 'if statement starts here'
                     );
                     this.diagnostics.push({
-                        message: context.type == DirectiveType.Begin ?
+                        message: context.type == DirectiveKind.Begin ?
                             `section tag mismatch: "${context.tag ? context.tag : ""}" != "${directive.tag}"` :
                             "if statment can't have an ending tag",
                         range: endTagRange,
@@ -172,6 +172,6 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
     }
 }
 
-function canHavePropList(type: DirectiveType): boolean {
-    return type == DirectiveType.Begin || type == DirectiveType.Object || type == DirectiveType.Style;
+function canHavePropList(type: DirectiveKind): boolean {
+    return type == DirectiveKind.Begin || type == DirectiveKind.Object || type == DirectiveKind.Style;
 }

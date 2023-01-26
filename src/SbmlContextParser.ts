@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { SBML_PROP_LIST_PREFIX } from './patterns';
-import { PropTarget, PropTargetKind } from './PropConfigStore';
+import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbmlContextParser extends ContextParser {
     parsePropGroupContext(): PropGroupContext | null {

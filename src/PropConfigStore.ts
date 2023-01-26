@@ -1,19 +1,7 @@
 import * as vscode from "vscode";
 import { readdirSync, readFileSync } from 'node:fs';
 import { assert } from "console";
-
-export enum PropTargetKind {
-    Unknown,
-    Text,
-    Section,
-    BlockObject,
-    InlineObject,
-}
-
-export interface PropTarget {
-    kind: PropTargetKind;
-    objectType?: string;
-}
+import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class PropConfigStore {
     private static extensionPath: string;
