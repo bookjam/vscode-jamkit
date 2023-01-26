@@ -86,7 +86,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         let m;
 
         if (m = lineText.match(patterns.SBML_PROP_LIST_PREFIX)) {
-            const type = (() => {
+            const kind = (() => {
                 if (m[1] == "begin")
                     return DirectiveKind.Begin;
                 if (m[1] == "object" || m[1] == "image")
@@ -94,7 +94,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 assert(m[1] == "style");
                 return DirectiveKind.Style;
             })();
-            return { kind: type, tag: m[2] };
+            return { kind, tag: m[2] };
         }
 
         if (m = lineText.match(patterns.SBML_END)) {
