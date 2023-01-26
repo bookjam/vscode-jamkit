@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropRange } from './PropGroupParser';
+import { assert } from 'console';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
@@ -32,20 +33,10 @@ export abstract class DiagnosticCollector {
 
     verifyProperty(target: PropTarget, propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
-        const value = stripQuote(this.document.getText(propRange.valueRange));
+        const valueSpec = PropConfigStore.getPropValueSpec(target, name);
 
-        if (value.startsWith('$')) {
-            // No diagnostic for a variable.
-            return;
-        }
-
-        if (value.startsWith('@{') && value.startsWith('}')) {
-            // No diagnostic for a template placeholder.
-            return;
-        }
-
-        const knownNames = PropConfigStore.getKnownPropNames(target);
-        if (!knownNames.includes(name)) {
+        if (!valueSpec) {
+            // unknown property name for this target
             if (target.kind != PropTargetKind.Unknown) {
                 const message = (() => {
                     switch (target.kind) {
@@ -66,10 +57,16 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        const knownValues = PropConfigStore.getKnownPropValues(target, name);
-        if (knownValues.length > 0 && !knownValues.includes(value)) {
+        const value = unquote(this.document.getText(propRange.valueRange));
+
+        if (value.startsWith('$') || (value.startsWith('@{') && value.startsWith('}'))) {
+            // No diagnostic for a variable or a template placeholder.
+            return;
+        }
+
+        if (!valueSpec.verify(value)) {
             this.diagnostics.push({
-                message: `"${value}" is not a valid value for "${name}"`,
+                message: `"${value}" is not a valid value for "${name}" here.`,
                 range: propRange.valueRange,
                 severity: vscode.DiagnosticSeverity.Error
             });
@@ -77,7 +74,7 @@ export abstract class DiagnosticCollector {
     }
 }
 
-function stripQuote(value: string): string {
+function unquote(value: string): string {
     if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
         value = value.substring(1, value.length - 1);
         value = value.replace(/\\(.)/g, '$1');

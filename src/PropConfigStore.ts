@@ -62,6 +62,22 @@ export class PropConfigStore {
         return Array.from(propNameSet);
     }
 
+    static getPropValueSpec(target: PropTarget, propName: string): PropValueSpec | undefined {
+        if (target.kind == PropTargetKind.Unknown) {
+            // FIXME: return merged spec.
+        } else {
+            for (let filename of this.getPropFileSequence(target)) {
+                const config = this.configMap.get(filename);
+                if (config) {
+                    const valueSpec = config.get(propName);
+                    if (valueSpec) {
+                        return valueSpec;
+                    }
+                }
+            }
+        }
+    }
+
     static getKnownPropValues(target: PropTarget, propName: string): string[] {
         const valueSet = new Set<string>();
         if (target.kind == PropTargetKind.Unknown) {
@@ -106,6 +122,5 @@ export class PropConfigStore {
         assert(target.kind == PropTargetKind.Unknown);
         return Array.from(this.configMap.keys());
     }
-
 }
 
