@@ -15,9 +15,9 @@ def _write_file(filename, content):
 
 
 def _generate_language(lang):
-    content = _read_file(lang + '-configuration.template.json')
+    content = _read_file('templates/' + lang + '-configuration.template.json')
     content = content.replace('"__WORD_PATTERN__"', r'"([\\w-]+(@(verso|recto))?)|(\\$[A-Z_]+)"')
-    _write_file('languages/' + lang + '-configuration.json', content)
+    _write_file(lang + '-configuration.json', content)
 
 
 if __name__ == '__main__':

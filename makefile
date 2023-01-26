@@ -1,12 +1,12 @@
-SBSS_LANGUAGE          := languages/sbss-configuration.json
-SBSS_LANGUAGE_TEMPLATE := sbss-configuration.template.json
-SBML_LANGUAGE          := languages/sbml-configuration.json
-SBML_LANGUAGE_TEMPLATE := sbml-configuration.template.json
+SBSS_LANGUAGE          := sbss-configuration.json
+SBML_LANGUAGE          := sbml-configuration.json
+SBSS_LANGUAGE_TEMPLATE := templates/sbss-configuration.template.json
+SBML_LANGUAGE_TEMPLATE := templates/sbml-configuration.template.json
 
 SBSS_SYNTAX          := syntaxes/sbss.tmLanguage.json
-SBSS_SYNTAX_TEMPLATE := sbss.tmLanguage.template.json
 SBML_SYNTAX          := syntaxes/sbml.tmLanguage.json
-SBML_SYNTAX_TEMPLATE := sbml.tmLanguage.template.json
+SBSS_SYNTAX_TEMPLATE := templates/sbss.tmLanguage.template.json
+SBML_SYNTAX_TEMPLATE := templates/sbml.tmLanguage.template.json
 
 LANGUAGE_GENERATOR := ./generate-language.py
 
