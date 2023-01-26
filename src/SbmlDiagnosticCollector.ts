@@ -94,7 +94,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 assert(m[1] == "style");
                 return DirectiveKind.Style;
             })();
-            return { kind: type, tag: m[3] };
+            return { kind: type, tag: m[2] };
         }
 
         if (m = lineText.match(patterns.SBML_END)) {
