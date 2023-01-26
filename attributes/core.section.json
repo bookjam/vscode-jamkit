@@ -1,11 +1,14 @@
 {
-    "title": "?",
-    "toc": "?",
-    "episode": "?",
-    "reading-track": "?",
-    "audio-track": "?",
-    "no-search": "?",
-    "exam": "?",
+    "title": {},
+    "toc": {},
+    "episode": "// TODO: define value spec",
+    "reading-track": "// TODO: define value spec",
+    "audio-track": "// TODO: define value spec",
+    "no-search": [
+        "yes",
+        "no"
+    ],
+    "exam": "// TODO: define value spec",
     "page-title-color": "#color",
     "page-number-color": "#color",
     "page-header-hidden": [
@@ -16,15 +19,31 @@
         "yes",
         "no"
     ],
-    "page-background": "?",
+    "page-background": "// TODO: define value spec",
     "page-background-color": "#color",
     "page-background-image": "#image-filename",
     "page-background-image-type": [
         "stretch",
         "pattern"
     ],
-    "rowspan": "?",
-    "colspan": "?",
+    "rowspan": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "2",
+            "3",
+            "4",
+            "5"
+        ]
+    },
+    "colspan": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "2",
+            "3",
+            "4",
+            "5"
+        ]
+    },
     "pack": [
         "yes",
         "no"

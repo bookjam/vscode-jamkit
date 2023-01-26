@@ -27,6 +27,7 @@
         "normal",
         "italic"
     ],
+    "font-size": "#font-size",
     "font-no-scale": [
         "yes",
         "no"
