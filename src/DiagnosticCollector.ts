@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropRange } from './PropGroupParser';
-import { assert } from 'console';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
@@ -20,9 +19,7 @@ export abstract class DiagnosticCollector {
 
         for (let i = 0; i < this.document.lineCount; ++i) {
             const text = this.document.lineAt(i).text;
-
             this.processLine(i, text, isContinued);
-
             isContinued = text.endsWith('\\');
         }
 
