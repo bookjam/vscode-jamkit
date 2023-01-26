@@ -8,9 +8,8 @@ SBML_SYNTAX          := syntaxes/sbml.tmLanguage.json
 SBSS_SYNTAX_TEMPLATE := templates/sbss.tmLanguage.template.json
 SBML_SYNTAX_TEMPLATE := templates/sbml.tmLanguage.template.json
 
-LANGUAGE_GENERATOR := ./generate-language.py
-
-SYNTAX_GENERATOR := ./generate-syntax.py
+LANGUAGE_GENERATOR := ./scripts/generate-language.py
+SYNTAX_GENERATOR   := ./scripts/generate-syntax.py
 
 
 .PHONY: language syntax package clean
