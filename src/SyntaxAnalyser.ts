@@ -22,7 +22,8 @@ export class SyntaxAnalyser {
             }
             if (instance.currentFileName === event.document.fileName) {
                 instance.updateDiagnostics(event.document);
-            } else {
+            }
+            else {
                 instance.clearDiagnostics(event.document);
             }
         }));
@@ -43,7 +44,8 @@ export class SyntaxAnalyser {
                     this.updateDiagnostics(document);
                 }
             }
-        } else {
+        }
+        else {
             this.currentFileName = undefined;
         }
     }

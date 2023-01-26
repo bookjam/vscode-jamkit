@@ -1,7 +1,6 @@
-import * as vscode from 'vscode';
 import { PropGroupKind } from './ContextParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
-import { PropTarget, PropTargetKind } from './PropConfigStore';
+import { PropTarget, PropTargetKind } from "./PropTarget";
 import {
     PropGroupParser,
     PropListParser,
@@ -25,7 +24,8 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
         if (this.propParser instanceof PropBlockParser) {
             if (text.match(SBSS_PROP_BLOCK_SUFFIX)) {
                 this.propParser = null;
-            } else {
+            }
+            else {
                 assert(this.propTarget);
                 this.propParser.parse(line, 0, text).forEach(
                     propRange => this.verifyProperty(this.propTarget!, propRange)
@@ -51,7 +51,8 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
                     this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
                         propRange => this.verifyProperty(this.propTarget!, propRange)
                     );
-                } else {
+                }
+                else {
                     this.propParser = new PropBlockParser();
                 }
                 return;
