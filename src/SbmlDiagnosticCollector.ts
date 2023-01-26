@@ -32,6 +32,7 @@ interface Context {
     else_seen?: boolean; // used when type == DirectiveKind.If
 }
 
+// TODO: Use SbmlContextParser
 export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
     private readonly contextStack: Context[] = [];
