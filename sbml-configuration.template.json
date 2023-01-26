@@ -19,5 +19,5 @@
             "end": "^\\s*=end"
         }
     },
-    "wordPattern": "([\\w-]+(@(verso|recto))?)|(\\$[A-Z_]+)"
+    "wordPattern": "__WORD_PATTERN__"
 }
