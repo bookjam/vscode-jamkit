@@ -1,7 +1,7 @@
 export class PropValueSpec {
     readonly values?: string[];
     readonly suggestions?: string[];
-    readonly specials?: string[];  // '#image-filename', 
+    readonly specials?: string[];  // '#image-filename', '#audio-filename', '#script-function', etc.
     readonly snippets?: string[];
     readonly patterns?: RegExp[];
 
