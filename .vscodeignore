@@ -3,5 +3,5 @@
 .git/**
 .gitignore
 *.template.json
-generate-syntax.py
+generate-*.py
 makefile

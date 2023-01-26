@@ -13,5 +13,6 @@
             "start": "^\\s*if",
             "end": "^\\s*end"
         }
-    }
+    },
+    "wordPattern": "__WORD_PATTERN__"
 }

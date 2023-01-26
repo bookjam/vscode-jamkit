@@ -18,14 +18,14 @@
                 "extensions": [
                     ".sbss"
                 ],
-                "configuration": "./sbss-configuration.json"
+                "configuration": "./languages/sbss-configuration.json"
             },
             {
                 "id": "sbml",
                 "extensions": [
                     ".sbml"
                 ],
-                "configuration": "./sbml-configuration.json"
+                "configuration": "./languages/sbml-configuration.json"
             }
         ],
         "grammars": [
