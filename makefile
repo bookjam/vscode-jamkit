@@ -12,9 +12,9 @@ LANGUAGE_GENERATOR := ./scripts/generate-language.py
 SYNTAX_GENERATOR   := ./scripts/generate-syntax.py
 
 
-.PHONY: defult language syntax package clean
+.PHONY: default language syntax package clean
 
-defult: $(SBSS_SYNTAX) $(SBML_SYNTAX) $(SBSS_LANGUAGE) $(SBML_LANGUAGE)
+default: $(SBSS_SYNTAX) $(SBML_SYNTAX) $(SBSS_LANGUAGE) $(SBML_LANGUAGE)
 
 package: $(SBSS_SYNTAX) $(SBML_SYNTAX) $(SBSS_LANGUAGE) $(SBML_LANGUAGE)
 	vsce package
