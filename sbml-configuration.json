@@ -18,5 +18,6 @@
             "start": "^\\s*=(begin|if)",
             "end": "^\\s*=end"
         }
-    }
+    },
+    "wordPattern": "([\\w-]+(@(verso|recto))?)|(\\$[A-Z_]+)"
 }
