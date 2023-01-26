@@ -113,13 +113,13 @@ export abstract class ContextParser {
         return this.document.lineAt(line).text;
     }
 
-    getLogicalLineBeginPos(): vscode.Position {
+    getLogicalBeginLine(): number {
         let line = this.position.line;
         while (line > 0) {
             if (!this.document.lineAt(line - 1).text.endsWith('\\'))
                 break;
             line -= 1;
         }
-        return new vscode.Position(line, 0);
+        return line;
     }
 }
