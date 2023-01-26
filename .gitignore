@@ -1,5 +1,5 @@
 node_modules
 *.vsix
 syntaxes
-languages
 out
+*-configuration.json

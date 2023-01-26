@@ -90,7 +90,7 @@ def _apply_styles(content):
 
 
 def _generate_syntax(lang):
-    content = _read_file(lang + '.tmLanguage.template.json')
+    content = _read_file('templates/' + lang + '.tmLanguage.template.json')
     content = content.replace('"__PROP_LIST_PATTERNS__"', _make_prop_pair_pattern('=', ','))
     content = content.replace('"__PROP_GROUP_PATTERNS__"', _make_prop_pair_pattern(':', ';'))
     content = content.replace('"__EXPRESSION_PATTERNS__"', _EXPRESSION_PATTERNS)
