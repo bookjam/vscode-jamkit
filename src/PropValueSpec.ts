@@ -49,9 +49,27 @@ export class PropValueSpec {
     }
 
     verify(value: string): boolean {
-        if (this.values) {
-            return this.values.includes(value);
+        if (!this.values && !this.patterns && !this.specials) {
+            return true;
         }
+
+        if (this.values?.includes(value)) {
+            return true;
+        }
+
+        if (this.patterns) {
+            for (let pattern of this.patterns) {
+                if (new RegExp(pattern).test(value))
+                    return true;
+            }
+        }
+
+        if (this.specials) {
+            for (let special of this.specials) {
+                // TODO: handle '#image-filename'  ...
+            }
+        }
+
         return false;
     }
 

@@ -63,17 +63,19 @@ export class PropCompletionItemProvider {
     private getPropertyValueCompletionItems(context: PropValueCompletionContext) {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
-        let values = PropConfigStore.getKnownPropValues(context.target, context.name);
-        if (context.valuePrefix) {
-            const valuePrefix = context.valuePrefix;
-            values = values.filter(value => value.startsWith(valuePrefix));
-        }
-        return values.map(value => {
-            const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember);
-            if (this.triggerChar == ':') {
-                item.insertText = ` ${value}`;
+        let suggestions = PropConfigStore.getPropValueSpec(context.target, context.name)?.getSuggestions();
+        if (suggestions) {
+            if (context.valuePrefix) {
+                const prefix = context.valuePrefix;
+                suggestions = suggestions.filter(suggestion => suggestion.startsWith(prefix));
             }
-            return item;
-        });
+            return suggestions.map(suggestion => {
+                const item = new vscode.CompletionItem(suggestion, vscode.CompletionItemKind.EnumMember);
+                if (this.triggerChar == ':') {
+                    item.insertText = ` ${suggestion}`;
+                }
+                return item;
+            });
+        }
     }
 }

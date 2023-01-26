@@ -150,10 +150,6 @@ export class PropGroupParser {
                             this.state = PropParseState.BeforeName;
                         }
                     }
-                    // force value reading at EOL
-                    if (!this.valueEndPos && i == text.length - 1) {
-                        this.valueEndPos = new vscode.Position(line, i + 1);
-                    }
                     break;
 
                 case PropParseState.AfterValue:
@@ -163,6 +159,11 @@ export class PropGroupParser {
                         // unexepcted residue... report?
                     }
                     break;
+            }
+
+            // force value reading at EOL
+            if (this.state == PropParseState.InValue && !this.valueEndPos && i == text.length - 1) {
+                this.valueEndPos = new vscode.Position(line, i + 1);
             }
 
             if (this.nameBeginPos && this.nameEndPos && this.valueBeginPos && this.valueEndPos) {
