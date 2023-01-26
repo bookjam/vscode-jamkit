@@ -72,7 +72,9 @@ export class PropConfigStore {
         this.getPropFileSequence(target).forEach(filename => {
             const config = this.configMap.get(filename);
             if (config) {
-                config.propNames.forEach(propName => propNameSet.add(propName));
+                config.propNames.forEach(propName => {
+                    propNameSet.add(propName);
+                });
             }
         });
         return Array.from(propNameSet);
@@ -101,20 +103,23 @@ export class PropConfigStore {
         }
 
         if (target.kind == PropTargetKind.Section) {
-            return ['core.section.json', 'core.common.json'];
+            return ['core.section.json', 'core.box.json', 'core.common.json'];
         }
 
-        if (target.kind == PropTargetKind.BlockObject || target.kind == PropTargetKind.InlineObject) {
-            const display = target.kind == PropTargetKind.BlockObject ? "block" : "inline";
+        if (target.kind == PropTargetKind.BlockObject) {
+            const sequence = [`core.object.block.json`, 'core.object.json', 'core.box.json', 'core.common.json'];
             if (target.objectType) {
-                return [
-                    `${target.objectType}.json`,
-                    `core.object.${display}.json`,
-                    'core.object.json',
-                    'core.common.json'
-                ];
+                return [`${target.objectType}.json`].concat(sequence);
             }
-            return [`core.object.${display}.json`, 'core.object.json', 'core.common.json'];
+            return sequence;
+        }
+
+        if (target.kind == PropTargetKind.InlineObject) {
+            const sequence = [`core.object.inline.json`, 'core.object.json', 'core.common.json'];
+            if (target.objectType) {
+                return [`${target.objectType}.json`].concat(sequence);
+            }
+            return sequence;
         }
 
         assert(target.kind == PropTargetKind.Unknown);
