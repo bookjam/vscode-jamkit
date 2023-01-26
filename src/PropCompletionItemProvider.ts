@@ -49,10 +49,12 @@ export class PropCompletionItemProvider {
             if (this.contextParser.propGroupContext?.kind == PropGroupKind.List) {
                 if (this.triggerChar == ',' || this.triggerChar == ':') {
                     item.insertText = ` ${name}=`;
-                } else {
+                }
+                else {
                     item.insertText = `${name}=`;
                 }
-            } else {
+            }
+            else {
                 item.insertText = new vscode.SnippetString(name + ': ${1};');
             }
             item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };

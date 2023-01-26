@@ -49,7 +49,8 @@ export class PropGroupParser {
     getNameRange(): vscode.Range {
         if (this.nameBeginPos && this.nameEndPos) {
             return new vscode.Range(this.nameBeginPos, this.nameEndPos);
-        } else {
+        }
+        else {
             throw Error("Check the state first to see if you can call `getNameRange()`.");
         }
     }
@@ -98,7 +99,8 @@ export class PropGroupParser {
                     assert(this.nameEndPos);
                     if (ch == this.separator) {
                         this.state = PropParseState.BeforeValue;
-                    } else if (!isSpace(ch)) {
+                    }
+                    else if (!isSpace(ch)) {
                         // unexpected residue... report?
                     }
                     break;
@@ -111,11 +113,13 @@ export class PropGroupParser {
                             this.valueBeginPos = new vscode.Position(line, i - 1);
                             this.valueEndPos = this.valueBeginPos;
                             this.state = PropParseState.BeforeName;
-                        } else {
+                        }
+                        else {
                             if (ch === "'" || ch === '"') {
                                 this.valueEscaped = false;
                                 this.valueQuoteChar = ch;
-                            } else {
+                            }
+                            else {
                                 this.valueQuoteChar = undefined;
                             }
                             this.valueBeginPos = new vscode.Position(line, i);
@@ -131,15 +135,18 @@ export class PropGroupParser {
                     if (this.valueQuoteChar) {
                         if (ch === '\\') {
                             this.valueEscaped = !this.valueEscaped;
-                        } else if (ch === this.valueQuoteChar) {
+                        }
+                        else if (ch === this.valueQuoteChar) {
                             if (!this.valueEscaped) {
                                 this.valueEndPos = new vscode.Position(line, i + 1);
                                 this.state = PropParseState.AfterValue;
                             }
-                        } else {
+                        }
+                        else {
                             this.valueEscaped = false;
                         }
-                    } else {
+                    }
+                    else {
                         if (ch === this.terminator) {
                             // trim end
                             let nonSpaceIndex = i - 1;
@@ -155,7 +162,8 @@ export class PropGroupParser {
                 case PropParseState.AfterValue:
                     if (ch === this.terminator) {
                         this.state = PropParseState.BeforeName;
-                    } else if (!isSpace(ch)) {
+                    }
+                    else if (!isSpace(ch)) {
                         // unexepcted residue... report?
                     }
                     break;

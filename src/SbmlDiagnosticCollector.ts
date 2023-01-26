@@ -68,7 +68,8 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                         return;
                     }
                 }
-            } else {
+            }
+            else {
                 // TODO: do text related stuff
             }
         }
@@ -157,7 +158,8 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                         relatedInformation: [relatedInfo]
                     });
                 }
-            } else {
+            }
+            else {
                 // dangling =end directive
                 this.diagnostics.push({
                     message: `no matching =begin`,

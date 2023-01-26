@@ -72,7 +72,8 @@ export class PropConfigStore {
     static getPropValueSpec(target: PropTarget, propName: string): PropValueSpec | undefined {
         if (target.kind == PropTargetKind.Unknown) {
             this.globalConfig.get(propName);
-        } else {
+        }
+        else {
             for (let filename of this.getPropFileSequence(target)) {
                 const config = this.configMap.get(filename);
                 if (config) {
