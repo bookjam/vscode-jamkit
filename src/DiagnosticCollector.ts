@@ -16,7 +16,6 @@ export abstract class DiagnosticCollector {
         this.diagnostics.length = 0;
 
         let isContinued = false;
-
         for (let i = 0; i < this.document.lineCount; ++i) {
             const text = this.document.lineAt(i).text;
             this.processLine(i, text, isContinued);

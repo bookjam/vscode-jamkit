@@ -1,11 +1,11 @@
 export class PropValueSpec {
-    private readonly values?: string[];
-    private readonly suggestions?: string[];
-    private readonly specials?: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
-    private readonly snippets?: string[];
-    private readonly patterns?: RegExp[];
+    private values?: string[];
+    private suggestions?: string[];
+    private specials?: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
+    private snippets?: string[];
+    private patterns?: string[];
 
-    constructor(values?: string[], suggestions?: string[], special?: string, snippet?: string, pattern?: RegExp) {
+    constructor(values?: string[], suggestions?: string[], special?: string, snippet?: string, pattern?: string) {
         this.values = values;
         this.suggestions = suggestions;
         this.specials = special ? [special] : undefined;
@@ -18,7 +18,7 @@ export class PropValueSpec {
         let suggestions: string[] | undefined;
         let speical: string | undefined;
         let snippet: string | undefined;
-        let pattern: RegExp | undefined;
+        let pattern: string | undefined;
 
         if (typeof valueSpec == 'string') {
             const specialValue = valueSpec as string;
@@ -40,7 +40,7 @@ export class PropValueSpec {
                     snippet = valueSpec[key] as string;
                 }
                 if (key as string == 'value-pattern') {
-                    pattern = new RegExp(valueSpec[key] as string);
+                    pattern = valueSpec[key] as string;
                 }
             });
         }
@@ -55,7 +55,25 @@ export class PropValueSpec {
         return false;
     }
 
+    merge(other: PropValueSpec): void {
+        this.values = mergeUnique(this.values, other.values);
+        this.suggestions = mergeUnique(this.suggestions, other.suggestions);
+        this.specials = mergeUnique(this.specials, other.specials);
+        this.snippets = mergeUnique(this.snippets, other.snippets);
+        this.patterns = mergeUnique(this.suggestions, other.patterns);
+    }
+
     getSuggestions(): string[] | undefined {
         return this.suggestions ?? this.values;
     }
+}
+
+function mergeUnique<T>(original?: T[], additions?: T[]): T[] | undefined {
+    if (original) {
+        additions?.forEach(addition => {
+            original.push(addition);
+        });
+        return original;
+    }
+    return additions;
 }
