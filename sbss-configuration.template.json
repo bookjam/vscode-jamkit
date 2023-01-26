@@ -14,5 +14,9 @@
             "end": "^\\s*end"
         }
     },
+    "indentationRules": {
+        "increaseIndentPattern": "(^\\s*(if|elif|else).*$)",
+        "decreaseIndentPattern": "(^\\s*(elif|else|end).*$)"
+    },
     "wordPattern": "__WORD_PATTERN__"
 }
