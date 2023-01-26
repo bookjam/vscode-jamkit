@@ -21,6 +21,4 @@ def _generate_language(lang):
 
 
 if __name__ == '__main__':
-    if not os.path.exists('languages'):
-        os.makedirs('languages')
     _generate_language(sys.argv[1])
