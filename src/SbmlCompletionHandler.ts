@@ -88,9 +88,11 @@ function shouldCompletionInlineObject(document: vscode.TextDocument, position: v
 function getInlineObjectCompletionItems() {
     const objectItem = new vscode.CompletionItem("object", vscode.CompletionItemKind.Keyword);
     objectItem.insertText = new vscode.SnippetString('object ${1|' + OBJECT_TYPES.join(',') + '|}: ${2})=');
+    objectItem.sortText = "1";
 
     const imageItem = new vscode.CompletionItem("image", vscode.CompletionItemKind.Keyword);
     imageItem.insertText = new vscode.SnippetString('image ${1:abc.png}: ${2})='); // TODO: abc.png -> #image-filename
+    objectItem.sortText = "2";
 
     return [objectItem, imageItem];
 }
