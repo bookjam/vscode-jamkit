@@ -109,14 +109,23 @@
         "yes",
         "no"
     ],
-    "display": [
-        "none",
-        "section",
-        "block",
-        "list",
-        "list-item",
-        "table"
-    ],
+    "display": {
+        "values": [
+            "none",
+            "section",
+            "block",
+            "list",
+            "list-item",
+            "table"
+        ],
+        "suggestions": [
+            "none",
+            "block",
+            "list",
+            "list-item",
+            "table"
+        ]
+    },
     "line-height": "#length",
     "line-spacing": "#length",
     "paragraph-spacing": "#length",

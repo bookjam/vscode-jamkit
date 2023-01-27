@@ -45,7 +45,7 @@ export class PropCompletionItemProvider {
             names = names.filter(name => name.startsWith(namePrefix));
         }
         return names.map(name => {
-            const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
+            const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Property);
             if (this.contextParser.propGroupContext?.kind == PropGroupKind.List) {
                 if (this.triggerChar == ',' || this.triggerChar == ':') {
                     item.insertText = ` ${name}=`;
@@ -71,11 +71,12 @@ export class PropCompletionItemProvider {
                 const prefix = context.valuePrefix;
                 suggestions = suggestions.filter(suggestion => suggestion.startsWith(prefix));
             }
-            return suggestions.map(suggestion => {
-                const item = new vscode.CompletionItem(suggestion, vscode.CompletionItemKind.EnumMember);
+            return suggestions.map((suggestion, index) => {
+                const item = new vscode.CompletionItem(suggestion, vscode.CompletionItemKind.Value);
                 if (this.triggerChar == ':') {
                     item.insertText = ` ${suggestion}`;
                 }
+                item.sortText = index.toString();
                 return item;
             });
         }
