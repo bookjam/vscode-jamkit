@@ -5,55 +5,55 @@ import { SbmlContextParser } from './SbmlContextParser';
 
 // TODO: read this from object-*.json
 const OBJECT_TYPES = [
-    "tabbar",
-    "section",
-    "sbml",
-    "sbmls",
-    "image",
-    "label",
+    "ad",
+    "animation",
+    "audio",
+    "blank",
     "button",
-    "textfield",
-    "text",
+    "camera",
+    "chart",
     "checkbox",
     "choices",
-    "progress",
-    "slider",
-    "timer",
-    "input",
-    "point",
+    "comic",
     "drawing",
+    "editor",
+    "effect",
+    "epub",
+    "hub",
+    "image.qrcode",
+    "image",
+    "input",
+    "label",
+    "map",
+    "minimap",
+    "multiphoto",
+    "node",
+    "pdf",
     "photo",
-    "photozoom",
     "photoplus",
     "photoroll",
     "photoscroll",
-    "multiphoto",
-    "map",
-    "minimap",
-    "audio",
+    "photozoom",
+    "point",
+    "progress",
+    "record",
+    "sbml",
+    "sbmls",
+    "section",
+    "slider",
+    "spoke",
+    "sprite",
+    "tabbar",
+    "text",
+    "textfield",
+    "timer",
+    "twitch",
     "video",
+    "vimeo",
+    "web",
+    "webtoon",
     "webvideo",
     "youtube",
-    "twitch",
-    "vimeo",
-    "webtoon",
-    "web",
-    "comic",
-    "pdf",
-    "sprite",
-    "effect",
-    "animation",
-    "chart",
-    "camera",
-    "blank",
-    "editor",
-    "image.qrcode",
-    "record",
-    "epub",
-    "ad",
-    "node",
-    "hub",
-    "spoke"
 ];
 
 function shouldSuggestDirectives(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
@@ -75,8 +75,24 @@ function getDirectiveCompletionItems() {
             item.insertText = new vscode.SnippetString('object ${1|' + OBJECT_TYPES.join(',') + '|}: ');
         }
         return item;
-    }
+    });
+}
+
+function shouldCompletionInlineObject(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
+    return (
+        context.triggerCharacter == '(' &&
+        document.lineAt(position.line).text.substring(0, position.character).endsWith('=(')
     );
+}
+
+function getInlineObjectCompletionItems() {
+    const objectItem = new vscode.CompletionItem("object", vscode.CompletionItemKind.Keyword);
+    objectItem.insertText = new vscode.SnippetString('object ${1|' + OBJECT_TYPES.join(',') + '|}: ${2})=');
+
+    const imageItem = new vscode.CompletionItem("image", vscode.CompletionItemKind.Keyword);
+    imageItem.insertText = new vscode.SnippetString('image ${1:abc.png}: ${2})='); // TODO: abc.png -> #image-filename
+
+    return [objectItem, imageItem];
 }
 
 export class SbmlCompletionHandler {
@@ -90,15 +106,22 @@ export class SbmlCompletionHandler {
                     _token: vscode.CancellationToken,
                     context: vscode.CompletionContext
                 ) {
+                    const contextParser = new SbmlContextParser(document, position);
+                    const propCompletionItems = new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
+                    if (propCompletionItems) {
+                        return propCompletionItems;
+                    }
+
                     if (shouldSuggestDirectives(document, position, context)) {
                         return getDirectiveCompletionItems();
                     }
 
-                    const contextParser = new SbmlContextParser(document, position);
-                    return new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
+                    if (shouldCompletionInlineObject(document, position, context)) {
+                        return getInlineObjectCompletionItems();
+                    }
                 }
             },
-            ':', ',', '='
+            ':', ',', '=', '('
         ));
     }
 }
