@@ -4,6 +4,10 @@ import { SBML_INLINE_OBJECT_PREFIX, SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbmlContextParser extends ContextParser {
+    // shouldSuggestObjectType(): boolean {
+
+    // }
+
     parsePropGroupContext(): PropGroupContext | null {
         const logicalBeginLine = this.getLogicalBeginLine();
         const logicalBeginLineText = this.document.lineAt(logicalBeginLine).text;

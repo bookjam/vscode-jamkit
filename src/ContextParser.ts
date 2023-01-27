@@ -17,29 +17,34 @@ export interface PropGroupContext {
     beginPos: vscode.Position;
 };
 
-export class PropNameCompletionContext {
-    target: PropTarget;
-    namePrefix?: string;
+export class PropContext {
+    readonly kind: PropGroupKind;
+    readonly target: PropTarget;
 
-    constructor(target: PropTarget, namePrefix?: string) {
+    constructor(kind: PropGroupKind, target: PropTarget) {
+        this.kind = kind;
         this.target = target;
+    }
+}
+export class PropNameContext extends PropContext {
+    readonly namePrefix?: string;
+
+    constructor(kind: PropGroupKind, target: PropTarget, namePrefix?: string) {
+        super(kind, target);
         this.namePrefix = namePrefix;
     }
 }
 
-export class PropValueCompletionContext {
-    target: PropTarget;
-    name: string;
-    valuePrefix?: string;
+export class PropValueContext extends PropContext {
+    readonly name: string;
+    readonly valuePrefix?: string;
 
-    constructor(target: PropTarget, name: string, valuePrefix?: string) {
-        this.target = target;
+    constructor(kind: PropGroupKind, target: PropTarget, name: string, valuePrefix?: string) {
+        super(kind, target);
         this.name = name;
         this.valuePrefix = valuePrefix;
     }
 }
-
-export type PropCompletionContext = PropNameCompletionContext | PropValueCompletionContext;
 
 export abstract class ContextParser {
     readonly document: vscode.TextDocument;
@@ -50,11 +55,13 @@ export abstract class ContextParser {
         this.position = position;
     }
 
-    parse(): PropCompletionContext | undefined {
-        if (this.propGroupContext) {
-            const target = this.propGroupContext.target;
-            const beginPos = this.propGroupContext.beginPos;
-            const parser = this.propGroupContext.kind == PropGroupKind.List ? new PropListParser() : new PropBlockParser();
+    parse(): PropContext | undefined {
+        const context = this.propGroupContext;
+
+        if (context) {
+            const target = context.target;
+            const beginPos = context.beginPos;
+            const parser = context.kind == PropGroupKind.List ? new PropListParser() : new PropBlockParser();
             for (let line = beginPos.line; line <= this.position.line; ++line) {
                 const offset = line == beginPos.line ? beginPos.character : 0;
                 const text = (() => {
@@ -71,23 +78,23 @@ export abstract class ContextParser {
 
             const parseState = parser.getState();
             if (parseState == PropParseState.BeforeName) {
-                return new PropNameCompletionContext(target);
+                return new PropNameContext(context.kind, target);
             }
 
             if (parseState == PropParseState.InName) {
                 const namePrefix = this.getTextFrom(parser.getNameBeginPos());
-                return new PropNameCompletionContext(target, namePrefix);
+                return new PropNameContext(context.kind, target, namePrefix);
             }
 
             if (parseState == PropParseState.BeforeValue) {
                 const name = this.document.getText(parser.getNameRange());
-                return new PropValueCompletionContext(target, name);
+                return new PropValueContext(context.kind, target, name);
             }
 
             if (parseState == PropParseState.InValue) {
                 const name = this.document.getText(parser.getNameRange());
                 const valuePrefix = this.getTextFrom(parser.getValueBeginPos());
-                return new PropValueCompletionContext(target, name, valuePrefix);
+                return new PropValueContext(context.kind, target, name, valuePrefix);
             }
 
             assert(parseState == PropParseState.AfterName || parseState == PropParseState.AfterValue);

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbmlContextParser } from './SbmlContextParser';
 import { ImageStore } from './ImageStore';
+import { PropContext } from './ContextParser';
 
 
 // TODO: read this from object-*.json
@@ -79,7 +80,7 @@ function getDirectiveCompletionItems() {
     });
 }
 
-function shouldCompletionInlineObject(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
+function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
     return (
         context.triggerCharacter == '(' &&
         document.lineAt(position.line).text.substring(0, position.character).endsWith('=(')
@@ -111,16 +112,17 @@ export class SbmlCompletionHandler {
                     context: vscode.CompletionContext
                 ) {
                     const contextParser = new SbmlContextParser(document, position);
-                    const propCompletionItems = new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
-                    if (propCompletionItems) {
-                        return propCompletionItems;
+
+                    const sbmlContext = contextParser.parse();
+                    if (sbmlContext instanceof PropContext) {
+                        return new PropCompletionItemProvider(sbmlContext, document, position, context.triggerCharacter).provide();
                     }
 
                     if (shouldSuggestDirectives(document, position, context)) {
                         return getDirectiveCompletionItems();
                     }
 
-                    if (shouldCompletionInlineObject(document, position, context)) {
+                    if (shouldSuggestInlineObject(document, position, context)) {
                         return getInlineObjectCompletionItems(document);
                     }
                 }
