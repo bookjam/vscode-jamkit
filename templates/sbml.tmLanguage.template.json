@@ -132,7 +132,7 @@
             },
             "patterns": [
                 {
-                    "include": "#property-list"
+                    "include": "#inline-property-list"
                 }
             ]
         },
@@ -176,6 +176,11 @@
         "property-list": {
             "patterns": [
                 "__PROP_LIST_PATTERNS__"
+            ]
+        },
+        "inline-property-list": {
+            "patterns": [
+                "__INLINE_PROP_LIST_PATTERNS__"
             ]
         },
         "continued-property-list": {

@@ -6,8 +6,18 @@ import sys
 
 _PROP_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match":   "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|(.*?(?!\\)=))|([^__TERM__]*))",
-    "comment": "    property name       : or =      d-quoted value  | s-quote val |  variable  | ')=' check  | non-quote val ",
+    "match":   "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^__TERM__]*))",
+    "captures": {
+        "1": { "name": "__STYLE_PROP_NAME__" },
+        "3": { "name": "__STYLE_PROP_VALUE__" },
+        "6": { "name": "__STYLE_VARIABLE__" }
+    }
+}'''
+
+
+_INLINE_PROP_LIST_PATTERN_TEMPLATE = r'''
+{
+    "match":   "([a-z-]+(@[a-z-]+)?)\\s*=\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^(,)]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
@@ -73,7 +83,6 @@ _STYLE_MAP = {
 def _make_prop_pair_pattern(sep, term):
     return _PROP_PAIR_PATTERN_TEMPLATE.replace('__SEP__', sep).replace('__TERM__', term)
 
-
 def _read_file(filename):
     with open(filename, 'r') as file:
         return file.read()
@@ -94,6 +103,7 @@ def _generate_syntax(lang):
     content = _read_file('templates/' + lang + '.tmLanguage.template.json')
     content = content.replace('"__PROP_LIST_PATTERNS__"', _make_prop_pair_pattern('=', ','))
     content = content.replace('"__PROP_GROUP_PATTERNS__"', _make_prop_pair_pattern(':', ';'))
+    content = content.replace('"__INLINE_PROP_LIST_PATTERNS__"', _INLINE_PROP_LIST_PATTERN_TEMPLATE)
     content = content.replace('"__EXPRESSION_PATTERNS__"', _EXPRESSION_PATTERNS)
     content = _apply_styles(content)
     _write_file('syntaxes/' + lang + '.tmLanguage.json', content)
