@@ -1,3 +1,5 @@
+import { CompletionItemKind } from "vscode";
+
 const KNOWN_CATEGORIES: string[] = [
     // '#image-filename',
     // '#audio-filename',
@@ -7,6 +9,11 @@ const KNOWN_CATEGORIES: string[] = [
     // '#color',
     // '#length',
 ];
+
+export interface PropValueSuggestion {
+    label: string;
+    kind: CompletionItemKind;
+}
 
 export class PropValueSpec {
     private values?: string[];
@@ -91,14 +98,17 @@ export class PropValueSpec {
         this.patterns = mergeUnique(this.suggestions, other.patterns);
     }
 
-    getSuggestions(): string[] | undefined {
-        if (this.suggestions) {
-            return this.suggestions;
-        }
+    getSuggestions(): PropValueSuggestion[] | undefined {
+        let suggestions = (() => {
+            if (this.suggestions)
+                return this.suggestions.map(label => ({ label, kind: CompletionItemKind.Value }));
+            if (this.values)
+                return this.values.map(label => ({ label, kind: CompletionItemKind.EnumMember }));
+        })();
 
         // TODO: categories
 
-        return this.values;
+        return suggestions;
     }
 }
 

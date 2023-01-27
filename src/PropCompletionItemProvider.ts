@@ -69,12 +69,12 @@ export class PropCompletionItemProvider {
         if (suggestions) {
             if (context.valuePrefix) {
                 const prefix = context.valuePrefix;
-                suggestions = suggestions.filter(suggestion => suggestion.startsWith(prefix));
+                suggestions = suggestions.filter(suggestion => suggestion.label.startsWith(prefix));
             }
             return suggestions.map((suggestion, index) => {
-                const item = new vscode.CompletionItem(suggestion, vscode.CompletionItemKind.Value);
-                if (this.triggerChar == ':') {
-                    item.insertText = ` ${suggestion}`;
+                const item = new vscode.CompletionItem(suggestion.label, suggestion.kind);
+                if (this.triggerChar === ':') {
+                    item.insertText = ' ' + suggestion.label;
                 }
                 item.sortText = index.toString();
                 return item;
