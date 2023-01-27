@@ -6,7 +6,8 @@ import sys
 
 _PROP_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match": "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^__TERM__]*))",
+    "match":   "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|(.*?(?!\\)=))|([^__TERM__]*))",
+    "comment": "    property name       : or =      d-quoted value  | s-quote val |  variable  | ')=' check  | non-quote val ",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
