@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbmlContextParser } from './SbmlContextParser';
+import { ImageStore } from './ImageStore';
 
 
 // TODO: read this from object-*.json
@@ -85,13 +86,14 @@ function shouldCompletionInlineObject(document: vscode.TextDocument, position: v
     );
 }
 
-function getInlineObjectCompletionItems() {
+function getInlineObjectCompletionItems(document: vscode.TextDocument) {
     const objectItem = new vscode.CompletionItem("object", vscode.CompletionItemKind.Keyword);
     objectItem.insertText = new vscode.SnippetString('object ${1|' + OBJECT_TYPES.join(',') + '|}: ${2})=');
     objectItem.sortText = "1";
 
     const imageItem = new vscode.CompletionItem("image", vscode.CompletionItemKind.Keyword);
-    imageItem.insertText = new vscode.SnippetString('image ${1:abc.png}: ${2})='); // TODO: abc.png -> #image-filename
+    const imageNames = ImageStore.enumerateImageNames(document.fileName);
+    imageItem.insertText = new vscode.SnippetString('image ${1|' + imageNames.join(',') + '|}: ${2})='); // TODO: abc.png -> #image-filename
     objectItem.sortText = "2";
 
     return [objectItem, imageItem];
@@ -119,7 +121,7 @@ export class SbmlCompletionHandler {
                     }
 
                     if (shouldCompletionInlineObject(document, position, context)) {
-                        return getInlineObjectCompletionItems();
+                        return getInlineObjectCompletionItems(document);
                     }
                 }
             },

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { readdirSync } from 'node:fs';
+import { readdirSync } from 'fs';
 import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
