@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
+import { ContextParser, ImageNameContext, PropGroupContext, PropGroupKind } from './ContextParser';
 import { SBML_INLINE_OBJECT_PREFIX, SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbmlContextParser extends ContextParser {
+
     parsePropGroupContext(): PropGroupContext | null {
         const logicalBeginLine = this.getLogicalBeginLine();
         const logicalBeginLineText = this.document.lineAt(logicalBeginLine).text;
@@ -30,7 +31,7 @@ export class SbmlContextParser extends ContextParser {
         {
             const text = (this.position.line == logicalBeginLine) ?
                 logicalBeginLineText :
-                this.document.lineAt(this.position.line).text;
+                this.getLineTextAt(this.position.line);
             const textUpToCurrentPos = text.substring(0, this.position.character);
             const objectBeginIndex = Math.max(
                 textUpToCurrentPos.lastIndexOf('=(object '),
@@ -48,6 +49,19 @@ export class SbmlContextParser extends ContextParser {
             }
         }
 
+        return null;
+    }
+
+    parseImageNameContext(): ImageNameContext | null {
+        const textUpToCurrentPos = this.getTextFrom(this.position.with(undefined, 0));
+
+        // check inline image
+
+        const isContinuedLine = this.getLogicalBeginLine() < this.position.line;
+        if (isContinuedLine) {
+        }
+
+        textUpToCurrentPos.trimEnd().endsWith('=(image');
         return null;
     }
 }

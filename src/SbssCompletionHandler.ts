@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbssContextParser } from './SbssContextParser';
 import { PropNameContext, PropValueContext } from './ContextParser';
+
 export class SbssCompletionHandler {
     static register(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(

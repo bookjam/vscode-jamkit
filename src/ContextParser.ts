@@ -106,6 +106,7 @@ export abstract class ContextParser {
     }
 
     abstract parsePropGroupContext(): PropGroupContext | null;
+    abstract parseImageNameContext(): ImageNameContext | null;
 
     getTextFrom(beginPos: vscode.Position): string {
         return this.document.getText(new vscode.Range(beginPos, this.position));
@@ -115,13 +116,17 @@ export abstract class ContextParser {
         return this.document.lineAt(line).text;
     }
 
+    private localBeginLine: number | undefined;
     getLogicalBeginLine(): number {
-        let line = this.position.line;
-        while (line > 0) {
-            if (!this.document.lineAt(line - 1).text.endsWith('\\'))
-                break;
-            line -= 1;
+        if (!this.localBeginLine) {
+            let line = this.position.line;
+            while (line > 0) {
+                if (!this.document.lineAt(line - 1).text.endsWith('\\'))
+                    break;
+                line -= 1;
+            }
+            this.localBeginLine = line;
         }
-        return line;
+        return this.localBeginLine;
     }
 }

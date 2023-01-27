@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
-import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
+import { ContextParser, ImageNameContext, PropGroupContext, PropGroupKind } from './ContextParser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbssContextParser extends ContextParser {
@@ -32,6 +32,10 @@ export class SbssContextParser extends ContextParser {
             }
         }
 
+        return null;
+    }
+
+    parseImageNameContext(): ImageNameContext | null {
         return null;
     }
 
