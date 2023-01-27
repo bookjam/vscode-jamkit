@@ -17,33 +17,34 @@ export interface PropGroupContext {
     beginPos: vscode.Position;
 };
 
-export class PropContext {
+export class PropNameContext {
     readonly kind: PropGroupKind;
     readonly target: PropTarget;
-
-    constructor(kind: PropGroupKind, target: PropTarget) {
-        this.kind = kind;
-        this.target = target;
-    }
-}
-export class PropNameContext extends PropContext {
     readonly namePrefix?: string;
 
     constructor(kind: PropGroupKind, target: PropTarget, namePrefix?: string) {
-        super(kind, target);
+        this.kind = kind;
+        this.target = target;
         this.namePrefix = namePrefix;
     }
 }
 
-export class PropValueContext extends PropContext {
+export class PropValueContext {
+    readonly kind: PropGroupKind;
+    readonly target: PropTarget;
     readonly name: string;
     readonly valuePrefix?: string;
 
     constructor(kind: PropGroupKind, target: PropTarget, name: string, valuePrefix?: string) {
-        super(kind, target);
+        this.kind = kind;
+        this.target = target;
         this.name = name;
         this.valuePrefix = valuePrefix;
     }
+}
+
+export class ImageNameContext {
+    readonly prefix?: string;
 }
 
 export abstract class ContextParser {
@@ -55,13 +56,13 @@ export abstract class ContextParser {
         this.position = position;
     }
 
-    parse(): PropContext | undefined {
-        const context = this.propGroupContext;
+    parse(): PropNameContext | PropValueContext | ImageNameContext | undefined {
+        const propGroupContext = this.parsePropGroupContext();
 
-        if (context) {
-            const target = context.target;
-            const beginPos = context.beginPos;
-            const parser = context.kind == PropGroupKind.List ? new PropListParser() : new PropBlockParser();
+        if (propGroupContext) {
+            const target = propGroupContext.target;
+            const beginPos = propGroupContext.beginPos;
+            const parser = propGroupContext.kind == PropGroupKind.List ? new PropListParser() : new PropBlockParser();
             for (let line = beginPos.line; line <= this.position.line; ++line) {
                 const offset = line == beginPos.line ? beginPos.character : 0;
                 const text = (() => {
@@ -76,25 +77,27 @@ export abstract class ContextParser {
                 parser.parse(line, offset, text);
             }
 
+            const kind = propGroupContext.kind;
             const parseState = parser.getState();
+
             if (parseState == PropParseState.BeforeName) {
-                return new PropNameContext(context.kind, target);
+                return new PropNameContext(kind, target);
             }
 
             if (parseState == PropParseState.InName) {
                 const namePrefix = this.getTextFrom(parser.getNameBeginPos());
-                return new PropNameContext(context.kind, target, namePrefix);
+                return new PropNameContext(kind, target, namePrefix);
             }
 
             if (parseState == PropParseState.BeforeValue) {
                 const name = this.document.getText(parser.getNameRange());
-                return new PropValueContext(context.kind, target, name);
+                return new PropValueContext(kind, target, name);
             }
 
             if (parseState == PropParseState.InValue) {
                 const name = this.document.getText(parser.getNameRange());
                 const valuePrefix = this.getTextFrom(parser.getValueBeginPos());
-                return new PropValueContext(context.kind, target, name, valuePrefix);
+                return new PropValueContext(kind, target, name, valuePrefix);
             }
 
             assert(parseState == PropParseState.AfterName || parseState == PropParseState.AfterValue);
@@ -103,14 +106,6 @@ export abstract class ContextParser {
     }
 
     abstract parsePropGroupContext(): PropGroupContext | null;
-
-    get propGroupContext(): PropGroupContext | null {
-        if (this._propGroupContext == undefined) {
-            this._propGroupContext = this.parsePropGroupContext();
-        }
-        return this._propGroupContext;
-    }
-    private _propGroupContext: PropGroupContext | null | undefined;
 
     getTextFrom(beginPos: vscode.Position): string {
         return this.document.getText(new vscode.Range(beginPos, this.position));

@@ -1,20 +1,23 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import {
-    PropContext,
     PropGroupKind,
     PropNameContext,
     PropValueContext
 } from './ContextParser';
-import { assert } from 'console';
 
 export class PropCompletionItemProvider {
-    readonly context: PropContext;
+    readonly context: PropNameContext | PropValueContext;
     readonly document: vscode.TextDocument;
     readonly position: vscode.Position;
     readonly triggerChar: string | undefined;
 
-    constructor(context: PropContext, document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined) {
+    constructor(
+        context: PropNameContext | PropValueContext,
+        document: vscode.TextDocument,
+        position: vscode.Position,
+        triggerChar: string | undefined
+    ) {
         this.context = context;
         this.document = document;
         this.position = position;

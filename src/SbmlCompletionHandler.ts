@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbmlContextParser } from './SbmlContextParser';
 import { ImageStore } from './ImageStore';
-import { PropContext } from './ContextParser';
+import { PropNameContext, PropValueContext } from './ContextParser';
 
 
 // TODO: read this from object-*.json
@@ -109,20 +109,20 @@ export class SbmlCompletionHandler {
                     document: vscode.TextDocument,
                     position: vscode.Position,
                     _token: vscode.CancellationToken,
-                    context: vscode.CompletionContext
+                    _context: vscode.CompletionContext
                 ) {
                     const contextParser = new SbmlContextParser(document, position);
 
-                    const sbmlContext = contextParser.parse();
-                    if (sbmlContext instanceof PropContext) {
-                        return new PropCompletionItemProvider(sbmlContext, document, position, context.triggerCharacter).provide();
+                    const context = contextParser.parse();
+                    if (context instanceof PropNameContext || context instanceof PropValueContext) {
+                        return new PropCompletionItemProvider(context, document, position, _context.triggerCharacter).provide();
                     }
 
-                    if (shouldSuggestDirectives(document, position, context)) {
+                    if (shouldSuggestDirectives(document, position, _context)) {
                         return getDirectiveCompletionItems();
                     }
 
-                    if (shouldSuggestInlineObject(document, position, context)) {
+                    if (shouldSuggestInlineObject(document, position, _context)) {
                         return getInlineObjectCompletionItems(document);
                     }
                 }
