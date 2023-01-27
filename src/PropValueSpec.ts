@@ -1,3 +1,13 @@
+const KNOWN_CATEGORIES: string[] = [
+    // '#image-filename',
+    // '#audio-filename',
+    // '#video-filename',
+    // '#style-name',
+    // '#function-name',
+    // '#color',
+    // '#length',
+];
+
 export class PropValueSpec {
     private values?: string[];
     private suggestions?: string[];
@@ -19,7 +29,7 @@ export class PropValueSpec {
 
         if (typeof valueSpec == 'string') {
             const specialValue = valueSpec as string;
-            if (specialValue.startsWith('#')) {
+            if (KNOWN_CATEGORIES.includes(specialValue)) {
                 category = specialValue;
             }
         }
@@ -67,7 +77,7 @@ export class PropValueSpec {
 
         if (this.categories) {
             for (let _category of this.categories) {
-                // TODO: handle '#image-filename'  ...
+                // TODO: handle known categories
             }
         }
 

@@ -48,5 +48,5 @@
         "side-dot",
         "outline"
     ],
-    "filename": "#image-filename"
+    "style": "#style-name"
 }
