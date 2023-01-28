@@ -11,6 +11,8 @@ You might need to run the following commands if you pulled updates. This (re)gen
 $ make
 ```
 
+Then select the menu: `Run` > `Run Without Debugging`. If successful, a new instance of VSCode will launch.
+
 ### Build `vsix` pckage
 
 - Install `vsce` command-line tool if you haven't already.
