@@ -7,31 +7,18 @@ import {
 } from './ContextParser';
 
 export class PropCompletionItemProvider {
-    readonly context: PropNameContext | PropValueContext;
-    readonly document: vscode.TextDocument;
-    readonly position: vscode.Position;
-    readonly triggerChar: string | undefined;
+    readonly context;
+    readonly triggerChar;
 
-    constructor(
-        context: PropNameContext | PropValueContext,
-        document: vscode.TextDocument,
-        position: vscode.Position,
-        triggerChar: string | undefined
-    ) {
+    constructor(context: PropNameContext | PropValueContext, triggerChar: string | undefined) {
         this.context = context;
-        this.document = document;
-        this.position = position;
         this.triggerChar = triggerChar;
     }
 
     provide(): vscode.CompletionItem[] | undefined {
-        console.log(`provideCompletionItems: ${this.position.line}:${this.position.character}`);
-        console.log(this.context);
-
         if (this.context instanceof PropNameContext) {
             return this.getPropNameCompletionItems(this.context);
         }
-
         if (this.context instanceof PropValueContext) {
             return this.getPropValueCompletionItems(this.context);
         }

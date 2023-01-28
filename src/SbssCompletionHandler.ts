@@ -15,11 +15,10 @@ export class SbssCompletionHandler {
                     _context: vscode.CompletionContext
                 ) {
                     const contextParser = new SbssContextParser(document, position);
-                    const context = contextParser.parse();
-                    if (context instanceof PropNameContext || context instanceof PropValueContext) {
-                        return new PropCompletionItemProvider(context, document, position, _context.triggerCharacter).provide();
+                    const context = contextParser.parsePropContext();
+                    if (context) {
+                        return new PropCompletionItemProvider(context, _context.triggerCharacter).provide();
                     }
-
                 }
             },
             ':', ',', '='

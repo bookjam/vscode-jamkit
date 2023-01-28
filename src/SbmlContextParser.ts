@@ -1,11 +1,24 @@
 import * as vscode from 'vscode';
-import { ContextParser, ImageNameContext, PropGroupContext, PropGroupKind } from './ContextParser';
+import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { SBML_INLINE_OBJECT_PREFIX, SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
+export class ImageNameContext {
+    readonly prefix;
+    constructor(prefix?: string) {
+        this.prefix = prefix;
+    }
+}
+
+export class ObjectTypeContext {
+    readonly prefix;
+    constructor(prefix?: string) {
+        this.prefix = prefix;
+    }
+}
 export class SbmlContextParser extends ContextParser {
 
-    parsePropGroupContext(): PropGroupContext | null {
+    parsePropGroupContext(): PropGroupContext | undefined {
         const logicalBeginLine = this.getLogicalBeginLine();
         const logicalBeginLineText = this.document.lineAt(logicalBeginLine).text;
 
@@ -32,13 +45,13 @@ export class SbmlContextParser extends ContextParser {
             const text = (this.position.line == logicalBeginLine) ?
                 logicalBeginLineText :
                 this.getLineTextAt(this.position.line);
-            const textUpToCurrentPos = text.substring(0, this.position.character);
+            const textUpToCursor = text.substring(0, this.position.character);
             const objectBeginIndex = Math.max(
-                textUpToCurrentPos.lastIndexOf('=(object '),
-                textUpToCurrentPos.lastIndexOf('=(image ')
+                textUpToCursor.lastIndexOf('=(object '),
+                textUpToCursor.lastIndexOf('=(image ')
             );
-            if (objectBeginIndex >= 0 && textUpToCurrentPos.lastIndexOf(')=') < objectBeginIndex) {
-                const objectStr = textUpToCurrentPos.substring(objectBeginIndex);
+            if (objectBeginIndex >= 0 && textUpToCursor.lastIndexOf(')=') < objectBeginIndex) {
+                const objectStr = textUpToCursor.substring(objectBeginIndex);
                 const m = objectStr.match(SBML_INLINE_OBJECT_PREFIX);
                 if (m) {
                     const objectType = (m[1] == "object") ? m[2] : "sbml:image";
@@ -48,20 +61,45 @@ export class SbmlContextParser extends ContextParser {
                 }
             }
         }
-
-        return null;
     }
 
-    parseImageNameContext(): ImageNameContext | null {
-        const textUpToCurrentPos = this.getTextFrom(this.position.with(undefined, 0));
+    parseObjectTypeContext(): ObjectTypeContext | ImageNameContext | undefined {
+        const textUpToCursor = this.getLineTextAt(this.position.line).substring(0, this.position.character);
+        const trimmedText = textUpToCursor.trim();
 
-        // check inline image
+        const parseContext = (marker: string, contextClass: { new(prefix?: string): ImageNameContext | ObjectTypeContext; }) => {
+            if (trimmedText.endsWith(marker)) {
+                return new contextClass();
+            }
+            const items = trimmedText.split(' ');
+            if (items.length >= 2) {
+                const prefix = items.pop();
+                while (items.at(-1) == '') {
+                    items.pop();
+                }
+                if (items.at(-1)?.endsWith(marker)) {
+                    const context = new contextClass(prefix);
+                    return context;
+                }
+            }
+        };
+
+        let context = parseContext('=(image', ImageNameContext);
+        if (context)
+            return context;
+
+        context = parseContext('=(object', ObjectTypeContext);
+        if (context)
+            return context;
 
         const isContinuedLine = this.getLogicalBeginLine() < this.position.line;
-        if (isContinuedLine) {
+        if (!isContinuedLine) {
+            if (trimmedText.startsWith("=image")) {
+                return parseContext('=image', ImageNameContext);
+            }
+            if (trimmedText.startsWith("=object")) {
+                return parseContext('=object', ObjectTypeContext);
+            }
         }
-
-        textUpToCurrentPos.trimEnd().endsWith('=(image');
-        return null;
     }
 }

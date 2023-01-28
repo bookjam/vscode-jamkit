@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
 import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
-import { ContextParser, ImageNameContext, PropGroupContext, PropGroupKind } from './ContextParser';
+import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbssContextParser extends ContextParser {
-
-    parsePropGroupContext(): PropGroupContext | null {
+    parsePropGroupContext(): PropGroupContext | undefined {
         const line = this.getLogicalBeginLine();
         const text = this.document.lineAt(line).text;
         const m = text.match(SBSS_PROP_LIST_PREFIX);
@@ -31,12 +30,6 @@ export class SbssContextParser extends ContextParser {
                 break;
             }
         }
-
-        return null;
-    }
-
-    parseImageNameContext(): ImageNameContext | null {
-        return null;
     }
 
     private getPropTarget(selector: string): PropTarget {

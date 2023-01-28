@@ -43,20 +43,16 @@ export class PropValueContext {
     }
 }
 
-export class ImageNameContext {
-    readonly prefix?: string;
-}
-
 export abstract class ContextParser {
-    readonly document: vscode.TextDocument;
-    readonly position: vscode.Position;
+    readonly document;
+    readonly position;
 
     constructor(document: vscode.TextDocument, position: vscode.Position) {
         this.document = document;
         this.position = position;
     }
 
-    parse(): PropNameContext | PropValueContext | ImageNameContext | undefined {
+    parsePropContext(): PropNameContext | PropValueContext | undefined {
         const propGroupContext = this.parsePropGroupContext();
 
         if (propGroupContext) {
@@ -105,8 +101,7 @@ export abstract class ContextParser {
         }
     }
 
-    abstract parsePropGroupContext(): PropGroupContext | null;
-    abstract parseImageNameContext(): ImageNameContext | null;
+    abstract parsePropGroupContext(): PropGroupContext | undefined;
 
     getTextFrom(beginPos: vscode.Position): string {
         return this.document.getText(new vscode.Range(beginPos, this.position));
