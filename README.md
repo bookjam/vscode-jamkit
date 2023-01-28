@@ -6,15 +6,16 @@
 
 ### Run `vscode-jamkit`
 
-You might need to run the following commands if you pulled updates. This (re)generates language rules and syntax coloring files.
-```bash
-$ make
-```
-
-Also, if you're running it for the first time, run the following commands as well.
+If you're running it for the first time, run the following commands.
 ```bash
 $ npm install        # install 3rd-party libraries
 $ npm run compile    # transpile TypeScript code to JavaScript
+```
+
+Also, you might need to run the following commands if you pulled new changes from remote.
+This (re)generates language rules and syntax coloring files.
+```bash
+$ make
 ```
 
 Then select the menu: `Run` > `Run Without Debugging`. If successful, a new instance of VSCode will launch.
