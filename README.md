@@ -13,9 +13,8 @@ $ npm run compile    # transpile TypeScript code to JavaScript
 ```
 
 Also, you might need to run the following commands if you pulled new changes from remote.
-This (re)generates language rules and syntax coloring files.
 ```bash
-$ make
+$ make               # (re)generate language rules and syntax coloring files
 ```
 
 Then select the menu: `Run` > `Run Without Debugging`. If successful, a new instance of VSCode will launch.
