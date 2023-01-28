@@ -29,7 +29,9 @@ export class PropConfig {
             existingSpec.merge(valueSpec);
         }
         else {
-            this.map.set(propName, valueSpec);
+            const newSpec = PropValueSpec.from({});
+            newSpec.merge(valueSpec);
+            this.map.set(propName, newSpec);
         }
     }
 
