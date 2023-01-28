@@ -57,30 +57,6 @@ const OBJECT_TYPES = [
     "youtube",
 ];
 
-function shouldSuggestDirectives(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
-    return (
-        context.triggerCharacter == '=' &&
-        document.lineAt(position.line).text.trim() == '=' &&
-        (
-            position.line == 0 ||
-            !document.lineAt(position.line - 1).text.endsWith('\\')
-        )
-    );
-}
-
-function getDirectiveCompletionItems() {
-
-    return ['begin', 'end', 'object', 'image', 'comment', 'style', 'if', 'else', 'elif'].map((directive, index) => {
-        const item = new vscode.CompletionItem(directive, vscode.CompletionItemKind.Keyword);
-        item.sortText = index.toString();
-        if (directive === 'object' || directive === 'image') {
-            item.insertText = directive + ' ';
-            item.command = { title: `Select an ${directive}...`, command: 'editor.action.triggerSuggest' };
-        }
-        return item;
-    });
-}
-
 function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
     return (
         context.triggerCharacter == '(' &&
@@ -118,8 +94,19 @@ export class SbmlCompletionHandler {
                         }
                     }
 
-                    if (shouldSuggestDirectives(document, position, _context)) {
-                        return getDirectiveCompletionItems();
+                    {
+                        const context = contextParser.parseDirectiveContext();
+                        if (context) {
+                            return ['begin', 'end', 'object', 'image', 'comment', 'style', 'if', 'else', 'elif'].map((directive, index) => {
+                                const item = new vscode.CompletionItem(directive, vscode.CompletionItemKind.Keyword);
+                                item.insertText = directive + ' ';
+                                item.sortText = index.toString();
+                                if (directive === 'object' || directive === 'image') {
+                                    item.command = { title: `Select an ${directive}...`, command: 'editor.action.triggerSuggest' };
+                                }
+                                return item;
+                            });
+                        }
                     }
 
                     if (shouldSuggestInlineObject(document, position, _context)) {
@@ -156,7 +143,8 @@ export class SbmlCompletionHandler {
                     }
                 }
             },
-            ':', ',', '=', '(',
+            ':', ',', '=',
+            '(', // inline object/image
             '~', '/', '.' // image name prefix
         ));
     }

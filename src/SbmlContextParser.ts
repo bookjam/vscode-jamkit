@@ -3,6 +3,12 @@ import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser'
 import { SBML_INLINE_OBJECT_PREFIX, SBML_PROP_LIST_PREFIX } from './patterns';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
+export class DirectiveContext {
+    readonly prefix;
+    constructor(prefix?: string) {
+        this.prefix = prefix;
+    }
+}
 export class ImageNameContext {
     readonly prefix;
     constructor(prefix?: string) {
@@ -59,6 +65,18 @@ export class SbmlContextParser extends ContextParser {
                     const beginPos = new vscode.Position(logicalBeginLine, objectBeginIndex + objectStr.indexOf(':') + 1);
                     return { kind: PropGroupKind.List, target, beginPos };
                 }
+            }
+        }
+    }
+
+    parseDirectiveContext(): DirectiveContext | undefined {
+        if (this.getLogicalBeginLine() == this.position.line) {
+            const text = this.getLineTextAt(this.position.line).substring(0, this.position.character).trimStart();
+
+            // begin, end, object, image, style, if, elif, else, comment
+            const m = text.match(/^=([a-z]*)$/);
+            if (m) {
+                return new DirectiveContext(m[1]);
             }
         }
     }
