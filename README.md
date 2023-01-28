@@ -13,8 +13,8 @@ $ make
 
 Also, if you're running it for the first time, run the following commands as well.
 ```
-$ npm install
-$ npm rum compile
+$ npm install        # install 3rd-party libraries
+$ npm run compile    # transpile TypeScript code to JavaScript
 ```
 
 Then select the menu: `Run` > `Run Without Debugging`. If successful, a new instance of VSCode will launch.
