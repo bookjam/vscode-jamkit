@@ -57,21 +57,11 @@ const OBJECT_TYPES = [
     "youtube",
 ];
 
-function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
+function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined): boolean {
     return (
-        context.triggerCharacter == '(' &&
+        triggerChar === '(' &&
         document.lineAt(position.line).text.substring(0, position.character).endsWith('=(')
     );
-}
-
-function getInlineObjectCompletionItems(document: vscode.TextDocument) {
-    return ['object', 'image'].map((keyword, index) => {
-        const item = new vscode.CompletionItem(keyword, vscode.CompletionItemKind.Keyword);
-        item.insertText = keyword + ' ';
-        item.command = { title: `Select an ${keyword}...`, command: 'editor.action.triggerSuggest' };
-        item.sortText = index.toString();
-        return item;
-    });
 }
 
 export class SbmlCompletionHandler {
@@ -109,8 +99,14 @@ export class SbmlCompletionHandler {
                         }
                     }
 
-                    if (shouldSuggestInlineObject(document, position, _context)) {
-                        return getInlineObjectCompletionItems(document);
+                    if (shouldSuggestInlineObject(document, position, _context.triggerCharacter)) {
+                        return ['object', 'image'].map((keyword, index) => {
+                            const item = new vscode.CompletionItem(keyword, vscode.CompletionItemKind.Keyword);
+                            item.insertText = keyword + ' ';
+                            item.command = { title: `Select an ${keyword}...`, command: 'editor.action.triggerSuggest' };
+                            item.sortText = index.toString();
+                            return item;
+                        });
                     }
 
                     {
