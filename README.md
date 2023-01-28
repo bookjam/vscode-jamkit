@@ -23,7 +23,7 @@ Then select the menu: `Run` > `Run Without Debugging`. If successful, a new inst
 
 Install `vsce` command-line tool if you haven't already.
 ```bash
-$ npm install --global vsce
+$ npm install --global @vscode/vsce
 ```
 Run `vsce` via `make`.
 ```bash
