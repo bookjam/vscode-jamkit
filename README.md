@@ -11,6 +11,12 @@ You might need to run the following commands if you pulled updates. This (re)gen
 $ make
 ```
 
+Also, if you're running it for the first time, run the following commands as well.
+```
+$ npm install
+$ npm rum compile
+```
+
 Then select the menu: `Run` > `Run Without Debugging`. If successful, a new instance of VSCode will launch.
 
 ### Build `vsix` pckage
