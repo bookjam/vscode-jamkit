@@ -16,17 +16,10 @@ export interface PropValueSuggestion {
 }
 
 export class PropValueSpec {
-    private values?: string[];
-    private suggestions?: string[];
-    private categories?: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
-    private patterns?: string[];
-
-    constructor(values?: string[], suggestions?: string[], category?: string, pattern?: string) {
-        this.values = values;
-        this.suggestions = suggestions;
-        this.categories = category ? [category] : undefined;
-        this.patterns = pattern ? [pattern] : undefined;
-    }
+    private values: string[];
+    private suggestions: string[];
+    private categories: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
+    private patterns: string[];
 
     static from(valueSpec: any) {
         let values: string[] | undefined;
@@ -66,43 +59,46 @@ export class PropValueSpec {
         return new this(values, suggestions, category, pattern);
     }
 
+    private constructor(values?: string[], suggestions?: string[], category?: string, pattern?: string) {
+        this.values = values ?? [];
+        this.suggestions = suggestions ?? [];
+        this.categories = category ? [category] : [];
+        this.patterns = pattern ? [pattern] : [];
+    }
+
     verify(value: string): boolean {
-        if (!this.values && !this.patterns && !this.categories) {
+        if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
             return true;
         }
 
-        if (this.values?.includes(value)) {
+        if (this.values.includes(value)) {
             return true;
         }
 
-        if (this.patterns) {
-            for (let pattern of this.patterns) {
-                if (new RegExp(pattern).test(value))
-                    return true;
-            }
+        for (let pattern of this.patterns) {
+            if (new RegExp(pattern).test(value))
+                return true;
         }
 
-        if (this.categories) {
-            for (let _category of this.categories) {
-                // TODO: handle known categories
-            }
+        for (let _category of this.categories) {
+            // TODO: handle known categories
         }
 
         return false;
     }
 
     merge(other: PropValueSpec): void {
-        this.values = mergeUnique(this.values, other.values);
-        this.suggestions = mergeUnique(this.suggestions, other.suggestions);
-        this.categories = mergeUnique(this.categories, other.categories);
-        this.patterns = mergeUnique(this.suggestions, other.patterns);
+        mergeUnique(this.values, other.values);
+        mergeUnique(this.suggestions, other.suggestions);
+        mergeUnique(this.categories, other.categories);
+        mergeUnique(this.suggestions, other.patterns);
     }
 
     getSuggestions(): PropValueSuggestion[] | undefined {
         let suggestions = (() => {
-            if (this.suggestions)
+            if (this.suggestions.length != 0)
                 return this.suggestions.map(label => ({ label, kind: CompletionItemKind.Value }));
-            if (this.values)
+            if (this.values.length != 0)
                 return this.values.map(label => ({ label, kind: CompletionItemKind.EnumMember }));
         })();
 
@@ -112,13 +108,9 @@ export class PropValueSpec {
     }
 }
 
-function mergeUnique<T>(mine?: T[], others?: T[]): T[] | undefined {
-    if (mine) {
-        others?.forEach(addition => {
-            if (!mine.includes(addition))
-                mine.push(addition);
-        });
-        return mine;
-    }
-    return others;
+function mergeUnique<T>(dst: T[], src: T[]): void {
+    src.forEach(addition => {
+        if (!dst.includes(addition))
+            dst.push(addition);
+    });
 }
