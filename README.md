@@ -10,10 +10,6 @@ If you're running it for the first time, run the following commands.
 ```bash
 $ npm install        # install 3rd-party libraries
 $ npm run compile    # transpile TypeScript code to JavaScript
-```
-
-Also, you might need to run the following commands if you pulled new changes from remote.
-```bash
 $ make               # (re)generate language rules and syntax coloring files
 ```
 
