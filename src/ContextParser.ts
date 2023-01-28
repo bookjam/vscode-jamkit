@@ -111,17 +111,37 @@ export abstract class ContextParser {
         return this.document.lineAt(line).text;
     }
 
-    private localBeginLine: number | undefined;
-    getLogicalBeginLine(): number {
-        if (!this.localBeginLine) {
+    private _localBeginLine: number | undefined;
+    get logicalBeginLine(): number {
+        if (this._localBeginLine == undefined) {
             let line = this.position.line;
             while (line > 0) {
                 if (!this.document.lineAt(line - 1).text.endsWith('\\'))
                     break;
                 line -= 1;
             }
-            this.localBeginLine = line;
+            this._localBeginLine = line;
         }
-        return this.localBeginLine;
+        return this._localBeginLine;
+    }
+
+    private _isContinuedLine: boolean | undefined;
+    get isContinuedLine(): boolean {
+        if (this._isContinuedLine == undefined) {
+            if (this.position.line == 0) {
+                this._isContinuedLine = false;
+            } else {
+                this._isContinuedLine = this.document.lineAt(this.position).text.trimEnd().endsWith('\\');
+            }
+        }
+        return this._isContinuedLine;
+    }
+
+    private _textUpToCursor: string | undefined;
+    get textUpToCursor(): string {
+        if (this._textUpToCursor == undefined) {
+            this._textUpToCursor = this.document.lineAt(this.position).text.substring(0, this.position.character);
+        }
+        return this._textUpToCursor;
     }
 }
