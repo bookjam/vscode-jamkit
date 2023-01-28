@@ -4,7 +4,7 @@ import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
 
-export class PropConfig {
+class PropConfig {
     private readonly map = new Map<string, PropValueSpec>();
 
     static fromJSON(json: any): PropConfig {
@@ -86,15 +86,11 @@ export class PropConfigStore {
         if (target.kind == PropTargetKind.Unknown) {
             return this.globalConfig.get(propName);
         }
-        else {
-            for (let filename of this.getPropFileSequence(target)) {
-                const config = this.configMap.get(filename);
-                if (config) {
-                    const valueSpec = config.get(propName);
-                    if (valueSpec) {
-                        return valueSpec;
-                    }
-                }
+
+        for (let filename of this.getPropFileSequence(target)) {
+            const valueSpec = this.configMap.get(filename)?.get(propName);
+            if (valueSpec) {
+                return valueSpec;
             }
         }
     }
