@@ -7,12 +7,12 @@
 ### Run `vscode-jamkit`
 
 You might need to run the following commands if you pulled updates. This (re)generates language rules and syntax coloring files.
-```
+```bash
 $ make
 ```
 
 Also, if you're running it for the first time, run the following commands as well.
-```
+```bash
 $ npm install        # install 3rd-party libraries
 $ npm run compile    # transpile TypeScript code to JavaScript
 ```
@@ -22,16 +22,16 @@ Then select the menu: `Run` > `Run Without Debugging`. If successful, a new inst
 ### Build `vsix` pckage
 
 Install `vsce` command-line tool if you haven't already.
-```zsh
+```bash
 $ npm install --global vsce
 ```
 Run `vsce` via `make`.
-```zsh
+```bash
 $ make package
 ```
 
 If the command was successful, you would see something like the following:
-```zsh
+```bash
 ./scripts/generate-syntax.py sbss
 ./scripts/generate-syntax.py sbml
 ./scripts/generate-language.py sbss
