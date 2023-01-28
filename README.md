@@ -19,7 +19,7 @@ $ npm run compile    # transpile TypeScript code to JavaScript
 
 Then select the menu: `Run` > `Run Without Debugging`. If successful, a new instance of VSCode will launch.
 
-### Build `vsix` pckage
+### Build `vsix` package
 
 Install `vsce` command-line tool if you haven't already.
 ```bash
