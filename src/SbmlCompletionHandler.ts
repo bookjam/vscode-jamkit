@@ -2,60 +2,7 @@ import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { ImageNameContext, ObjectTypeContext, SbmlContextParser } from './SbmlContextParser';
 import { ImageStore } from './ImageStore';
-
-
-// TODO: read this from object-*.json
-const OBJECT_TYPES = [
-    "ad",
-    "animation",
-    "audio",
-    "blank",
-    "button",
-    "camera",
-    "chart",
-    "checkbox",
-    "choices",
-    "comic",
-    "drawing",
-    "editor",
-    "effect",
-    "epub",
-    "hub",
-    "image.qrcode",
-    "image",
-    "input",
-    "label",
-    "map",
-    "minimap",
-    "multiphoto",
-    "node",
-    "pdf",
-    "photo",
-    "photoplus",
-    "photoroll",
-    "photoscroll",
-    "photozoom",
-    "point",
-    "progress",
-    "record",
-    "sbml",
-    "sbmls",
-    "section",
-    "slider",
-    "spoke",
-    "sprite",
-    "tabbar",
-    "text",
-    "textfield",
-    "timer",
-    "twitch",
-    "video",
-    "vimeo",
-    "web",
-    "webtoon",
-    "webvideo",
-    "youtube",
-];
+import { PropConfigStore } from './PropConfigStore';
 
 function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined): boolean {
     return (
@@ -113,7 +60,7 @@ export class SbmlCompletionHandler {
                         const context = contextParser.parseObjectTypeContext();
 
                         if (context instanceof ObjectTypeContext) {
-                            let objectTypes = OBJECT_TYPES;
+                            let objectTypes = PropConfigStore.getKnownObjectTypes();
                             if (context.prefix) {
                                 const prefix = context.prefix;
                                 objectTypes = objectTypes.filter(objectType => objectType.startsWith(prefix));
