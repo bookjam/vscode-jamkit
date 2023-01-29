@@ -33,7 +33,7 @@ export class SbmlContextParser extends ContextParser {
                 return this.textUpToCursor;
             })();
             const m = text.match(SBML_PROP_LIST_PREFIX);
-            if (m && m[3] == ':') {
+            if (m && m[4] == ':') {
                 const target = ((): PropTarget => {
                     if (m[1] == "begin")
                         return { kind: PropTargetKind.Section };
