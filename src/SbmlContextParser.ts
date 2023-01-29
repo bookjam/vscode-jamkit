@@ -25,11 +25,14 @@ export class ObjectTypeContext {
 export class SbmlContextParser extends ContextParser {
 
     parsePropGroupContext(): PropGroupContext | undefined {
-        const logicalBeginLineText = this.document.lineAt(this.logicalBeginLine).text;
-
         // directives: =section, =object, =image, =style
         {
-            const m = logicalBeginLineText.match(SBML_PROP_LIST_PREFIX);
+            const text = (() => {
+                if (this.logicalBeginLine < this.position.line)
+                    return this.document.lineAt(this.logicalBeginLine).text;
+                return this.textUpToCursor;
+            })();
+            const m = text.match(SBML_PROP_LIST_PREFIX);
             if (m && m[3] == ':') {
                 const target = ((): PropTarget => {
                     if (m[1] == "begin")
@@ -40,7 +43,7 @@ export class SbmlContextParser extends ContextParser {
                         return { kind: PropTargetKind.BlockObject, objectType: "sbml:image" };
                     return { kind: PropTargetKind.Unknown };
                 })();
-                const beginIndex = logicalBeginLineText.indexOf(':') + 1;
+                const beginIndex = text.indexOf(':') + 1;
                 return { kind: PropGroupKind.List, target, beginPos: new vscode.Position(this.logicalBeginLine, beginIndex) };
             }
         }
