@@ -5,10 +5,10 @@ const IMAGE_SUFFIXES = ['.png', '.jpg'];
 
 
 export class MediaRepository {
-    static imageNamesMap = new Map</*directory path*/string, /*filenames*/string[]>;
+    static imageNamesCache = new Map</*directory path*/string, /*filenames*/string[]>;
 
     static enumerateImageNames(documentPath: string): string[] {
-        const uniqueImageNames = new Set<string>();
+        const imageNames: string[] = [];
 
         const pathComponents = documentPath.split(path.sep);
 
@@ -16,10 +16,7 @@ export class MediaRepository {
         pathComponents.pop();
 
         const activeDirPath = pathComponents.join(path.sep);
-        readdirSync(activeDirPath).forEach(filename => {
-            if (isImageFilename(filename))
-                uniqueImageNames.add(stripAtSuffix(filename));
-        });
+        imageNames.concat(this.getImageNamesAtDirPath(activeDirPath));
 
         const imageDirPath = (() => {
             let catalogBonPath = path.join(activeDirPath, 'catalog.bon');
@@ -35,13 +32,24 @@ export class MediaRepository {
             }
         })();
         if (imageDirPath) {
-            readdirSync(imageDirPath).forEach(filename => {
-                if (isImageFilename(filename))
-                    uniqueImageNames.add('~/' + stripAtSuffix(filename));
-            });
+            imageNames.concat(this.getImageNamesAtDirPath(imageDirPath));
         }
 
-        return Array.from(uniqueImageNames);
+        return imageNames;
+    }
+
+    private static getImageNamesAtDirPath(dirPath: string): string[] {
+        let imageNames = this.imageNamesCache.get(dirPath);
+        if (!imageNames) {
+            const uniqueImageNames = new Set<string>();
+            readdirSync(dirPath).forEach(filename => {
+                if (isImageFilename(filename))
+                    uniqueImageNames.add(stripAtSuffix(filename));
+            });
+            imageNames = Array.from(uniqueImageNames);
+            this.imageNamesCache.set(dirPath, imageNames);
+        }
+        return imageNames;
     }
 }
 
