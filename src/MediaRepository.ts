@@ -1,11 +1,22 @@
 import * as path from 'path';
 import { readdirSync, existsSync } from 'fs';
+import * as vscode from 'vscode';
 
 const IMAGE_SUFFIXES = ['.png', '.jpg'];
 
 
 export class MediaRepository {
-    static imageNamesCache = new Map</*directory path*/string, /*filenames*/string[]>;
+    static init(context: vscode.ExtensionContext) {
+        const watcher = vscode.workspace.createFileSystemWatcher(
+            '**/*',
+            /*ignoreCreateEvents*/ false,
+            /*ignoreChangeEvents*/ true,
+            /*ignoreDeleteEvents*/ false
+        );
+        watcher.onDidCreate(event => this.updateCache(event.fsPath));
+        watcher.onDidDelete(event => this.updateCache(event.fsPath));
+        context.subscriptions.push(watcher);
+    }
 
     static enumerateImageNames(documentPath: string): string[] {
         const imageNames: string[] = [];
@@ -16,7 +27,7 @@ export class MediaRepository {
         pathComponents.pop();
 
         const activeDirPath = pathComponents.join(path.sep);
-        imageNames.concat(this.getImageNamesAtDirPath(activeDirPath));
+        imageNames.push(...this.getImageNamesAtDirPath(activeDirPath));
 
         const imageDirPath = (() => {
             let catalogBonPath = path.join(activeDirPath, 'catalog.bon');
@@ -32,11 +43,15 @@ export class MediaRepository {
             }
         })();
         if (imageDirPath) {
-            imageNames.concat(this.getImageNamesAtDirPath(imageDirPath));
+            this.getImageNamesAtDirPath(imageDirPath).forEach(imageName => {
+                imageNames.push('~/' + imageName);
+            });
         }
 
         return imageNames;
     }
+
+    private static imageNamesCache = new Map</*dirPath*/ string, /*imageNames*/ string[]>;
 
     private static getImageNamesAtDirPath(dirPath: string): string[] {
         let imageNames = this.imageNamesCache.get(dirPath);
@@ -50,6 +65,15 @@ export class MediaRepository {
             this.imageNamesCache.set(dirPath, imageNames);
         }
         return imageNames;
+    }
+
+    private static updateCache(filePath: string): void {
+        if (isImageFilename(filePath)) {
+            const pathComponents = filePath.split(path.sep);
+            pathComponents.pop();
+            const dirPath = pathComponents.join(path.sep);
+            this.imageNamesCache.delete(dirPath);
+        }
     }
 }
 
