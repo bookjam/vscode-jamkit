@@ -45,12 +45,21 @@
         "right",
         "center"
     ],
-    "position": [
-        "absolute",
-        "static",
-        "top",
-        "bottom"
-    ],
+    "position": {
+        "values": [
+            "abs",
+            "absolute",
+            "static",
+            "top",
+            "bottom"
+        ],
+        "suggestions": [
+            "absolute",
+            "static",
+            "top",
+            "bottom"
+        ]
+    },
     "gravity": [
         "center",
         "left",

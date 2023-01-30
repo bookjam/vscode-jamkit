@@ -4,9 +4,8 @@ import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser'
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbssContextParser extends ContextParser {
-
-    parsePropGroupContext(): PropGroupContext | null {
-        const line = this.getLogicalBeginLine();
+    parsePropGroupContext(): PropGroupContext | undefined {
+        const line = this.logicalBeginLine;
         const text = this.document.lineAt(line).text;
         const m = text.match(SBSS_PROP_LIST_PREFIX);
         if (m) {
@@ -31,8 +30,6 @@ export class SbssContextParser extends ContextParser {
                 break;
             }
         }
-
-        return null;
     }
 
     private getPropTarget(selector: string): PropTarget {

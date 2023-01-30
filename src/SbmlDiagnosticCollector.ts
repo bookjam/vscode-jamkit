@@ -4,6 +4,9 @@ import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 import { PropTarget, PropTargetKind } from "./PropTarget";
+import { PropConfigStore } from './PropConfigStore';
+import test from 'node:test';
+import { ImageStore } from './ImageStore';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -13,6 +16,7 @@ enum DirectiveKind {
     Begin,
     End,
     Object,
+    Image,
     Style,
     Comment,
     If,
@@ -23,6 +27,11 @@ enum DirectiveKind {
 interface Directive {
     kind: DirectiveKind;
     tag?: string;
+}
+
+enum LineKind {
+    Text,
+    Directive
 }
 
 interface Context {
@@ -38,102 +47,109 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
     private readonly contextStack: Context[] = [];
     private propTarget: PropTarget | null = null;
     private propParser: PropListParser | null = null;
+    private lineKind = LineKind.Text;
 
     processLine(line: number, text: string, isContinued: boolean): void {
 
-        if (!isContinued) {
-            this.propParser = null;
-
-            const context = this.parseDirective(text);
-
-            if (context) {
-                this.handleDirective(line, context);
-
-                if (canHavePropList(context.kind)) {
-                    const propListMarkerIndex = text.indexOf(':');
-                    if (propListMarkerIndex > 0) {
-                        this.propParser = new PropListParser();
-
-                        const offset = propListMarkerIndex + 1;
-                        this.propTarget = {
-                            kind: context.kind == DirectiveKind.Begin ?
-                                PropTargetKind.Section :
-                                (context.kind == DirectiveKind.Object ?
-                                    PropTargetKind.BlockObject :
-                                    PropTargetKind.Unknown),
-                            objectType: context.kind == DirectiveKind.Object ? context.tag : undefined
-                        };
-                        this.propParser.parse(line, offset, text).forEach(
-                            propRange => this.verifyProperty(this.propTarget!, propRange)
-                        );
-                        return;
-                    }
+        if (isContinued) {
+            if (this.lineKind == LineKind.Directive) {
+                if (this.propParser) {
+                    this.propParser.parse(line, 0, text).forEach(
+                        propRange => this.verifyProperty(this.propTarget!, propRange)
+                    );
                 }
+            } else {
+                this.handleText(line, text);
             }
-            else {
-                // TODO: do text related stuff
-            }
+            return;
         }
 
-        if (this.propParser) {
-            this.propParser.parse(line, 0, text).forEach(
-                propRange => this.verifyProperty(this.propTarget!, propRange)
-            );
+        this.propTarget = null;
+        this.propParser = null;
+
+        const directive = this.parseDirective(text);
+
+        this.lineKind = directive ? LineKind.Directive : LineKind.Text;
+
+        if (directive) {
+            this.lineKind = LineKind.Directive;
+
+            this.handleDirective(directive, line, text);
+
+            if (canHavePropList(directive.kind)) {
+                const propListMarkerIndex = text.indexOf(':');
+                if (propListMarkerIndex > 0) {
+                    this.propTarget = toPropTarget(directive);
+                    this.propParser = new PropListParser();
+
+                    const offset = propListMarkerIndex + 1;
+                    this.propParser.parse(line, offset, text).forEach(
+                        propRange => this.verifyProperty(this.propTarget!, propRange)
+                    );
+                }
+            }
+        }
+        else {
+            this.lineKind = LineKind.Text;
+            this.handleText(line, text);
         }
     }
 
-    private parseDirective(lineText: string): Directive | undefined {
+    private parseDirective(text: string): Directive | undefined {
 
         let m;
 
-        if (m = lineText.match(patterns.SBML_PROP_LIST_PREFIX)) {
+        if (m = text.match(patterns.SBML_PROP_LIST_PREFIX)) {
             const kind = (() => {
                 if (m[1] == "begin")
                     return DirectiveKind.Begin;
-                if (m[1] == "object" || m[1] == "image")
+                if (m[1] == "object")
                     return DirectiveKind.Object;
+                if (m[1] == "image")
+                    return DirectiveKind.Image;
                 assert(m[1] == "style");
                 return DirectiveKind.Style;
             })();
             return { kind, tag: m[2] };
         }
 
-        if (m = lineText.match(patterns.SBML_END)) {
+        if (m = text.match(patterns.SBML_END)) {
             return { kind: DirectiveKind.End, tag: m[2] };
         }
 
-        if (m = lineText.match(patterns.SBML_COMMENT)) {
+        if (m = text.match(patterns.SBML_COMMENT)) {
             return { kind: DirectiveKind.Comment };
         }
 
-        if (m = lineText.match(IF_PATTERN)) {
+        if (m = text.match(IF_PATTERN)) {
             return { kind: DirectiveKind.If };
         }
 
-        if (m = lineText.match(ELIF_PATTERN)) {
+        if (m = text.match(ELIF_PATTERN)) {
             return { kind: DirectiveKind.Elif };
         }
 
-        if (m = lineText.match(ELSE_PATTERN)) {
+        if (m = text.match(ELSE_PATTERN)) {
             return { kind: DirectiveKind.Else };
         }
     }
 
-    private handleDirective(line: number, directive: Directive): void {
+    private handleDirective(directive: Directive, line: number, text: string): void {
 
-        if (directive.kind == DirectiveKind.Begin || directive.kind == DirectiveKind.If) {
+        if (directive.kind == DirectiveKind.Begin ||
+            directive.kind == DirectiveKind.If) {
             this.contextStack.push({ line, type: directive.kind, tag: directive.tag });
         }
         else if (directive.kind == DirectiveKind.End) {
-            const context = this.contextStack.pop();
 
+            const context = this.contextStack.pop();
             if (context) {
                 assert(context.type == DirectiveKind.Begin || context.type == DirectiveKind.If);
 
                 if (directive.tag && context.tag !== directive.tag) {
 
-                    const endTagRange = ((): vscode.Range => {
-                        const lineText = this.document.lineAt(line).text;
+                    const endTagRange = (() => {
+                        const lineText = text;
                         const leadingOffset = lineText.length - lineText.trimStart().length;
                         const endTagIndex = lineText.indexOf(directive.tag, leadingOffset + 5);
                         assert(endTagIndex !== undefined);
@@ -169,12 +185,103 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 });
             }
         }
+        else if (directive.kind == DirectiveKind.Object) {
+            if (directive.tag != undefined && !PropConfigStore.getKnownObjectTypes().includes(directive.tag)) {
+                const offset = text.indexOf(directive.tag, text.indexOf('=') + 7);
+                this.addObjectTypeDiagnostic(directive.tag, line, offset);
+            }
+        }
+        else if (directive.kind == DirectiveKind.Image) {
+            if (directive.tag != undefined) {
+                if (!ImageStore.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
+                    const offset = text.indexOf(directive.tag, text.indexOf('=') + 6);
+                    this.addImageNameDiagnostic(directive.tag, line, offset);
+                }
+            }
+        }
         else {
             // TODO: ...
         }
+    }
+
+    private handleText(line: number, text: string): void {
+
+        let textOffset = 0;
+        while (text.length > 0) {
+            const m = /=\((object|image)\s+(([a-z]+|(~\/)?[\w\.-]+)?(\s*:)?)?/.exec(text);
+            if (!m)
+                break;
+
+            const tag = m[3]; // tag == objectType or imageName
+            const tagBeginIndex = text.indexOf(tag, m.index + 1 + m[1].length + 1);
+            const tagEndIndex = tagBeginIndex + tag.length;
+            if (m[1] === 'object') {
+                if (!PropConfigStore.getKnownObjectTypes().includes(tag)) {
+                    this.addObjectTypeDiagnostic(tag, line, textOffset + tagBeginIndex);
+                }
+            }
+            else {
+                assert(m[1] === 'image');
+                const imageNames = ImageStore.enumerateImageNames(this.document.fileName);
+                if (!imageNames.includes(tag)) {
+                    this.addImageNameDiagnostic(tag, line, textOffset + tagBeginIndex);
+                }
+            }
+
+            const endMarkerIndex = text.indexOf(')=', tagEndIndex);
+
+            // m[5] => (\s*:)
+            if (m[5]) {
+                const propBeginIndex = text.indexOf(':', tagEndIndex) + 1;
+                const propEndIndex = endMarkerIndex >= 0 ? endMarkerIndex : text.length;
+                const propListText = text.substring(0, propEndIndex);
+                const propTarget = {
+                    kind: PropTargetKind.InlineObject,
+                    objectType: m[1] === 'object' ? tag : 'sbml:image'
+                };
+                const propListParser = new PropListParser();
+                propListParser.parse(line, propBeginIndex, propListText).forEach(
+                    propRange => this.verifyProperty(propTarget, propRange)
+                );
+            }
+
+            if (endMarkerIndex < tagEndIndex)
+                break;
+
+            textOffset += endMarkerIndex + 2;
+            text = text.substring(endMarkerIndex + 2);
+        }
+    }
+
+    private addObjectTypeDiagnostic(objectType: string, line: number, offset: number) {
+        this.diagnostics.push({
+            message: `unknown object type: ${objectType}`,
+            range: new vscode.Range(line, offset, line, offset + objectType.length),
+            severity: vscode.DiagnosticSeverity.Error,
+        });
+    }
+
+    private addImageNameDiagnostic(imageName: string, line: number, offset: number) {
+        this.diagnostics.push({
+            message: `image file cannot be found: ${imageName}`,
+            range: new vscode.Range(line, offset, line, offset + imageName.length),
+            severity: vscode.DiagnosticSeverity.Error,
+        });
     }
 }
 
 function canHavePropList(type: DirectiveKind): boolean {
     return type == DirectiveKind.Begin || type == DirectiveKind.Object || type == DirectiveKind.Style;
+}
+
+function toPropTarget(directive: Directive): PropTarget {
+
+    return {
+        kind: directive.kind == DirectiveKind.Begin ?
+            PropTargetKind.Section :
+            (directive.kind == DirectiveKind.Object ?
+                PropTargetKind.BlockObject :
+                PropTargetKind.Unknown),
+        objectType: directive.kind == DirectiveKind.Object ? directive.tag : undefined
+    };
 }

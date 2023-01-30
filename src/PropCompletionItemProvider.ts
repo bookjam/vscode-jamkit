@@ -1,42 +1,30 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import {
-    ContextParser,
     PropGroupKind,
-    PropNameCompletionContext,
-    PropValueCompletionContext
+    PropNameContext,
+    PropValueContext
 } from './ContextParser';
-import { assert } from 'console';
 
 export class PropCompletionItemProvider {
-    readonly contextParser: ContextParser;
-    readonly document: vscode.TextDocument;
-    readonly position: vscode.Position;
-    readonly triggerChar: string | undefined;
+    readonly context;
+    readonly triggerChar;
 
-    constructor(contextParser: ContextParser, document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined) {
-        this.contextParser = contextParser;
-        this.document = document;
-        this.position = position;
+    constructor(context: PropNameContext | PropValueContext, triggerChar: string | undefined) {
+        this.context = context;
         this.triggerChar = triggerChar;
     }
 
-    provide() {
-        console.log(`provideCompletionItems: ${this.position.line}:${this.position.character}`);
-
-        const context = this.contextParser.parse();
-        console.log(context);
-
-        if (context instanceof PropNameCompletionContext) {
-            return this.getPropertyNameCompletionItems(context);
+    provide(): vscode.CompletionItem[] | undefined {
+        if (this.context instanceof PropNameContext) {
+            return this.getPropNameCompletionItems(this.context);
         }
-
-        if (context instanceof PropValueCompletionContext) {
-            return this.getPropertyValueCompletionItems(context);
+        if (this.context instanceof PropValueContext) {
+            return this.getPropValueCompletionItems(this.context);
         }
     }
 
-    private getPropertyNameCompletionItems(context: PropNameCompletionContext) {
+    private getPropNameCompletionItems(context: PropNameContext) {
         console.log(`property name: namePrefix=${context.namePrefix}`);
 
         let names = PropConfigStore.getKnownPropNames(context.target);
@@ -46,7 +34,7 @@ export class PropCompletionItemProvider {
         }
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Property);
-            if (this.contextParser.propGroupContext?.kind == PropGroupKind.List) {
+            if (this.context.kind == PropGroupKind.List) {
                 if (this.triggerChar == ',' || this.triggerChar == ':') {
                     item.insertText = ` ${name}=`;
                 }
@@ -62,7 +50,7 @@ export class PropCompletionItemProvider {
         });
     }
 
-    private getPropertyValueCompletionItems(context: PropValueCompletionContext) {
+    private getPropValueCompletionItems(context: PropValueContext) {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
         let suggestions = PropConfigStore.getPropValueSpec(context.target, context.name)?.getSuggestions();

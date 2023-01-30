@@ -17,44 +17,48 @@ export interface PropGroupContext {
     beginPos: vscode.Position;
 };
 
-export class PropNameCompletionContext {
-    target: PropTarget;
-    namePrefix?: string;
+export class PropNameContext {
+    readonly kind: PropGroupKind;
+    readonly target: PropTarget;
+    readonly namePrefix?: string;
 
-    constructor(target: PropTarget, namePrefix?: string) {
+    constructor(kind: PropGroupKind, target: PropTarget, namePrefix?: string) {
+        this.kind = kind;
         this.target = target;
         this.namePrefix = namePrefix;
     }
 }
 
-export class PropValueCompletionContext {
-    target: PropTarget;
-    name: string;
-    valuePrefix?: string;
+export class PropValueContext {
+    readonly kind: PropGroupKind;
+    readonly target: PropTarget;
+    readonly name: string;
+    readonly valuePrefix?: string;
 
-    constructor(target: PropTarget, name: string, valuePrefix?: string) {
+    constructor(kind: PropGroupKind, target: PropTarget, name: string, valuePrefix?: string) {
+        this.kind = kind;
         this.target = target;
         this.name = name;
         this.valuePrefix = valuePrefix;
     }
 }
 
-export type PropCompletionContext = PropNameCompletionContext | PropValueCompletionContext;
-
 export abstract class ContextParser {
-    readonly document: vscode.TextDocument;
-    readonly position: vscode.Position;
+    readonly document;
+    readonly position;
 
     constructor(document: vscode.TextDocument, position: vscode.Position) {
         this.document = document;
         this.position = position;
     }
 
-    parse(): PropCompletionContext | undefined {
-        if (this.propGroupContext) {
-            const target = this.propGroupContext.target;
-            const beginPos = this.propGroupContext.beginPos;
-            const parser = this.propGroupContext.kind == PropGroupKind.List ? new PropListParser() : new PropBlockParser();
+    parsePropContext(): PropNameContext | PropValueContext | undefined {
+        const propGroupContext = this.parsePropGroupContext();
+
+        if (propGroupContext) {
+            const target = propGroupContext.target;
+            const beginPos = propGroupContext.beginPos;
+            const parser = propGroupContext.kind == PropGroupKind.List ? new PropListParser() : new PropBlockParser();
             for (let line = beginPos.line; line <= this.position.line; ++line) {
                 const offset = line == beginPos.line ? beginPos.character : 0;
                 const text = (() => {
@@ -69,25 +73,27 @@ export abstract class ContextParser {
                 parser.parse(line, offset, text);
             }
 
+            const kind = propGroupContext.kind;
             const parseState = parser.getState();
+
             if (parseState == PropParseState.BeforeName) {
-                return new PropNameCompletionContext(target);
+                return new PropNameContext(kind, target);
             }
 
             if (parseState == PropParseState.InName) {
                 const namePrefix = this.getTextFrom(parser.getNameBeginPos());
-                return new PropNameCompletionContext(target, namePrefix);
+                return new PropNameContext(kind, target, namePrefix);
             }
 
             if (parseState == PropParseState.BeforeValue) {
                 const name = this.document.getText(parser.getNameRange());
-                return new PropValueCompletionContext(target, name);
+                return new PropValueContext(kind, target, name);
             }
 
             if (parseState == PropParseState.InValue) {
                 const name = this.document.getText(parser.getNameRange());
                 const valuePrefix = this.getTextFrom(parser.getValueBeginPos());
-                return new PropValueCompletionContext(target, name, valuePrefix);
+                return new PropValueContext(kind, target, name, valuePrefix);
             }
 
             assert(parseState == PropParseState.AfterName || parseState == PropParseState.AfterValue);
@@ -95,15 +101,7 @@ export abstract class ContextParser {
         }
     }
 
-    abstract parsePropGroupContext(): PropGroupContext | null;
-
-    get propGroupContext(): PropGroupContext | null {
-        if (this._propGroupContext == undefined) {
-            this._propGroupContext = this.parsePropGroupContext();
-        }
-        return this._propGroupContext;
-    }
-    private _propGroupContext: PropGroupContext | null | undefined;
+    abstract parsePropGroupContext(): PropGroupContext | undefined;
 
     getTextFrom(beginPos: vscode.Position): string {
         return this.document.getText(new vscode.Range(beginPos, this.position));
@@ -113,13 +111,37 @@ export abstract class ContextParser {
         return this.document.lineAt(line).text;
     }
 
-    getLogicalBeginLine(): number {
-        let line = this.position.line;
-        while (line > 0) {
-            if (!this.document.lineAt(line - 1).text.endsWith('\\'))
-                break;
-            line -= 1;
+    private _localBeginLine: number | undefined;
+    get logicalBeginLine(): number {
+        if (this._localBeginLine == undefined) {
+            let line = this.position.line;
+            while (line > 0) {
+                if (!this.document.lineAt(line - 1).text.endsWith('\\'))
+                    break;
+                line -= 1;
+            }
+            this._localBeginLine = line;
         }
-        return line;
+        return this._localBeginLine;
+    }
+
+    private _isContinuedLine: boolean | undefined;
+    get isContinuedLine(): boolean {
+        if (this._isContinuedLine == undefined) {
+            if (this.position.line == 0) {
+                this._isContinuedLine = false;
+            } else {
+                this._isContinuedLine = this.document.lineAt(this.position).text.trimEnd().endsWith('\\');
+            }
+        }
+        return this._isContinuedLine;
+    }
+
+    private _textUpToCursor: string | undefined;
+    get textUpToCursor(): string {
+        if (this._textUpToCursor == undefined) {
+            this._textUpToCursor = this.document.lineAt(this.position).text.substring(0, this.position.character);
+        }
+        return this._textUpToCursor;
     }
 }

@@ -1,102 +1,14 @@
 import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
-import { SbmlContextParser } from './SbmlContextParser';
+import { ImageNameContext, ObjectTypeContext, SbmlContextParser } from './SbmlContextParser';
 import { ImageStore } from './ImageStore';
+import { PropConfigStore } from './PropConfigStore';
 
-
-// TODO: read this from object-*.json
-const OBJECT_TYPES = [
-    "ad",
-    "animation",
-    "audio",
-    "blank",
-    "button",
-    "camera",
-    "chart",
-    "checkbox",
-    "choices",
-    "comic",
-    "drawing",
-    "editor",
-    "effect",
-    "epub",
-    "hub",
-    "image.qrcode",
-    "image",
-    "input",
-    "label",
-    "map",
-    "minimap",
-    "multiphoto",
-    "node",
-    "pdf",
-    "photo",
-    "photoplus",
-    "photoroll",
-    "photoscroll",
-    "photozoom",
-    "point",
-    "progress",
-    "record",
-    "sbml",
-    "sbmls",
-    "section",
-    "slider",
-    "spoke",
-    "sprite",
-    "tabbar",
-    "text",
-    "textfield",
-    "timer",
-    "twitch",
-    "video",
-    "vimeo",
-    "web",
-    "webtoon",
-    "webvideo",
-    "youtube",
-];
-
-function shouldSuggestDirectives(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
+function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined): boolean {
     return (
-        context.triggerCharacter == '=' &&
-        document.lineAt(position.line).text.trim() == '=' &&
-        (
-            position.line == 0 ||
-            !document.lineAt(position.line - 1).text.endsWith('\\')
-        )
-    );
-}
-
-function getDirectiveCompletionItems() {
-
-    return ['begin', 'end', 'object', 'comment', 'style', 'if', 'else', 'elif'].map(directive => {
-        const item = new vscode.CompletionItem(directive, vscode.CompletionItemKind.Keyword);
-        if (directive == 'object') {
-            item.insertText = new vscode.SnippetString('object ${1|' + OBJECT_TYPES.join(',') + '|}: ');
-        }
-        return item;
-    });
-}
-
-function shouldCompletionInlineObject(document: vscode.TextDocument, position: vscode.Position, context: vscode.CompletionContext): boolean {
-    return (
-        context.triggerCharacter == '(' &&
+        triggerChar === '(' &&
         document.lineAt(position.line).text.substring(0, position.character).endsWith('=(')
     );
-}
-
-function getInlineObjectCompletionItems(document: vscode.TextDocument) {
-    const objectItem = new vscode.CompletionItem("object", vscode.CompletionItemKind.Keyword);
-    objectItem.insertText = new vscode.SnippetString('object ${1|' + OBJECT_TYPES.join(',') + '|}: ${2})=');
-    objectItem.sortText = "1";
-
-    const imageItem = new vscode.CompletionItem("image", vscode.CompletionItemKind.Keyword);
-    const imageNames = ImageStore.enumerateImageNames(document.fileName);
-    imageItem.insertText = new vscode.SnippetString('image ${1|' + imageNames.join(',') + '|}: ${2})='); // TODO: abc.png -> #image-filename
-    objectItem.sortText = "2";
-
-    return [objectItem, imageItem];
 }
 
 export class SbmlCompletionHandler {
@@ -108,24 +20,75 @@ export class SbmlCompletionHandler {
                     document: vscode.TextDocument,
                     position: vscode.Position,
                     _token: vscode.CancellationToken,
-                    context: vscode.CompletionContext
+                    _context: vscode.CompletionContext
                 ) {
                     const contextParser = new SbmlContextParser(document, position);
-                    const propCompletionItems = new PropCompletionItemProvider(contextParser, document, position, context.triggerCharacter).provide();
-                    if (propCompletionItems) {
-                        return propCompletionItems;
+
+                    {
+                        const context = contextParser.parsePropContext();
+                        if (context) {
+                            return new PropCompletionItemProvider(context, _context.triggerCharacter).provide();
+                        }
                     }
 
-                    if (shouldSuggestDirectives(document, position, context)) {
-                        return getDirectiveCompletionItems();
+                    {
+                        const context = contextParser.parseDirectiveContext();
+                        if (context) {
+                            return ['begin', 'end', 'object', 'image', 'comment', 'style', 'if', 'else', 'elif'].map((directive, index) => {
+                                const item = new vscode.CompletionItem(directive, vscode.CompletionItemKind.Keyword);
+                                item.insertText = directive + ' ';
+                                item.sortText = index.toString();
+                                if (directive === 'object' || directive === 'image') {
+                                    item.command = { title: `Select an ${directive}...`, command: 'editor.action.triggerSuggest' };
+                                }
+                                return item;
+                            });
+                        }
                     }
 
-                    if (shouldCompletionInlineObject(document, position, context)) {
-                        return getInlineObjectCompletionItems(document);
+                    if (shouldSuggestInlineObject(document, position, _context.triggerCharacter)) {
+                        return ['object', 'image'].map((keyword, index) => {
+                            const item = new vscode.CompletionItem(keyword, vscode.CompletionItemKind.Keyword);
+                            item.insertText = keyword + ' ';
+                            item.command = { title: `Select an ${keyword}...`, command: 'editor.action.triggerSuggest' };
+                            item.sortText = index.toString();
+                            return item;
+                        });
+                    }
+
+                    {
+                        const context = contextParser.parseObjectTypeContext();
+
+                        if (context instanceof ObjectTypeContext) {
+                            let objectTypes = PropConfigStore.getKnownObjectTypes();
+                            if (context.prefix) {
+                                const prefix = context.prefix;
+                                objectTypes = objectTypes.filter(objectType => objectType.startsWith(prefix));
+                            }
+                            return objectTypes.map(objectType => {
+                                return new vscode.CompletionItem(objectType, vscode.CompletionItemKind.Class);
+                            });
+                        }
+                        else if (context instanceof ImageNameContext) {
+                            let imageNames = ImageStore.enumerateImageNames(document.fileName);
+                            if (context.prefix) {
+                                const prefix = context.prefix;
+                                imageNames = imageNames.filter(imageName => imageName.startsWith(prefix));
+                            }
+                            return imageNames.map(imageName => {
+                                const item = new vscode.CompletionItem(imageName, vscode.CompletionItemKind.File);
+                                if (context.prefix == '~' || context.prefix == '~/') {
+                                    item.insertText = imageName.substring(context.prefix.length);
+                                }
+                                return item;
+                            });
+                        }
                     }
                 }
             },
-            ':', ',', '=', '('
+            ':', ',', '=',
+            '(', // inline object/image
+            '~', '/', '.' // image name prefix
         ));
     }
 }

@@ -4,7 +4,7 @@ import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
 
-export class PropConfig {
+class PropConfig {
     private readonly map = new Map<string, PropValueSpec>();
 
     static fromJSON(json: any): PropConfig {
@@ -29,7 +29,9 @@ export class PropConfig {
             existingSpec.merge(valueSpec);
         }
         else {
-            this.map.set(propName, valueSpec);
+            const newSpec = PropValueSpec.from({});
+            newSpec.merge(valueSpec);
+            this.map.set(propName, newSpec);
         }
     }
 
@@ -41,13 +43,18 @@ export class PropConfig {
 export class PropConfigStore {
     private static readonly globalConfig = new PropConfig();
     private static readonly configMap = new Map</*filename*/string, PropConfig>();
+    private static readonly objectTypes: string[] = [];
 
     static init(context: vscode.ExtensionContext): void {
         const configDirs = ['attributes', 'attributes/objects'];
-        configDirs.forEach(configDir => {
+        configDirs.forEach((configDir, index) => {
+            const isObjectDir = index == 1;
             readdirSync(`${context.extensionPath}/${configDir}`).forEach(filename => {
                 if (!filename.endsWith('.json'))
                     return;
+                if (isObjectDir) {
+                    this.objectTypes.push(filename.substring(0, filename.length - 5));
+                }
                 try {
                     const json = require(`../${configDir}/${filename}`);
                     const config = PropConfig.fromJSON(json);
@@ -61,6 +68,10 @@ export class PropConfigStore {
                 }
             });
         });
+    }
+
+    static getKnownObjectTypes(): string[] {
+        return this.objectTypes;
     }
 
     static getKnownPropNames(target: PropTarget): string[] {
@@ -84,15 +95,11 @@ export class PropConfigStore {
         if (target.kind == PropTargetKind.Unknown) {
             return this.globalConfig.get(propName);
         }
-        else {
-            for (let filename of this.getPropFileSequence(target)) {
-                const config = this.configMap.get(filename);
-                if (config) {
-                    const valueSpec = config.get(propName);
-                    if (valueSpec) {
-                        return valueSpec;
-                    }
-                }
+
+        for (let filename of this.getPropFileSequence(target)) {
+            const valueSpec = this.configMap.get(filename)?.get(propName);
+            if (valueSpec) {
+                return valueSpec;
             }
         }
     }
