@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { CompletionItemKind } from "vscode";
-import { ImageStore } from "./ImageStore";
+import { MediaRepository } from "./MediaRepository";
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
@@ -83,7 +83,7 @@ export class PropValueSpec {
 
         for (let category of this.categories) {
             if (category == '#image-filename') {
-                if (ImageStore.enumerateImageNames(documentPath).includes(value))
+                if (MediaRepository.enumerateImageNames(documentPath).includes(value))
                     return true;
             } else {
                 assert(false, `WTF? Unknown value category: ${category}`);
@@ -111,7 +111,7 @@ export class PropValueSpec {
         for (let category of this.categories) {
             if (!suggestions) suggestions = [];
             if (category == '#image-filename') {
-                ImageStore.enumerateImageNames(documentPath).forEach(imageName => {
+                MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
                     suggestions?.push({ label: imageName, kind: CompletionItemKind.File });
                 });
             } else {

@@ -5,8 +5,7 @@ import { PropListParser } from './PropGroupParser';
 import { DiagnosticCollector } from './DiagnosticCollector';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropConfigStore } from './PropConfigStore';
-import test from 'node:test';
-import { ImageStore } from './ImageStore';
+import { MediaRepository } from './MediaRepository';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -193,7 +192,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         }
         else if (directive.kind == DirectiveKind.Image) {
             if (directive.tag != undefined) {
-                if (!ImageStore.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
+                if (!MediaRepository.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
                     const offset = text.indexOf(directive.tag, text.indexOf('=') + 6);
                     this.addImageNameDiagnostic(directive.tag, line, offset);
                 }
@@ -222,7 +221,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             }
             else {
                 assert(m[1] === 'image');
-                const imageNames = ImageStore.enumerateImageNames(this.document.fileName);
+                const imageNames = MediaRepository.enumerateImageNames(this.document.fileName);
                 if (!imageNames.includes(tag)) {
                     this.addImageNameDiagnostic(tag, line, textOffset + tagBeginIndex);
                 }
