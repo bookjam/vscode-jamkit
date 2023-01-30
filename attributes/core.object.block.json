@@ -1,4 +1,7 @@
 {
+    "@import": [
+        "_core.box.json"
+    ],
     "display": [
         "none",
         "block"
