@@ -130,11 +130,11 @@ export class PropConfigStore {
         }
 
         if (target.kind == PropTargetKind.Section) {
-            return ['core.section.json', /*'core.box.json',*/ 'core.common.json'];
+            return ['core.section.json', 'core.box.json', 'core.common.json'];
         }
 
         if (target.kind == PropTargetKind.BlockObject) {
-            const sequence = [`core.object.block.json`, 'core.object.json', /*'core.box.json',*/ 'core.common.json'];
+            const sequence = [`core.object.block.json`, 'core.object.json', 'core.box.json', 'core.common.json'];
             if (target.objectType) {
                 return [`${target.objectType}.json`].concat(sequence);
             }
