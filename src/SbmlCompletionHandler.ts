@@ -27,7 +27,7 @@ export class SbmlCompletionHandler {
                     {
                         const context = contextParser.parsePropContext();
                         if (context) {
-                            return new PropCompletionItemProvider(context, _context.triggerCharacter).provide();
+                            return new PropCompletionItemProvider(document, context, _context.triggerCharacter).provide();
                         }
                     }
 

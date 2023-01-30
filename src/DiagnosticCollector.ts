@@ -60,7 +60,7 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        if (!valueSpec.verify(value)) {
+        if (!valueSpec.verify(value, this.document.fileName)) {
             this.diagnostics.push({
                 message: `"${value}" is not a valid value for "${name}" here.`,
                 range: propRange.valueRange,

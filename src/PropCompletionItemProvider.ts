@@ -7,10 +7,12 @@ import {
 } from './ContextParser';
 
 export class PropCompletionItemProvider {
+    readonly document;
     readonly context;
     readonly triggerChar;
 
-    constructor(context: PropNameContext | PropValueContext, triggerChar: string | undefined) {
+    constructor(document: vscode.TextDocument, context: PropNameContext | PropValueContext, triggerChar: string | undefined) {
+        this.document = document;
         this.context = context;
         this.triggerChar = triggerChar;
     }
@@ -53,7 +55,8 @@ export class PropCompletionItemProvider {
     private getPropValueCompletionItems(context: PropValueContext) {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
-        let suggestions = PropConfigStore.getPropValueSpec(context.target, context.name)?.getSuggestions();
+        const propValueSpec = PropConfigStore.getPropValueSpec(context.target, context.name);
+        let suggestions = propValueSpec?.getSuggestions(this.document.fileName);
         if (suggestions) {
             if (context.valuePrefix) {
                 const prefix = context.valuePrefix;
