@@ -3,16 +3,39 @@ import { readdirSync } from 'fs';
 import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
+import * as path from 'path';
 
 class PropConfig {
-    private readonly map = new Map<string, PropValueSpec>();
+    private readonly map;
 
-    static fromJSON(json: any): PropConfig {
-        const config = new PropConfig();
-        Object.entries(json).forEach(entry => {
-            config.map.set(entry[0], PropValueSpec.from(entry[1] as any));
-        });
-        return config;
+    constructor(map?: Map<string, PropValueSpec>) {
+        this.map = map ?? new Map<string, PropValueSpec>();
+    }
+
+    static fromJsonPath(jsonPath: string): PropConfig | undefined {
+        try {
+            const json = require(jsonPath);
+            const config = new PropConfig();
+            Object.entries(json).forEach(entry => {
+                if (entry[0] == '@import') {
+                    const filenames = entry[1] as string[];
+                    filenames.forEach(filename => {
+                        const pathComponents = jsonPath.split(path.sep);
+                        pathComponents.pop();
+                        pathComponents.push(entry[1] as string);
+                        const importPath = pathComponents.join(path.sep);
+                        this.fromJsonPath(importPath)?.forEach((value, key) => config.map.set(key, value));
+                    });
+                }
+                else {
+                    config.map.set(entry[0], PropValueSpec.from(entry[1] as any));
+                }
+            });
+            return config;
+        } catch (e) {
+            console.error(e);
+        }
+
     }
 
     get propNames(): string[] {
@@ -50,21 +73,18 @@ export class PropConfigStore {
         configDirs.forEach((configDir, index) => {
             const isObjectDir = index == 1;
             readdirSync(`${context.extensionPath}/${configDir}`).forEach(filename => {
-                if (!filename.endsWith('.json'))
+                if (!filename.endsWith('.json') || filename.startsWith('_'))
                     return;
                 if (isObjectDir) {
                     this.objectTypes.push(filename.substring(0, filename.length - 5));
                 }
-                try {
-                    const json = require(`../${configDir}/${filename}`);
-                    const config = PropConfig.fromJSON(json);
-                    this.configMap.set(filename, config);
 
+                const config = PropConfig.fromJsonPath(`../${configDir}/${filename}`);
+                if (config) {
+                    this.configMap.set(filename, config);
                     config.forEach((valueSpec, propName) => {
                         this.globalConfig.merge(propName, valueSpec);
                     });
-                } catch (e) {
-                    console.error(e);
                 }
             });
         });
@@ -110,11 +130,11 @@ export class PropConfigStore {
         }
 
         if (target.kind == PropTargetKind.Section) {
-            return ['core.section.json', 'core.box.json', 'core.common.json'];
+            return ['core.section.json', /*'core.box.json',*/ 'core.common.json'];
         }
 
         if (target.kind == PropTargetKind.BlockObject) {
-            const sequence = [`core.object.block.json`, 'core.object.json', 'core.box.json', 'core.common.json'];
+            const sequence = [`core.object.block.json`, 'core.object.json', /*'core.box.json',*/ 'core.common.json'];
             if (target.objectType) {
                 return [`${target.objectType}.json`].concat(sequence);
             }

@@ -1,4 +1,7 @@
 {
+    "@import": [
+        "_core.box.json"
+    ],
     "title": {},
     "toc": {},
     "episode": "// TODO: define value spec",
