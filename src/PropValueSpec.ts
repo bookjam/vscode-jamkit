@@ -1,7 +1,9 @@
+import { assert } from "console";
 import { CompletionItemKind } from "vscode";
+import { ImageStore } from "./ImageStore";
 
 const KNOWN_CATEGORIES: string[] = [
-    // '#image-filename',
+    '#image-filename',
     // '#audio-filename',
     // '#video-filename',
     // '#style-name',
@@ -38,22 +40,21 @@ export class PropValueSpec {
         }
         else {
             const keys = Object.keys(valueSpec) as Array<keyof typeof valueSpec>;
-            keys.forEach(key => {
-                switch (key as string) {
-                    case 'values':
-                        values = valueSpec[key] as string[];
-                        break;
-                    case 'suggestions':
-                        suggestions = valueSpec[key] as string[];
-                        break;
-                    case 'value-category':
-                        category = valueSpec[key] as string;
-                        break;
-                    case 'value-pattern':
-                        pattern = valueSpec[key] as string;
-                        break;
+            if ('values' in keys) {
+                values = valueSpec.values as string[];
+            }
+            if ('suggestions' in keys) {
+                suggestions = valueSpec.suggestions as string[];
+            }
+            if ('value-category') {
+                const valueCategory = valueSpec['value-category'] as string;
+                if (KNOWN_CATEGORIES.includes(valueCategory)) {
+                    category = valueCategory;
                 }
-            });
+            }
+            if ('value-pattern') {
+                pattern = valueSpec['value-pattern'] as string;
+            }
         }
 
         return new this(values, suggestions, category, pattern);
@@ -66,7 +67,7 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : [];
     }
 
-    verify(value: string): boolean {
+    verify(value: string, documentPath: string): boolean {
         if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
             return true;
         }
@@ -80,8 +81,13 @@ export class PropValueSpec {
                 return true;
         }
 
-        for (let _category of this.categories) {
-            // TODO: handle known categories
+        for (let category of this.categories) {
+            if (category == '#image-filename') {
+                if (ImageStore.enumerateImageNames(documentPath).includes(value))
+                    return true;
+            } else {
+                assert(false, `WTF? Unknown value category: ${category}`);
+            }
         }
 
         return false;
@@ -94,7 +100,7 @@ export class PropValueSpec {
         mergeUnique(this.suggestions, other.patterns);
     }
 
-    getSuggestions(): PropValueSuggestion[] | undefined {
+    getSuggestions(documentPath: string): PropValueSuggestion[] | undefined {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
                 return this.suggestions.map(label => ({ label, kind: CompletionItemKind.Value }));
@@ -102,6 +108,16 @@ export class PropValueSpec {
                 return this.values.map(label => ({ label, kind: CompletionItemKind.EnumMember }));
         })();
 
+        for (let category of this.categories) {
+            if (!suggestions) suggestions = [];
+            if (category == '#image-filename') {
+                ImageStore.enumerateImageNames(documentPath).forEach(imageName => {
+                    suggestions?.push({ label: imageName, kind: CompletionItemKind.File });
+                });
+            } else {
+                assert(false, `WTF? Unknown value category: ${category}`);
+            }
+        }
         // TODO: categories
 
         return suggestions;
