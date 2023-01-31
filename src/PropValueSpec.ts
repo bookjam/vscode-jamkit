@@ -97,7 +97,7 @@ export class PropValueSpec {
         mergeUnique(this.values, other.values);
         mergeUnique(this.suggestions, other.suggestions);
         mergeUnique(this.categories, other.categories);
-        mergeUnique(this.suggestions, other.patterns);
+        mergeUnique(this.patterns, other.patterns);
     }
 
     getSuggestions(documentPath: string): PropValueSuggestion[] | undefined {
