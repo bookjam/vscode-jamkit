@@ -31,7 +31,7 @@ export class MediaRepository {
         imageNames.push(...this.getImageNamesAtDirPath(currentImageDirPath));
 
         const rootImageDirPath = (() => {
-            while (true) {
+            while (pathComponents.length > 0) {
                 pathComponents.pop();
                 pathComponents.push('catalog.bon');
 
@@ -41,8 +41,7 @@ export class MediaRepository {
                     pathComponents.push('Images');
                     return pathComponents.join(path.sep);
                 }
-                if (pathComponents.length == 0)
-                    break;
+
                 pathComponents.pop();
             }
         })();
