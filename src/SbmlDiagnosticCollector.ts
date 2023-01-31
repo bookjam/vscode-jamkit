@@ -56,6 +56,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                     this.propParser.parse(line, 0, text).forEach(
                         propRange => this.verifyProperty(this.propTarget!, propRange)
                     );
+                    this.checkIfLineContinuationMarkerMissing(line, text);
                 }
             } else {
                 this.handleText(line, text);
@@ -85,6 +86,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                     this.propParser.parse(line, offset, text).forEach(
                         propRange => this.verifyProperty(this.propTarget!, propRange)
                     );
+                    this.checkIfLineContinuationMarkerMissing(line, text);
                 }
             }
         }
@@ -200,6 +202,24 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         }
         else {
             // TODO: ...
+        }
+    }
+
+    // Check if the line continuation marker (`\`) is mistakely omitted.
+    private checkIfLineContinuationMarkerMissing(line: number, text: string): void {
+
+        if (line + 1 >= this.document.lineCount || !text.trimEnd().endsWith(',')) {
+            return;
+        }
+
+        const nextLineText = this.document.lineAt(line + 1).text;
+        const m = nextLineText.match(/\s+[a-z-]+\s*=/); // does it look like a continue propery list?
+        if (m && m.index == 0) {
+            this.diagnostics.push({
+                message: `Is a line continuation marker ('\\') missing in the previous line?`,
+                range: new vscode.Range(line + 1, 0, line + 1, nextLineText.length),
+                severity: vscode.DiagnosticSeverity.Warning,
+            });
         }
     }
 
