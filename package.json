@@ -2,7 +2,7 @@
     "name": "vscode-jamkit",
     "displayName": "Jamkit",
     "description": "Jamkit support for Visual Studio Code ",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "publisher": "bookjam",
     "engines": {
         "vscode": "^1.32.0"
