@@ -179,10 +179,13 @@ export class PropGroupParser {
                     nameRange: new vscode.Range(this.nameBeginPos, this.nameEndPos),
                     valueRange: new vscode.Range(this.valueBeginPos, this.valueEndPos)
                 });
-                this.nameBeginPos = undefined;
-                this.nameEndPos = undefined;
-                this.valueBeginPos = undefined;
-                this.valueEndPos = undefined;
+
+                if (this.state == PropParseState.AfterValue || this.state == PropParseState.BeforeName) {
+                    this.nameBeginPos = undefined;
+                    this.nameEndPos = undefined;
+                    this.valueBeginPos = undefined;
+                    this.valueEndPos = undefined;
+                }
             }
         }
 

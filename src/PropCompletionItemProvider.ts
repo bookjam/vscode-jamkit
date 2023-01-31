@@ -64,9 +64,14 @@ export class PropCompletionItemProvider {
             }
             return suggestions.map((suggestion, index) => {
                 const item = new vscode.CompletionItem(suggestion.label, suggestion.kind);
+
                 if (this.triggerChar === ':') {
                     item.insertText = ' ' + suggestion.label;
                 }
+                else if (context.valuePrefix == '~' || context.valuePrefix == '~/') {
+                    item.insertText = suggestion.label.substring(context.valuePrefix.length);
+                }
+
                 item.sortText = index.toString();
                 return item;
             });
