@@ -23,27 +23,30 @@ export class MediaRepository {
 
         const pathComponents = documentPath.split(path.sep);
 
-        // remove current document filename
-        pathComponents.pop();
+        const currentImageDirPath = (() => {
+            pathComponents.pop();
+            pathComponents.push('Images');
+            return pathComponents.join(path.sep);
+        })();
+        imageNames.push(...this.getImageNamesAtDirPath(currentImageDirPath));
 
-        const activeDirPath = pathComponents.join(path.sep);
-        imageNames.push(...this.getImageNamesAtDirPath(activeDirPath));
+        const rootImageDirPath = (() => {
+            while (pathComponents.length > 0) {
+                pathComponents.pop();
+                pathComponents.push('catalog.bon');
 
-        const imageDirPath = (() => {
-            let catalogBonPath = path.join(activeDirPath, 'catalog.bon');
-            while (true) {
+                const catalogBonPath = pathComponents.join(path.sep);
                 if (existsSync(catalogBonPath)) {
+                    pathComponents.pop();
                     pathComponents.push('Images');
                     return pathComponents.join(path.sep);
                 }
-                if (pathComponents.length == 0)
-                    break;
+
                 pathComponents.pop();
-                catalogBonPath = pathComponents.join(path.sep);
             }
         })();
-        if (imageDirPath) {
-            this.getImageNamesAtDirPath(imageDirPath).forEach(imageName => {
+        if (rootImageDirPath) {
+            this.getImageNamesAtDirPath(rootImageDirPath).forEach(imageName => {
                 imageNames.push('~/' + imageName);
             });
         }
