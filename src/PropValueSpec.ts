@@ -46,13 +46,13 @@ export class PropValueSpec {
             if ('suggestions' in keys) {
                 suggestions = valueSpec.suggestions as string[];
             }
-            if ('value-category') {
+            if ('value-category' in keys) {
                 const valueCategory = valueSpec['value-category'] as string;
                 if (KNOWN_CATEGORIES.includes(valueCategory)) {
                     category = valueCategory;
                 }
             }
-            if ('value-pattern') {
+            if ('value-pattern' in keys) {
                 pattern = valueSpec['value-pattern'] as string;
             }
         }
