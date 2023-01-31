@@ -8,13 +8,17 @@ const KNOWN_CATEGORIES: string[] = [
     // '#video-filename',
     // '#style-name',
     // '#function-name',
-    // '#color',
+    '#color',
     // '#length',
 ];
 
 export interface PropValueSuggestion {
     label: string;
     kind: CompletionItemKind;
+}
+
+export interface PropValueError {
+    message: string;
 }
 
 export class PropValueSpec {
@@ -67,30 +71,44 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : [];
     }
 
-    verify(value: string, documentPath: string): boolean {
+    verify(name: string, value: string, documentPath: string): PropValueError | undefined {
+
+        let errorMessage = `"${value}" is not valid for "${name}" here.`;
+
         if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
-            return true;
+            return;
         }
 
         if (this.values.includes(value)) {
-            return true;
+            return;
         }
 
         for (let pattern of this.patterns) {
             if (new RegExp(pattern).test(value))
-                return true;
+                return;
         }
 
         for (let category of this.categories) {
             if (category == '#image-filename') {
                 if (MediaRepository.enumerateImageNames(documentPath).includes(value))
-                    return true;
-            } else {
+                    return;
+                errorMessage = `'${value}' does not exist.`;
+            }
+            else if (category == '#color') {
+                if (value.match(/^(#[0-9A-Fa-f]{3}|#[0-9A-Fa-f]{6})$/))
+                    return;
+                if (value.match(/^rgb\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/))
+                    return;
+                if (value.match(/^rgba\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d\.]+\s*\)$/))
+                    return;
+                errorMessage = `Invalid color format.`;
+            }
+            else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
         }
 
-        return false;
+        return { message: errorMessage };
     }
 
     merge(other: PropValueSpec): void {
@@ -109,16 +127,19 @@ export class PropValueSpec {
         })();
 
         for (let category of this.categories) {
-            if (!suggestions) suggestions = [];
             if (category == '#image-filename') {
+                if (!suggestions) suggestions = [];
                 MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
                     suggestions?.push({ label: imageName, kind: CompletionItemKind.File });
                 });
-            } else {
+            }
+            else if (category == '#color') {
+                // NOOP - nothing to suggest
+            }
+            else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
         }
-        // TODO: categories
 
         return suggestions;
     }
