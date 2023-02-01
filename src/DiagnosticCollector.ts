@@ -54,15 +54,16 @@ export abstract class DiagnosticCollector {
         }
 
         const value = unquote(this.document.getText(propRange.valueRange));
-
         if (value.startsWith('$') || (value.startsWith('@{') && value.startsWith('}'))) {
             // No diagnostic for a variable or a template placeholder.
             return;
         }
 
-        if (!valueSpec.verify(value, this.document.fileName)) {
+        const documentPath = this.document.fileName;
+        const error = valueSpec.verify(name, value, documentPath);
+        if (error) {
             this.diagnostics.push({
-                message: `"${value}" is not a valid value for "${name}" here.`,
+                message: error.message,
                 range: propRange.valueRange,
                 severity: vscode.DiagnosticSeverity.Error
             });

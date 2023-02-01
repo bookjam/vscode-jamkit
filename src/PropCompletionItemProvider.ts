@@ -60,19 +60,33 @@ export class PropCompletionItemProvider {
         if (suggestions) {
             if (context.valuePrefix) {
                 const prefix = context.valuePrefix;
-                suggestions = suggestions.filter(suggestion => suggestion.label.startsWith(prefix));
+                suggestions = suggestions.filter(suggestion => suggestion.text.startsWith(prefix));
             }
             return suggestions.map((suggestion, index) => {
-                const item = new vscode.CompletionItem(suggestion.label, suggestion.kind);
+                const item = (() => {
+                    if (!suggestion.isSnippet && suggestion.label !== suggestion.text) {
+                        const label = suggestion.label;
+                        const description = suggestion.text;
+                        return new vscode.CompletionItem({ label, description }, suggestion.kind);
+                    }
+                    return new vscode.CompletionItem(suggestion.label, suggestion.kind);
+                })();
 
-                if (this.triggerChar === ':') {
-                    item.insertText = ' ' + suggestion.label;
+                if (suggestion.isSnippet) {
+                    item.insertText = new vscode.SnippetString(suggestion.text);
+                }
+                else if (this.triggerChar === ':') {
+                    item.insertText = ' ' + suggestion.text;
                 }
                 else if (context.valuePrefix == '~' || context.valuePrefix == '~/') {
-                    item.insertText = suggestion.label.substring(context.valuePrefix.length);
+                    item.insertText = suggestion.text.substring(context.valuePrefix.length);
+                }
+                else {
+                    item.insertText = suggestion.text;
                 }
 
                 item.sortText = index.toString();
+
                 return item;
             });
         }

@@ -26,6 +26,7 @@ enum DirectiveKind {
 interface Directive {
     kind: DirectiveKind;
     tag?: string;
+    propListIndex?: number;
 }
 
 enum LineKind {
@@ -76,18 +77,15 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
             this.handleDirective(directive, line, text);
 
-            if (canHavePropList(directive.kind)) {
-                const propListMarkerIndex = text.indexOf(':');
-                if (propListMarkerIndex > 0) {
-                    this.propTarget = toPropTarget(directive);
-                    this.propParser = new PropListParser();
+            if (directive.propListIndex) {
+                this.propTarget = toPropTarget(directive);
+                this.propParser = new PropListParser();
 
-                    const offset = propListMarkerIndex + 1;
-                    this.propParser.parse(line, offset, text).forEach(
-                        propRange => this.verifyProperty(this.propTarget!, propRange)
-                    );
-                    this.checkIfLineContinuationMarkerMissing(line, text);
-                }
+                const offset = directive.propListIndex;
+                this.propParser.parse(line, offset, text).forEach(
+                    propRange => this.verifyProperty(this.propTarget!, propRange)
+                );
+                this.checkIfLineContinuationMarkerMissing(line, text);
             }
         }
         else {
@@ -111,7 +109,10 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 assert(m[1] == "style");
                 return DirectiveKind.Style;
             })();
-            return { kind, tag: m[2] };
+
+            const colonIndex = text.indexOf(':');
+            const propListIndex = colonIndex > 0 ? colonIndex + 1 : undefined;
+            return { kind, tag: m[2], propListIndex };
         }
 
         if (m = text.match(patterns.SBML_END)) {
@@ -287,10 +288,6 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             severity: vscode.DiagnosticSeverity.Error,
         });
     }
-}
-
-function canHavePropList(type: DirectiveKind): boolean {
-    return type == DirectiveKind.Begin || type == DirectiveKind.Object || type == DirectiveKind.Style;
 }
 
 function toPropTarget(directive: Directive): PropTarget {

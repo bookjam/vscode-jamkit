@@ -8,13 +8,19 @@ const KNOWN_CATEGORIES: string[] = [
     // '#video-filename',
     // '#style-name',
     // '#function-name',
-    // '#color',
+    '#color',
     // '#length',
 ];
 
 export interface PropValueSuggestion {
     label: string;
+    text: string;
     kind: CompletionItemKind;
+    isSnippet: boolean;
+}
+
+export interface PropValueError {
+    message: string;
 }
 
 export class PropValueSpec {
@@ -67,30 +73,44 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : [];
     }
 
-    verify(value: string, documentPath: string): boolean {
+    verify(name: string, value: string, documentPath: string): PropValueError | undefined {
+
+        let errorMessage = `"${value}" is not valid for "${name}" here.`;
+
         if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
-            return true;
+            return;
         }
 
         if (this.values.includes(value)) {
-            return true;
+            return;
         }
 
         for (let pattern of this.patterns) {
             if (new RegExp(pattern).test(value))
-                return true;
+                return;
         }
 
         for (let category of this.categories) {
             if (category == '#image-filename') {
                 if (MediaRepository.enumerateImageNames(documentPath).includes(value))
-                    return true;
-            } else {
+                    return;
+                errorMessage = `'${value}' does not exist.`;
+            }
+            else if (category == '#color') {
+                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/))
+                    return;
+                if (value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/))
+                    return;
+                if (value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/))
+                    return;
+                errorMessage = `Invalid color format.`;
+            }
+            else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
         }
 
-        return false;
+        return { message: errorMessage };
     }
 
     merge(other: PropValueSpec): void {
@@ -103,22 +123,38 @@ export class PropValueSpec {
     getSuggestions(documentPath: string): PropValueSuggestion[] | undefined {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
-                return this.suggestions.map(label => ({ label, kind: CompletionItemKind.Value }));
+                return this.suggestions.map(label => makeSuggestion(label, CompletionItemKind.Value));
             if (this.values.length != 0)
-                return this.values.map(label => ({ label, kind: CompletionItemKind.EnumMember }));
+                return this.values.map(label => makeSuggestion(label, CompletionItemKind.EnumMember));
         })();
 
         for (let category of this.categories) {
             if (!suggestions) suggestions = [];
             if (category == '#image-filename') {
                 MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
-                    suggestions?.push({ label: imageName, kind: CompletionItemKind.File });
+                    suggestions?.push(makeSuggestion(imageName, CompletionItemKind.File));
                 });
-            } else {
+            }
+            else if (category == '#color') {
+                suggestions.push(makeSuggestion('black - #rrggbb', CompletionItemKind.Color, '#000000'));
+                suggestions.push(makeSuggestion('white - #rrggbb', CompletionItemKind.Color, '#ffffff'));
+                suggestions.push(makeSuggestion('black - #rrggbbaa', CompletionItemKind.Color, '#000000ff'));
+                suggestions.push(makeSuggestion('white - #rrggbbaa', CompletionItemKind.Color, '#ffffffff'));
+                suggestions.push(makeSnippetSuggestion(
+                    'rgb($red, $green, $blue)',
+                    '"rgb(${1:255},${2:255},${3:255})"',
+                    CompletionItemKind.Function)
+                );
+                suggestions.push(makeSnippetSuggestion(
+                    'rgba($red, $green, $blue, $alpha)',
+                    '"rgba(${1:255},${2:255},${3:255},${4:0.5})"',
+                    CompletionItemKind.Function)
+                );
+            }
+            else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
         }
-        // TODO: categories
 
         return suggestions;
     }
@@ -130,3 +166,12 @@ function mergeUnique<T>(dst: T[], src: T[]): void {
             dst.push(addition);
     });
 }
+
+function makeSuggestion(label: string, kind: CompletionItemKind, text?: string): PropValueSuggestion {
+    return { label, text: text ?? label, kind, isSnippet: false };
+}
+
+function makeSnippetSuggestion(label: string, text: string, kind: CompletionItemKind): PropValueSuggestion {
+    return { label, text, kind, isSnippet: true };
+}
+
