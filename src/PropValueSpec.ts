@@ -147,7 +147,7 @@ export class PropValueSpec {
                 );
                 suggestions.push(makeSnippetSuggestion(
                     'rgba($red, $green, $blue, $alpha)',
-                    '"rgb(${1:255},${2:255},${3:255},${4:0.5})"',
+                    '"rgba(${1:255},${2:255},${3:255},${4:0.5})"',
                     CompletionItemKind.Function)
                 );
             }
