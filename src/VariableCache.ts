@@ -7,8 +7,6 @@ import { unquote } from './utils';
 const VARIABLE_DEFINITION_PREFIX = /^\s*\$([A-Z_]+)\s*=/;
 const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;
 
-//export type VariableValues = Map</*name*/ string, /*values*/ string[]>;
-
 export class VariableValues {
     private readonly map = new Map<string, string[]>();
 
