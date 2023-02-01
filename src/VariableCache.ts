@@ -11,6 +11,10 @@ const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;
 export class VariableValues {
     private readonly map = new Map<string, string[]>();
 
+    get size(): number {
+        return this.map.size;
+    }
+
     add(name: string, value: string): void {
         const values = this.map.get(name) ?? [];
         if (!values.includes(value)) {
@@ -31,7 +35,7 @@ export class VariableValues {
 type VariableMap = Map</*filePath*/ string, VariableValues>;
 type DependencyMap = Map</*filePath*/ string, /*dependentFilePaths*/ string[]>;
 
-export class VariableRepository {
+export class VariableCache {
     static init(context: vscode.ExtensionContext) {
         const watcher = vscode.workspace.createFileSystemWatcher('**/*.sbss', /*ignoreCreationEvents*/ true);
         watcher.onDidChange(event => this.removeCache(event.fsPath));

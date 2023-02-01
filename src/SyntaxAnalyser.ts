@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
 import { SbssDiagnosticCollector } from './SbssDiagnosticCollector';
-import { VariableRepository } from './VariableRepository';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
@@ -54,11 +53,11 @@ export class SyntaxAnalyser {
     private updateDiagnostics(document: vscode.TextDocument): void {
         const diagnosticCollector = (() => {
             if (document.fileName.endsWith('.sbml')) {
-                VariableRepository.getVariables(document.fileName); // TEST ONLY - DO NOT MERGE
                 return new SbmlDiagnosticCollector(document);
             }
-            if (document.fileName.endsWith('.sbss'))
+            if (document.fileName.endsWith('.sbss')) {
                 return new SbssDiagnosticCollector(document);
+            }
         })();
         if (diagnosticCollector) {
             this.collection.set(document.uri, diagnosticCollector.collect());

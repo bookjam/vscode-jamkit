@@ -78,7 +78,7 @@ export class PropCompletionItemProvider {
                 else if (this.triggerChar === ':') {
                     item.insertText = ' ' + suggestion.text;
                 }
-                else if (context.valuePrefix == '~' || context.valuePrefix == '~/') {
+                else if (context.valuePrefix === '$' || context.valuePrefix === '~' || context.valuePrefix === '~/') {
                     item.insertText = suggestion.text.substring(context.valuePrefix.length);
                 }
                 else {

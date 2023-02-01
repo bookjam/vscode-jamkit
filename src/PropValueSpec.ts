@@ -1,6 +1,7 @@
 import { assert } from "console";
 import { CompletionItemKind } from "vscode";
 import { MediaRepository } from "./MediaRepository";
+import { VariableCache } from "./VariableCache";
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
@@ -120,19 +121,18 @@ export class PropValueSpec {
         mergeUnique(this.patterns, other.patterns);
     }
 
-    getSuggestions(documentPath: string): PropValueSuggestion[] | undefined {
+    getSuggestions(documentPath: string): PropValueSuggestion[] {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
                 return this.suggestions.map(label => makeSuggestion(label, CompletionItemKind.Value));
             if (this.values.length != 0)
                 return this.values.map(label => makeSuggestion(label, CompletionItemKind.EnumMember));
-        })();
+        })() ?? [];
 
         for (let category of this.categories) {
-            if (!suggestions) suggestions = [];
             if (category == '#image-filename') {
                 MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
-                    suggestions?.push(makeSuggestion(imageName, CompletionItemKind.File));
+                    suggestions.push(makeSuggestion(imageName, CompletionItemKind.File));
                 });
             }
             else if (category == '#color') {
@@ -154,6 +154,19 @@ export class PropValueSpec {
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
+        }
+
+        const variables = VariableCache.getVariables(documentPath);
+        if (variables.size > 0) {
+            variables.forEach((values, name) => {
+                const label = `$${name}`;
+                suggestions.push({
+                    label: label,
+                    text: label,
+                    kind: CompletionItemKind.Variable,
+                    isSnippet: false
+                });
+            });
         }
 
         return suggestions;
