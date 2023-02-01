@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropRange } from './PropGroupParser';
+import { unquote } from './utils';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
@@ -69,12 +70,4 @@ export abstract class DiagnosticCollector {
             });
         }
     }
-}
-
-function unquote(value: string): string {
-    if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
-        value = value.substring(1, value.length - 1);
-        value = value.replace(/\\(.)/g, '$1');
-    }
-    return value;
 }

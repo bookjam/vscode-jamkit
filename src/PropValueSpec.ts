@@ -80,7 +80,7 @@ export class PropValueSpec {
 
         let errorMessage;
 
-        if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
+        if (!this.hasValidationRules()) {
             return { success: true };
         }
 
@@ -125,7 +125,11 @@ export class PropValueSpec {
         mergeUnique(this.patterns, other.patterns);
     }
 
-    getSuggestions(documentPath: string): PropValueSuggestion[] {
+    hasValidationRules(): boolean {
+        return this.values.length > 0 || this.patterns.length > 0 || this.categories.length > 0;
+    }
+
+    getSuggestions(triggerChar: string | undefined, documentPath: string): PropValueSuggestion[] {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
                 return this.suggestions.map(label => makeSuggestion(PropValueSuggestionIcon.Value, label));
@@ -163,20 +167,25 @@ export class PropValueSpec {
             }
         }
 
-        const variables = VariableCache.getVariables(documentPath);
-        if (variables.size > 0) {
-            variables.forEach((values, name) => {
-                const validValues = values.filter(value => this.verify(value, documentPath).success);
-                if (validValues.length > 0) {
-                    const label = `$${name}`;
-                    suggestions.push({
-                        icon: PropValueSuggestionIcon.Variable,
-                        label: label,
-                        text: label,
-                        hint: validValues.toString()
-                    });
-                }
-            });
+        // Variables can be suggested either when:
+        //  - users really want them (triggerChar == '$'), or
+        //  - we have strict rules to verify the variables.
+        if (triggerChar == '$' || this.hasValidationRules()) {
+            const variables = VariableCache.getVariables(documentPath);
+            if (variables.size > 0) {
+                variables.forEach((values, name) => {
+                    const validValues = values.filter(value => this.verify(value, documentPath).success);
+                    if (validValues.length > 0) {
+                        const label = `$${name}`;
+                        suggestions.push({
+                            icon: PropValueSuggestionIcon.Variable,
+                            label: label,
+                            text: label,
+                            hint: validValues.toString()
+                        });
+                    }
+                });
+            }
         }
 
         return suggestions;

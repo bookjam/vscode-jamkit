@@ -56,7 +56,7 @@ export class PropCompletionItemProvider {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
         const propValueSpec = PropConfigStore.getPropValueSpec(context.target, context.name);
-        let suggestions = propValueSpec?.getSuggestions(this.document.fileName);
+        let suggestions = propValueSpec?.getSuggestions(this.triggerChar, this.document.fileName);
         if (suggestions) {
             if (context.valuePrefix) {
                 const prefix = context.valuePrefix;

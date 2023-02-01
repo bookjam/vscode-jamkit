@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { assert } from 'console';
+import { unquote } from './utils';
 
 const VARIABLE_DEFINITION_PREFIX = /^\s*\$([A-Z_]+)\s*=/;
 const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;
@@ -107,7 +108,7 @@ export class VariableCache {
                     let m;
                     if (m = text.match(VARIABLE_DEFINITION_PREFIX)) {
                         const name = m[1];
-                        const value = text.substring(text.indexOf('=') + 1).trim();
+                        const value = unquote(text.substring(text.indexOf('=') + 1).trim());
                         if (value.length == 0)
                             return;
 
