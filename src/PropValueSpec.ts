@@ -21,8 +21,9 @@ export interface PropValueSuggestion {
     isSnippet?: boolean;
 }
 
-export interface PropValueError {
-    message: string;
+export interface PropValueVerifyResult {
+    success: boolean;
+    errorMessage?: string;
 }
 
 export class PropValueSpec {
@@ -75,36 +76,38 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : [];
     }
 
-    verify(value: string, documentPath: string): PropValueError | undefined {
+    verify(value: string, documentPath: string): PropValueVerifyResult {
 
-        let errorMessage = `"${value}" is not valid here.`;
+        let errorMessage;
 
         if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
-            return;
+            return { success: true };
         }
 
         if (this.values.includes(value)) {
-            return;
+            return { success: true };
         }
 
         for (let pattern of this.patterns) {
             if (new RegExp(pattern).test(value))
-                return;
+                return { success: true };
         }
 
         for (let category of this.categories) {
             if (category == '#image-filename') {
-                if (MediaRepository.enumerateImageNames(documentPath).includes(value))
-                    return;
+                if (MediaRepository.enumerateImageNames(documentPath).includes(value)) {
+                    return { success: true };
+                }
+
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#color') {
-                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/))
-                    return;
-                if (value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/))
-                    return;
-                if (value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/))
-                    return;
+                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/) ||
+                    value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/) ||
+                    value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/)) {
+                    return { success: true };
+                }
+
                 errorMessage = `Invalid color format.`;
             }
             else {
@@ -112,7 +115,7 @@ export class PropValueSpec {
             }
         }
 
-        return { message: errorMessage };
+        return { success: false, errorMessage };
     }
 
     merge(other: PropValueSpec): void {
@@ -163,7 +166,7 @@ export class PropValueSpec {
         const variables = VariableCache.getVariables(documentPath);
         if (variables.size > 0) {
             variables.forEach((values, name) => {
-                const validValues = values.filter(value => this.verify(value, documentPath) == undefined);
+                const validValues = values.filter(value => this.verify(value, documentPath).success);
                 if (validValues.length > 0) {
                     const label = `$${name}`;
                     suggestions.push({

@@ -27,7 +27,7 @@ export abstract class DiagnosticCollector {
 
     abstract processLine(line: number, lineText: string, isContinued: boolean): void;
 
-    verifyProperty(target: PropTarget, propRange: PropRange): void {
+    checkProp(target: PropTarget, propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
         const valueSpec = PropConfigStore.getPropValueSpec(target, name);
 
@@ -60,11 +60,11 @@ export abstract class DiagnosticCollector {
         }
 
         const documentPath = this.document.fileName;
-        const error = valueSpec.verify(value, documentPath);
-        if (error) {
+        const result = valueSpec.verify(value, documentPath);
+        if (!result.success) {
             this.diagnostics.push({
-                message: error.message,
                 range: propRange.valueRange,
+                message: result.errorMessage ?? `"${value}" is not valid for "${name}" here.`,
                 severity: vscode.DiagnosticSeverity.Error
             });
         }
