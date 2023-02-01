@@ -1,5 +1,5 @@
 import { assert } from "console";
-import { CompletionItemKind } from "vscode";
+import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
 import { MediaRepository } from "./MediaRepository";
 import { VariableCache } from "./VariableCache";
 
@@ -14,10 +14,11 @@ const KNOWN_CATEGORIES: string[] = [
 ];
 
 export interface PropValueSuggestion {
+    icon: PropValueSuggestionIcon;
     label: string;
     text: string;
-    kind: CompletionItemKind;
-    isSnippet: boolean;
+    hint?: string;
+    isSnippet?: boolean;
 }
 
 export interface PropValueError {
@@ -74,9 +75,9 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : [];
     }
 
-    verify(name: string, value: string, documentPath: string): PropValueError | undefined {
+    verify(value: string, documentPath: string): PropValueError | undefined {
 
-        let errorMessage = `"${value}" is not valid for "${name}" here.`;
+        let errorMessage = `"${value}" is not valid here.`;
 
         if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
             return;
@@ -124,33 +125,33 @@ export class PropValueSpec {
     getSuggestions(documentPath: string): PropValueSuggestion[] {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
-                return this.suggestions.map(label => makeSuggestion(label, CompletionItemKind.Value));
+                return this.suggestions.map(label => makeSuggestion(PropValueSuggestionIcon.Value, label));
             if (this.values.length != 0)
-                return this.values.map(label => makeSuggestion(label, CompletionItemKind.EnumMember));
+                return this.values.map(label => makeSuggestion(PropValueSuggestionIcon.EnumMember, label));
         })() ?? [];
 
         for (let category of this.categories) {
             if (category == '#image-filename') {
                 MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
-                    suggestions.push(makeSuggestion(imageName, CompletionItemKind.File));
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
-            else if (category == '#color') {
-                suggestions.push(makeSuggestion('black - #rrggbb', CompletionItemKind.Color, '#000000'));
-                suggestions.push(makeSuggestion('white - #rrggbb', CompletionItemKind.Color, '#ffffff'));
-                suggestions.push(makeSuggestion('black - #rrggbbaa', CompletionItemKind.Color, '#000000ff'));
-                suggestions.push(makeSuggestion('white - #rrggbbaa', CompletionItemKind.Color, '#ffffffff'));
-                suggestions.push(makeSnippetSuggestion(
-                    'rgb($red, $green, $blue)',
-                    '"rgb(${1:255},${2:255},${3:255})"',
-                    CompletionItemKind.Function)
-                );
-                suggestions.push(makeSnippetSuggestion(
-                    'rgba($red, $green, $blue, $alpha)',
-                    '"rgba(${1:255},${2:255},${3:255},${4:0.5})"',
-                    CompletionItemKind.Function)
-                );
-            }
+            // else if (category == '#color') {
+            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbb', '#000000'));
+            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbb', '#ffffff'));
+            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbbaa', '#000000ff'));
+            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbbaa', '#ffffffff'));
+            //     suggestions.push(makeSnippetSuggestion(
+            //         PropValueSuggestionIcon.Function,
+            //         'rgb($red, $green, $blue)',
+            //         '"rgb(${1:255},${2:255},${3:255})"')
+            //     );
+            //     suggestions.push(makeSnippetSuggestion(
+            //         PropValueSuggestionIcon.Function,
+            //         'rgba($red, $green, $blue, $alpha)',
+            //         '"rgba(${1:255},${2:255},${3:255},${4:0.5})"')
+            //     );
+            // }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
@@ -159,13 +160,16 @@ export class PropValueSpec {
         const variables = VariableCache.getVariables(documentPath);
         if (variables.size > 0) {
             variables.forEach((values, name) => {
-                const label = `$${name}`;
-                suggestions.push({
-                    label: label,
-                    text: label,
-                    kind: CompletionItemKind.Variable,
-                    isSnippet: false
-                });
+                const validValues = values.filter(value => this.verify(value, documentPath) == undefined);
+                if (validValues.length > 0) {
+                    const label = `$${name}`;
+                    suggestions.push({
+                        icon: PropValueSuggestionIcon.Variable,
+                        label: label,
+                        text: label,
+                        hint: validValues.toString()
+                    });
+                }
             });
         }
 
@@ -175,16 +179,17 @@ export class PropValueSpec {
 
 function mergeUnique<T>(dst: T[], src: T[]): void {
     src.forEach(addition => {
-        if (!dst.includes(addition))
+        if (!dst.includes(addition)) {
             dst.push(addition);
+        }
     });
 }
 
-function makeSuggestion(label: string, kind: CompletionItemKind, text?: string): PropValueSuggestion {
-    return { label, text: text ?? label, kind, isSnippet: false };
+function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: string): PropValueSuggestion {
+    return { label, text: text ?? label, icon: kind };
 }
 
-function makeSnippetSuggestion(label: string, text: string, kind: CompletionItemKind): PropValueSuggestion {
-    return { label, text, kind, isSnippet: true };
+function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, text: string): PropValueSuggestion {
+    return { label, text, icon: kind, isSnippet: true };
 }
 

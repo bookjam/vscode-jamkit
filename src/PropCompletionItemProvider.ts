@@ -64,12 +64,12 @@ export class PropCompletionItemProvider {
             }
             return suggestions.map((suggestion, index) => {
                 const item = (() => {
-                    if (!suggestion.isSnippet && suggestion.label !== suggestion.text) {
+                    if (!suggestion.isSnippet && (suggestion.hint || suggestion.label !== suggestion.text)) {
                         const label = suggestion.label;
-                        const description = suggestion.text;
-                        return new vscode.CompletionItem({ label, description }, suggestion.kind);
+                        const description = suggestion.hint ?? suggestion.text;
+                        return new vscode.CompletionItem({ label, description }, suggestion.icon);
                     }
-                    return new vscode.CompletionItem(suggestion.label, suggestion.kind);
+                    return new vscode.CompletionItem(suggestion.label, suggestion.icon);
                 })();
 
                 if (suggestion.isSnippet) {

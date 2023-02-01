@@ -60,7 +60,7 @@ export abstract class DiagnosticCollector {
         }
 
         const documentPath = this.document.fileName;
-        const error = valueSpec.verify(name, value, documentPath);
+        const error = valueSpec.verify(value, documentPath);
         if (error) {
             this.diagnostics.push({
                 message: error.message,
