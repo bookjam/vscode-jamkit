@@ -14,7 +14,9 @@ const KNOWN_CATEGORIES: string[] = [
 
 export interface PropValueSuggestion {
     label: string;
+    text: string;
     kind: CompletionItemKind;
+    isSnippet: boolean;
 }
 
 export interface PropValueError {
@@ -95,11 +97,11 @@ export class PropValueSpec {
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#color') {
-                if (value.match(/^(#[0-9A-Fa-f]{3}|#[0-9A-Fa-f]{6})$/))
+                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/))
                     return;
-                if (value.match(/^rgb\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/))
+                if (value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/))
                     return;
-                if (value.match(/^rgba\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d\.]+\s*\)$/))
+                if (value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/))
                     return;
                 errorMessage = `Invalid color format.`;
             }
@@ -121,20 +123,33 @@ export class PropValueSpec {
     getSuggestions(documentPath: string): PropValueSuggestion[] | undefined {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
-                return this.suggestions.map(label => ({ label, kind: CompletionItemKind.Value }));
+                return this.suggestions.map(label => makeSuggestion(label, CompletionItemKind.Value));
             if (this.values.length != 0)
-                return this.values.map(label => ({ label, kind: CompletionItemKind.EnumMember }));
+                return this.values.map(label => makeSuggestion(label, CompletionItemKind.EnumMember));
         })();
 
         for (let category of this.categories) {
+            if (!suggestions) suggestions = [];
             if (category == '#image-filename') {
-                if (!suggestions) suggestions = [];
                 MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
-                    suggestions?.push({ label: imageName, kind: CompletionItemKind.File });
+                    suggestions?.push(makeSuggestion(imageName, CompletionItemKind.File));
                 });
             }
             else if (category == '#color') {
-                // NOOP - nothing to suggest
+                suggestions.push(makeSuggestion('black - #rrggbb', CompletionItemKind.Color, '#000000'));
+                suggestions.push(makeSuggestion('white - #rrggbb', CompletionItemKind.Color, '#ffffff'));
+                suggestions.push(makeSuggestion('black - #rrggbbaa', CompletionItemKind.Color, '#000000ff'));
+                suggestions.push(makeSuggestion('white - #rrggbbaa', CompletionItemKind.Color, '#ffffffff'));
+                suggestions.push(makeSnippetSuggestion(
+                    'rgb($red, $green, $blue)',
+                    '"rgb(${1:255},${2:255},${3:255})"',
+                    CompletionItemKind.Function)
+                );
+                suggestions.push(makeSnippetSuggestion(
+                    'rgba($red, $green, $blue, $alpha)',
+                    '"rgb(${1:255},${2:255},${3:255},${4:0.5})"',
+                    CompletionItemKind.Function)
+                );
             }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
@@ -151,3 +166,12 @@ function mergeUnique<T>(dst: T[], src: T[]): void {
             dst.push(addition);
     });
 }
+
+function makeSuggestion(label: string, kind: CompletionItemKind, text?: string): PropValueSuggestion {
+    return { label, text: text ?? label, kind, isSnippet: false };
+}
+
+function makeSnippetSuggestion(label: string, text: string, kind: CompletionItemKind): PropValueSuggestion {
+    return { label, text, kind, isSnippet: true };
+}
+
