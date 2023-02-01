@@ -136,22 +136,25 @@ export class PropValueSpec {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
-            // else if (category == '#color') {
-            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbb', '#000000'));
-            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbb', '#ffffff'));
-            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbbaa', '#000000ff'));
-            //     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbbaa', '#ffffffff'));
-            //     suggestions.push(makeSnippetSuggestion(
-            //         PropValueSuggestionIcon.Function,
-            //         'rgb($red, $green, $blue)',
-            //         '"rgb(${1:255},${2:255},${3:255})"')
-            //     );
-            //     suggestions.push(makeSnippetSuggestion(
-            //         PropValueSuggestionIcon.Function,
-            //         'rgba($red, $green, $blue, $alpha)',
-            //         '"rgba(${1:255},${2:255},${3:255},${4:0.5})"')
-            //     );
-            // }
+            else if (category == '#color') {
+                // Now that we can suggest variables and we usually have a bunch of color variables in themes.sbss,
+                // these don't seem to help much better.
+
+                /*suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbb', '#000000'));
+                suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbb', '#ffffff'));
+                suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbbaa', '#000000ff'));
+                suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbbaa', '#ffffffff'));
+                suggestions.push(makeSnippetSuggestion(
+                    PropValueSuggestionIcon.Function,
+                    'rgb($red, $green, $blue)',
+                    '"rgb(${1:255},${2:255},${3:255})"')
+                );
+                suggestions.push(makeSnippetSuggestion(
+                    PropValueSuggestionIcon.Function,
+                    'rgba($red, $green, $blue, $alpha)',
+                    '"rgba(${1:255},${2:255},${3:255},${4:0.5})"')
+                );*/
+            }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
