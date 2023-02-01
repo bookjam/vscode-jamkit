@@ -29,7 +29,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
             else {
                 assert(this.propTarget);
                 this.propParser.parse(line, 0, text).forEach(
-                    propRange => this.verifyProperty(this.propTarget!, propRange)
+                    propRange => this.checkProp(this.propTarget!, propRange)
                 );
             }
             return;
@@ -38,7 +38,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
         if (isContinued && this.propParser instanceof PropListParser) {
             assert(this.propTarget);
             this.propParser.parse(line, 0, text).forEach(
-                propRange => this.verifyProperty(this.propTarget!, propRange)
+                propRange => this.checkProp(this.propTarget!, propRange)
             );
             return;
         }
@@ -50,7 +50,7 @@ export class SbssDiagnosticCollector extends DiagnosticCollector {
                 if (context.kind == PropGroupKind.List) {
                     this.propParser = new PropListParser();
                     this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
-                        propRange => this.verifyProperty(this.propTarget!, propRange)
+                        propRange => this.checkProp(this.propTarget!, propRange)
                     );
                 }
                 else {

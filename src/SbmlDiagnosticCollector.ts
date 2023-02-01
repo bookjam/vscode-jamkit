@@ -55,7 +55,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             if (this.lineKind == LineKind.Directive) {
                 if (this.propParser) {
                     this.propParser.parse(line, 0, text).forEach(
-                        propRange => this.verifyProperty(this.propTarget!, propRange)
+                        propRange => this.checkProp(this.propTarget!, propRange)
                     );
                     this.checkIfLineContinuationMarkerMissing(line, text);
                 }
@@ -83,7 +83,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
                 const offset = directive.propListIndex;
                 this.propParser.parse(line, offset, text).forEach(
-                    propRange => this.verifyProperty(this.propTarget!, propRange)
+                    propRange => this.checkProp(this.propTarget!, propRange)
                 );
                 this.checkIfLineContinuationMarkerMissing(line, text);
             }
@@ -261,7 +261,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 };
                 const propListParser = new PropListParser();
                 propListParser.parse(line, propBeginIndex, propListText).forEach(
-                    propRange => this.verifyProperty(propTarget, propRange)
+                    propRange => this.checkProp(propTarget, propRange)
                 );
             }
 

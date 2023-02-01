@@ -88,7 +88,8 @@ export class SbmlCompletionHandler {
             },
             ':', ',', '=',
             '(', // inline object/image
-            '~', '/', '.' // image name prefix
+            '~', '/', '.', // image name prefix
+            '$'
         ));
     }
 }

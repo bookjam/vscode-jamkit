@@ -52,10 +52,12 @@ export class SyntaxAnalyser {
 
     private updateDiagnostics(document: vscode.TextDocument): void {
         const diagnosticCollector = (() => {
-            if (document.fileName.endsWith('.sbml'))
+            if (document.fileName.endsWith('.sbml')) {
                 return new SbmlDiagnosticCollector(document);
-            if (document.fileName.endsWith('.sbss'))
+            }
+            if (document.fileName.endsWith('.sbss')) {
                 return new SbssDiagnosticCollector(document);
+            }
         })();
         if (diagnosticCollector) {
             this.collection.set(document.uri, diagnosticCollector.collect());

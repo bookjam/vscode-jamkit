@@ -56,7 +56,7 @@ export class PropCompletionItemProvider {
         console.log(`property value: name=${context.name}, valuePrefix=${context.valuePrefix}`);
 
         const propValueSpec = PropConfigStore.getPropValueSpec(context.target, context.name);
-        let suggestions = propValueSpec?.getSuggestions(this.document.fileName);
+        let suggestions = propValueSpec?.getSuggestions(this.triggerChar, this.document.fileName);
         if (suggestions) {
             if (context.valuePrefix) {
                 const prefix = context.valuePrefix;
@@ -64,12 +64,12 @@ export class PropCompletionItemProvider {
             }
             return suggestions.map((suggestion, index) => {
                 const item = (() => {
-                    if (!suggestion.isSnippet && suggestion.label !== suggestion.text) {
+                    if (!suggestion.isSnippet && (suggestion.hint || suggestion.label !== suggestion.text)) {
                         const label = suggestion.label;
-                        const description = suggestion.text;
-                        return new vscode.CompletionItem({ label, description }, suggestion.kind);
+                        const description = suggestion.hint ?? suggestion.text;
+                        return new vscode.CompletionItem({ label, description }, suggestion.icon);
                     }
-                    return new vscode.CompletionItem(suggestion.label, suggestion.kind);
+                    return new vscode.CompletionItem(suggestion.label, suggestion.icon);
                 })();
 
                 if (suggestion.isSnippet) {
@@ -78,7 +78,7 @@ export class PropCompletionItemProvider {
                 else if (this.triggerChar === ':') {
                     item.insertText = ' ' + suggestion.text;
                 }
-                else if (context.valuePrefix == '~' || context.valuePrefix == '~/') {
+                else if (context.valuePrefix === '$' || context.valuePrefix === '~' || context.valuePrefix === '~/') {
                     item.insertText = suggestion.text.substring(context.valuePrefix.length);
                 }
                 else {

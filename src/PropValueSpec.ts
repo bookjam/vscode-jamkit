@@ -1,6 +1,7 @@
 import { assert } from "console";
-import { CompletionItemKind } from "vscode";
+import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
 import { MediaRepository } from "./MediaRepository";
+import { VariableCache } from "./VariableCache";
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
@@ -13,14 +14,16 @@ const KNOWN_CATEGORIES: string[] = [
 ];
 
 export interface PropValueSuggestion {
+    icon: PropValueSuggestionIcon;
     label: string;
     text: string;
-    kind: CompletionItemKind;
-    isSnippet: boolean;
+    hint?: string;
+    isSnippet?: boolean;
 }
 
-export interface PropValueError {
-    message: string;
+export interface PropValueVerifyResult {
+    success: boolean;
+    errorMessage?: string;
 }
 
 export class PropValueSpec {
@@ -73,36 +76,38 @@ export class PropValueSpec {
         this.patterns = pattern ? [pattern] : [];
     }
 
-    verify(name: string, value: string, documentPath: string): PropValueError | undefined {
+    verify(value: string, documentPath: string): PropValueVerifyResult {
 
-        let errorMessage = `"${value}" is not valid for "${name}" here.`;
+        let errorMessage;
 
-        if (this.values.length == 0 && this.patterns.length == 0 && this.categories.length == 0) {
-            return;
+        if (!this.hasValidationRules()) {
+            return { success: true };
         }
 
         if (this.values.includes(value)) {
-            return;
+            return { success: true };
         }
 
         for (let pattern of this.patterns) {
             if (new RegExp(pattern).test(value))
-                return;
+                return { success: true };
         }
 
         for (let category of this.categories) {
             if (category == '#image-filename') {
-                if (MediaRepository.enumerateImageNames(documentPath).includes(value))
-                    return;
+                if (MediaRepository.enumerateImageNames(documentPath).includes(value)) {
+                    return { success: true };
+                }
+
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#color') {
-                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/))
-                    return;
-                if (value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/))
-                    return;
-                if (value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/))
-                    return;
+                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/) ||
+                    value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/) ||
+                    value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/)) {
+                    return { success: true };
+                }
+
                 errorMessage = `Invalid color format.`;
             }
             else {
@@ -110,7 +115,7 @@ export class PropValueSpec {
             }
         }
 
-        return { message: errorMessage };
+        return { success: false, errorMessage };
     }
 
     merge(other: PropValueSpec): void {
@@ -120,39 +125,66 @@ export class PropValueSpec {
         mergeUnique(this.patterns, other.patterns);
     }
 
-    getSuggestions(documentPath: string): PropValueSuggestion[] | undefined {
+    hasValidationRules(): boolean {
+        return this.values.length > 0 || this.patterns.length > 0 || this.categories.length > 0;
+    }
+
+    getSuggestions(triggerChar: string | undefined, documentPath: string): PropValueSuggestion[] {
         let suggestions = (() => {
             if (this.suggestions.length != 0)
-                return this.suggestions.map(label => makeSuggestion(label, CompletionItemKind.Value));
+                return this.suggestions.map(label => makeSuggestion(PropValueSuggestionIcon.Value, label));
             if (this.values.length != 0)
-                return this.values.map(label => makeSuggestion(label, CompletionItemKind.EnumMember));
-        })();
+                return this.values.map(label => makeSuggestion(PropValueSuggestionIcon.EnumMember, label));
+        })() ?? [];
 
         for (let category of this.categories) {
-            if (!suggestions) suggestions = [];
             if (category == '#image-filename') {
                 MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
-                    suggestions?.push(makeSuggestion(imageName, CompletionItemKind.File));
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
             else if (category == '#color') {
-                suggestions.push(makeSuggestion('black - #rrggbb', CompletionItemKind.Color, '#000000'));
-                suggestions.push(makeSuggestion('white - #rrggbb', CompletionItemKind.Color, '#ffffff'));
-                suggestions.push(makeSuggestion('black - #rrggbbaa', CompletionItemKind.Color, '#000000ff'));
-                suggestions.push(makeSuggestion('white - #rrggbbaa', CompletionItemKind.Color, '#ffffffff'));
+                // Now that we can suggest variables and we usually have a bunch of color variables in themes.sbss,
+                // these don't seem to help much better.
+
+                /*suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbb', '#000000'));
+                suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbb', '#ffffff'));
+                suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'black - #rrggbbaa', '#000000ff'));
+                suggestions.push(makeSuggestion(PropValueSuggestionIcon.Color, 'white - #rrggbbaa', '#ffffffff'));
                 suggestions.push(makeSnippetSuggestion(
+                    PropValueSuggestionIcon.Function,
                     'rgb($red, $green, $blue)',
-                    '"rgb(${1:255},${2:255},${3:255})"',
-                    CompletionItemKind.Function)
+                    '"rgb(${1:255},${2:255},${3:255})"')
                 );
                 suggestions.push(makeSnippetSuggestion(
+                    PropValueSuggestionIcon.Function,
                     'rgba($red, $green, $blue, $alpha)',
-                    '"rgba(${1:255},${2:255},${3:255},${4:0.5})"',
-                    CompletionItemKind.Function)
-                );
+                    '"rgba(${1:255},${2:255},${3:255},${4:0.5})"')
+                );*/
             }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
+            }
+        }
+
+        // Variables can be suggested either when:
+        //  - users really want them (triggerChar == '$'), or
+        //  - we have strict rules to verify the variables.
+        if (triggerChar == '$' || this.hasValidationRules()) {
+            const variables = VariableCache.getVariables(documentPath);
+            if (variables.size > 0) {
+                variables.forEach((values, name) => {
+                    const validValues = values.filter(value => this.verify(value, documentPath).success);
+                    if (validValues.length > 0) {
+                        const label = `$${name}`;
+                        suggestions.push({
+                            icon: PropValueSuggestionIcon.Variable,
+                            label: label,
+                            text: label,
+                            hint: validValues.toString()
+                        });
+                    }
+                });
             }
         }
 
@@ -162,16 +194,17 @@ export class PropValueSpec {
 
 function mergeUnique<T>(dst: T[], src: T[]): void {
     src.forEach(addition => {
-        if (!dst.includes(addition))
+        if (!dst.includes(addition)) {
             dst.push(addition);
+        }
     });
 }
 
-function makeSuggestion(label: string, kind: CompletionItemKind, text?: string): PropValueSuggestion {
-    return { label, text: text ?? label, kind, isSnippet: false };
+function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: string): PropValueSuggestion {
+    return { label, text: text ?? label, icon: kind };
 }
 
-function makeSnippetSuggestion(label: string, text: string, kind: CompletionItemKind): PropValueSuggestion {
-    return { label, text, kind, isSnippet: true };
+function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, text: string): PropValueSuggestion {
+    return { label, text, icon: kind, isSnippet: true };
 }
 
