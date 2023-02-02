@@ -28,7 +28,7 @@ export abstract class DiagnosticCollector {
 
     abstract processLine(line: number, lineText: string, isContinued: boolean): void;
 
-    checkProp(target: PropTarget, propRange: PropRange): void {
+    analyseProp(target: PropTarget, propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
         const valueSpec = PropConfigStore.getPropValueSpec(target, name);
 

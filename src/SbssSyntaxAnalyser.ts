@@ -29,7 +29,7 @@ export class SbssSyntaxAnalyser extends DiagnosticCollector {
             else {
                 assert(this.propTarget);
                 this.propParser.parse(line, 0, text).forEach(
-                    propRange => this.checkProp(this.propTarget!, propRange)
+                    propRange => this.analyseProp(this.propTarget!, propRange)
                 );
             }
             return;
@@ -38,7 +38,7 @@ export class SbssSyntaxAnalyser extends DiagnosticCollector {
         if (isContinued && this.propParser instanceof PropListParser) {
             assert(this.propTarget);
             this.propParser.parse(line, 0, text).forEach(
-                propRange => this.checkProp(this.propTarget!, propRange)
+                propRange => this.analyseProp(this.propTarget!, propRange)
             );
             return;
         }
@@ -50,7 +50,7 @@ export class SbssSyntaxAnalyser extends DiagnosticCollector {
                 if (context.kind == PropGroupKind.List) {
                     this.propParser = new PropListParser();
                     this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
-                        propRange => this.checkProp(this.propTarget!, propRange)
+                        propRange => this.analyseProp(this.propTarget!, propRange)
                     );
                 }
                 else {
