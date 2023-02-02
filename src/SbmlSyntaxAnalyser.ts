@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { assert } from 'console';
 import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
-import { DiagnosticCollector } from './DiagnosticCollector';
+import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropConfigStore } from './PropConfigStore';
 import { MediaRepository } from './MediaRepository';
@@ -42,7 +42,7 @@ interface Context {
 }
 
 // TODO: Use SbmlContextParser
-export class SbmlSyntaxAnalyser extends DiagnosticCollector {
+export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
     private readonly contextStack: Context[] = [];
     private propTarget: PropTarget | null = null;

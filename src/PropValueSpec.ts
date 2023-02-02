@@ -203,9 +203,9 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
     return { label, text: text ?? label, icon: kind };
 }
 
-function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, text: string): PropValueSuggestion {
-    return { label, text, icon: kind, isSnippet: true };
-}
+// function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, text: string): PropValueSuggestion {
+//     return { label, text, icon: kind, isSnippet: true };
+// }
 
 function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#video-filename'): MediaKind {
     if (valueCategory == '#image-filename')

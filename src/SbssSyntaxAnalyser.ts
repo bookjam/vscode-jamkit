@@ -1,12 +1,8 @@
 import * as vscode from 'vscode';
 import { PropGroupKind } from './ContextParser';
-import { DiagnosticCollector } from './DiagnosticCollector';
+import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
-import {
-    PropGroupParser,
-    PropListParser,
-    PropBlockParser,
-} from './PropGroupParser';
+import { PropGroupParser, PropListParser, PropBlockParser } from './PropGroupParser';
 import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from './patterns';
 import { assert } from 'console';
 import { toColor } from './utils';
@@ -17,7 +13,7 @@ interface PropGroupBeginContext {
 }
 
 // TODO: Use SbssContextParser
-export class SbssSyntaxAnalyser extends DiagnosticCollector {
+export class SbssSyntaxAnalyser extends SyntaxAnalyser {
 
     private propTarget: PropTarget | null = null;
     private propParser: PropGroupParser | null = null;
