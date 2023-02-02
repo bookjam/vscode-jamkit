@@ -1,5 +1,5 @@
 import { assert } from 'console';
-import { Color } from 'vscode';
+import { Color, ColorPresentation } from 'vscode';
 
 export function unquote(value: string): string {
     if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
@@ -56,16 +56,29 @@ export function toColor(value: string): Color | undefined {
         }
     }
 
+    const rgbFuncArgToColorNum = (arg: string) => {
+        const num = parseInt(arg);
+        return arg.endsWith('%') ? (num / 100) : (num / 255);
+    };
+
     // rgba(128, 50%, 128)
-    if (m = value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/)) {
-        // TODO: implement
-        return;
+    if (m = value.match(/^rgb\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)\s*\)$/)) {
+        return new Color(
+            rgbFuncArgToColorNum(m[1]),
+            rgbFuncArgToColorNum(m[2]),
+            rgbFuncArgToColorNum(m[3]),
+            1
+        );
     }
 
     // rgba(128, 50%, 128, 1.0)
-    if (m = value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/)) {
-        // TODO: implement
-        return;
+    if (m = value.match(/^rgba\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*([\d\.]+)\s*\)$/)) {
+        return new Color(
+            rgbFuncArgToColorNum(m[1]),
+            rgbFuncArgToColorNum(m[2]),
+            rgbFuncArgToColorNum(m[3]),
+            parseInt(m[4])
+        );
     }
 }
 

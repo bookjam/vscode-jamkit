@@ -7,7 +7,7 @@ import { isColorText, toColor, unquote } from './utils';
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
     protected readonly diagnostics: vscode.Diagnostic[] = [];
-    private readonly colorInformations: vscode.ColorInformation[] = [];
+    protected readonly colorInformations: vscode.ColorInformation[] = [];
 
     constructor(document: vscode.TextDocument) {
         this.document = document;

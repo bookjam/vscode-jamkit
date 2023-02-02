@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { SbmlSyntaxAnalyser } from './SbmlSyntaxAnalyser';
 import { SbssSyntaxAnalyser } from './SbssSyntaxAnalyser';
-import { toColor, toString } from './utils';
+import { toString } from './utils';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
