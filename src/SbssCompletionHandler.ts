@@ -3,7 +3,7 @@ import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { SbssContextParser } from './SbssContextParser';
 
 export class SbssCompletionHandler {
-    static register(context: vscode.ExtensionContext): void {
+    static init(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
             'sbss',
             {
