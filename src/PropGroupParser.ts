@@ -171,7 +171,13 @@ export class PropGroupParser {
 
             // force value reading at EOL
             if (this.state == PropParseState.InValue && !this.valueEndPos && i == text.length - 1) {
-                this.valueEndPos = new vscode.Position(line, i + 1);
+                let endIndex = i + 1;
+                if (!this.valueQuoteChar) {
+                    while (endIndex > 0 && text[endIndex - 1] == ' ') {
+                        endIndex -= 1;
+                    }
+                }
+                this.valueEndPos = new vscode.Position(line, endIndex);
             }
 
             if (this.nameBeginPos && this.nameEndPos && this.valueBeginPos && this.valueEndPos) {
