@@ -15,7 +15,7 @@ interface PropGroupBeginContext {
 }
 
 // TODO: Use SbssContextParser
-export class SbssDiagnosticCollector extends DiagnosticCollector {
+export class SbssSyntaxAnalyser extends DiagnosticCollector {
 
     private propTarget: PropTarget | null = null;
     private propParser: PropGroupParser | null = null;

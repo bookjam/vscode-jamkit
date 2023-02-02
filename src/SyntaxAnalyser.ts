@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
-import { SbssDiagnosticCollector } from './SbssDiagnosticCollector';
+import { SbssSyntaxAnalyser } from './SbssDiagnosticCollector';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
@@ -21,12 +21,21 @@ export class SyntaxAnalyser {
                 return;
             }
             if (instance.currentFileName === event.document.fileName) {
-                instance.updateDiagnostics(event.document);
+                instance.analize(event.document);
             }
             else {
                 instance.clearDiagnostics(event.document);
             }
         }));
+
+        vscode.languages.registerColorProvider('sbml', {
+            provideDocumentColors: (document: vscode.TextDocument, _token: vscode.CancellationToken) => {
+                console.log(`provideDocumentColors - ${document.fileName}`);
+                return [new vscode.ColorInformation(new vscode.Range(0, 2, 0, 3), new vscode.Color(1, 0, 0, 1))];
+            },
+
+            provideColorPresentations: () => { return undefined; }
+        });
     }
 
     private collection: vscode.DiagnosticCollection;
@@ -41,7 +50,7 @@ export class SyntaxAnalyser {
             if (this.currentFileName !== document.fileName) {
                 this.currentFileName = document.fileName;
                 if (!this.collection.has(document.uri)) {
-                    this.updateDiagnostics(document);
+                    this.analize(document);
                 }
             }
         }
@@ -50,13 +59,14 @@ export class SyntaxAnalyser {
         }
     }
 
-    private updateDiagnostics(document: vscode.TextDocument): void {
+    private analize(document: vscode.TextDocument): void {
+        console.log(`analize - ${document.fileName}`);
         const diagnosticCollector = (() => {
             if (document.fileName.endsWith('.sbml')) {
                 return new SbmlDiagnosticCollector(document);
             }
             if (document.fileName.endsWith('.sbss')) {
-                return new SbssDiagnosticCollector(document);
+                return new SbssSyntaxAnalyser(document);
             }
         })();
         if (diagnosticCollector) {
