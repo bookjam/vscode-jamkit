@@ -42,7 +42,7 @@ interface Context {
 }
 
 // TODO: Use SbmlContextParser
-export class SbmlDiagnosticCollector extends DiagnosticCollector {
+export class SbmlSyntaxAnalyser extends DiagnosticCollector {
 
     private readonly contextStack: Context[] = [];
     private propTarget: PropTarget | null = null;

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { SbmlDiagnosticCollector } from './SbmlDiagnosticCollector';
+import { SbmlSyntaxAnalyser } from './SbmlDiagnosticCollector';
 import { SbssSyntaxAnalyser } from './SbssDiagnosticCollector';
 
 export class SyntaxAnalyser {
@@ -63,7 +63,7 @@ export class SyntaxAnalyser {
         console.log(`analize - ${document.fileName}`);
         const diagnosticCollector = (() => {
             if (document.fileName.endsWith('.sbml')) {
-                return new SbmlDiagnosticCollector(document);
+                return new SbmlSyntaxAnalyser(document);
             }
             if (document.fileName.endsWith('.sbss')) {
                 return new SbssSyntaxAnalyser(document);
