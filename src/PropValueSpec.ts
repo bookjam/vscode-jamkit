@@ -39,30 +39,29 @@ export class PropValueSpec {
         let category: string | undefined;
         let pattern: string | undefined;
 
-        if (typeof valueSpec == 'string') {
+        if (Array.isArray(valueSpec)) {
+            values = valueSpec as string[];
+        }
+        else if (typeof valueSpec == 'string') {
             const specialValue = valueSpec as string;
             if (KNOWN_CATEGORIES.includes(specialValue)) {
                 category = specialValue;
             }
         }
-        else if (Array.isArray(valueSpec)) {
-            values = valueSpec as string[];
-        }
-        else {
-            const keys = Object.keys(valueSpec) as Array<keyof typeof valueSpec>;
-            if ('values' in keys) {
+        else if (typeof valueSpec === 'object') {
+            if ('values' in valueSpec) {
                 values = valueSpec.values as string[];
             }
-            if ('suggestions' in keys) {
+            if ('suggestions' in valueSpec) {
                 suggestions = valueSpec.suggestions as string[];
             }
-            if ('value-category' in keys) {
+            if ('value-category' in valueSpec) {
                 const valueCategory = valueSpec['value-category'] as string;
                 if (KNOWN_CATEGORIES.includes(valueCategory)) {
                     category = valueCategory;
                 }
             }
-            if ('value-pattern' in keys) {
+            if ('value-pattern' in valueSpec) {
                 pattern = valueSpec['value-pattern'] as string;
             }
         }
@@ -90,6 +89,10 @@ export class PropValueSpec {
         }
 
         for (let pattern of this.patterns) {
+            if (!pattern.startsWith('^'))
+                pattern = '^' + pattern;
+            if (!pattern.endsWith('$'))
+                pattern += '$';
             if (new RegExp(pattern).test(value))
                 return { success: true };
         }
