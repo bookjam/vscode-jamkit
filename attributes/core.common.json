@@ -19,6 +19,7 @@
         "vi",
         "vi-VN"
     ],
+    "font-size": "#font-size",
     "font-weight": [
         "normal",
         "bold"
@@ -27,26 +28,9 @@
         "normal",
         "italic"
     ],
-    "font-size": "#font-size",
     "font-no-scale": [
         "yes",
         "no"
-    ],
-    "text-orientation": [
-        "mixed",
-        "upright",
-        "sideways",
-        "sideways-right"
-    ],
-    "text-color": "#color",
-    "text-decoration": [
-        "underline",
-        "overline",
-        "line-through",
-        "cross-out",
-        "sidedot",
-        "side-dot",
-        "outline"
     ],
     "style": "#style-name"
 }

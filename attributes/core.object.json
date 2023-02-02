@@ -1,8 +1,111 @@
 {
-    "width": "#length",
-    "height": "#length",
+    "id": "?",
+    "group": "?",
+    "reuse-id": "?",
+    "alpha": {
+        "value-pattern": "0에서 1 사이 숫자"
+    },
+    "hidden": [
+        "yes",
+        "no"
+    ],
+    "autoresizing": [
+        "flexible-size",
+        "flexible-margins",
+        "width",
+        "height",
+        "top-left",
+        "left-top",
+        "top-right",
+        "right-top",
+        "bottom-left",
+        "left-bottom",
+        "bottom-right",
+        "right-bottom",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "none"
+    ],
     "max-width": "#length",
     "min-width": "#length",
     "max-height": "#length",
-    "min-height": "#length"
+    "min-height": "#length",
+    "rotation": "?",
+    "clips-to-bounds": [
+        "yes",
+        "no"
+    ],
+    "ignore-touches": [
+        "yes",
+        "no"
+    ],
+    "saves-state": [
+        "yes",
+        "no"
+    ],
+    "stake-key": "?",
+    "content-background-color": {
+        "value-pattern": "#[a-fA-F0-9]{6}"
+    },
+    "content-border-width": "?",
+    "content-border-color": {
+        "value-pattern": "#[a-fA-F0-9]{6}"
+    },
+    "content-border-radius": "?",
+    "offset": "?",
+    "draggable": [
+        "yes",
+        "no"
+    ],
+    "follows-scroll": [
+        "yes",
+        "no"
+    ],
+    "follow-action": [
+        "move",
+        "show",
+        "hide"
+    ],
+    "max-x": "?",
+    "min-x": "?",
+    "max-y": "?",
+    "min-y": "?",
+    "velocity-when-follow": {
+        "value-pattern": "\\d"
+    },
+    "resizes-on-keyboard": [
+        "yes",
+        "no"
+    ],
+    "moves-on-keyboard": [
+        "yes",
+        "no"
+    ],
+    "hides-when-activate": [
+        "yes",
+        "no"
+    ],
+    "hides-when-pause": [
+        "yes",
+        "no"
+    ],
+    "suspends-when-reuse": [
+        "yes",
+        "no"
+    ],
+    "indicator": [
+        "normal",
+        "white",
+        "gray"
+    ],
+    "uses-for-screenshot": [
+        "yes",
+        "no"
+    ],
+    "constraint-disabled": [
+        "yes",
+        "no"
+    ]
 }

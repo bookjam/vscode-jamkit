@@ -1,4 +1,20 @@
 {
+    "text-color": "#color",
+    "text-decoration": [
+        "underline",
+        "overline",
+        "line-through",
+        "cross-out",
+        "sidedot",
+        "side-dot",
+        "outline"
+    ],
+    "text-orientation": [
+        "mixed",
+        "upright",
+        "sideways",
+        "sideways-right"
+    ],
     "ruby": [],
     "text-combine-horizontal": [
         "none",
