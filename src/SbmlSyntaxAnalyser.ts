@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { assert } from 'console';
 import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
-import { DiagnosticCollector } from './DiagnosticCollector';
+import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropConfigStore } from './PropConfigStore';
 import { MediaRepository } from './MediaRepository';
@@ -42,7 +42,7 @@ interface Context {
 }
 
 // TODO: Use SbmlContextParser
-export class SbmlDiagnosticCollector extends DiagnosticCollector {
+export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
     private readonly contextStack: Context[] = [];
     private propTarget: PropTarget | null = null;
@@ -55,7 +55,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             if (this.lineKind == LineKind.Directive) {
                 if (this.propParser) {
                     this.propParser.parse(line, 0, text).forEach(
-                        propRange => this.checkProp(this.propTarget!, propRange)
+                        propRange => this.analyseProp(this.propTarget!, propRange)
                     );
                     this.checkIfLineContinuationMarkerMissing(line, text);
                 }
@@ -83,7 +83,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
                 const offset = directive.propListIndex;
                 this.propParser.parse(line, offset, text).forEach(
-                    propRange => this.checkProp(this.propTarget!, propRange)
+                    propRange => this.analyseProp(this.propTarget!, propRange)
                 );
                 this.checkIfLineContinuationMarkerMissing(line, text);
             }
@@ -261,7 +261,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 };
                 const propListParser = new PropListParser();
                 propListParser.parse(line, propBeginIndex, propListText).forEach(
-                    propRange => this.checkProp(propTarget, propRange)
+                    propRange => this.analyseProp(propTarget, propRange)
                 );
             }
 

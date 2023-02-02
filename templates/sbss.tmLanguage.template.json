@@ -68,12 +68,7 @@
                             "name": "__STYLE_VARIABLE__"
                         }
                     },
-                    "end": "$",
-                    "patterns": [
-                        {
-                            "include": "#expression"
-                        }
-                    ]
+                    "end": "$"
                 }
             ]
         },

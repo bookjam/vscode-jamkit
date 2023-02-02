@@ -12,7 +12,7 @@ function shouldSuggestInlineObject(document: vscode.TextDocument, position: vsco
 }
 
 export class SbmlCompletionHandler {
-    static register(context: vscode.ExtensionContext) {
+    static init(context: vscode.ExtensionContext) {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
             'sbml',
             {

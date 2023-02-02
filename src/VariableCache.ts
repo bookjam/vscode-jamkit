@@ -3,8 +3,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { assert } from 'console';
 import { unquote } from './utils';
+import { parseSbssVariableDefinition } from './patterns';
 
-const VARIABLE_DEFINITION_PREFIX = /^\s*\$([A-Z_]+)\s*=/;
 const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;
 
 export class VariableValues {
@@ -103,21 +103,23 @@ export class VariableCache {
             try {
                 const content = readFileSync(filePath, 'utf-8');
                 content.split(/\r?\n/).forEach((text, line) => {
-                    let m;
-                    if (m = text.match(VARIABLE_DEFINITION_PREFIX)) {
-                        const name = m[1];
-                        const value = unquote(text.substring(text.indexOf('=') + 1).trim());
-                        if (value.length == 0)
+
+                    const varDef = parseSbssVariableDefinition(text);
+                    if (varDef) {
+                        if (varDef.value.length == 0)
                             return;
 
-                        valueMap.add(name, value);
+                        valueMap.add(varDef.name, varDef.value);
                     }
-                    else if (m = text.match(IMPORT_PATTERN)) {
-                        const fileName = m[1];
-                        const importFilePath = filePath.substring(0, filePath.lastIndexOf(path.sep) + 1) + fileName;
-                        valueMap.merge(this.getValueMap(importFilePath));
+                    else {
+                        const m = text.match(IMPORT_PATTERN);
+                        if (m) {
+                            const fileName = m[1];
+                            const importFilePath = filePath.substring(0, filePath.lastIndexOf(path.sep) + 1) + fileName;
+                            valueMap.merge(this.getValueMap(importFilePath));
 
-                        this.updateDependencyMap(importFilePath, filePath);
+                            this.updateDependencyMap(importFilePath, filePath);
+                        }
                     }
                 });
             } catch (e) {
