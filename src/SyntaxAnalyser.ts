@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { SbmlSyntaxAnalyser } from './SbmlDiagnosticCollector';
-import { SbssSyntaxAnalyser } from './SbssDiagnosticCollector';
+import { SbmlSyntaxAnalyser } from './SbmlSyntaxAnalyser';
+import { SbssSyntaxAnalyser } from './SbssSyntaxAnalyser';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
