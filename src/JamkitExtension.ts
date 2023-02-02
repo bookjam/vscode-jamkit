@@ -43,7 +43,14 @@ export class JamkitExtension {
             vscode.languages.registerColorProvider(documentSelector, {
                 provideDocumentColors: (document) => {
                     console.log(`provideDocumentColors - ${document.fileName}`);
-                    return instance.colorInfoCollection.get(document.fileName);
+
+                    // Occasionally, alalyse() is called slight later than provideDocumentColors().
+                    const COLOR_INFO_DELAY = 0.2;
+                    return new Promise((resolve, _) => {
+                        setTimeout(() => {
+                            resolve(instance.colorInfoCollection.get(document.fileName));
+                        }, COLOR_INFO_DELAY);
+                    });
                 },
                 provideColorPresentations: (color) => {
                     return [new vscode.ColorPresentation(toString(color))];
