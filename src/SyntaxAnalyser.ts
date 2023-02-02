@@ -11,11 +11,9 @@ export class SyntaxAnalyser {
         if (currentDocument) {
             instance.setActiveDocument(currentDocument);
         }
-
         context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
             instance.setActiveDocument(editor?.document);
         }));
-
         context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
             if (event.contentChanges.length == 0) {
                 return;
@@ -28,28 +26,31 @@ export class SyntaxAnalyser {
             }
         }));
 
-        vscode.languages.registerColorProvider('sbml', {
-            provideDocumentColors: (document: vscode.TextDocument, _token: vscode.CancellationToken) => {
-                console.log(`provideDocumentColors - ${document.fileName}`);
-                return [new vscode.ColorInformation(new vscode.Range(0, 2, 0, 3), new vscode.Color(1, 0, 0, 1))];
-            },
-
-            provideColorPresentations: () => { return undefined; }
+        ['sbml', 'sbss'].forEach(documentSelector => {
+            vscode.languages.registerColorProvider(documentSelector, {
+                provideDocumentColors: (document: vscode.TextDocument, _token: vscode.CancellationToken) => {
+                    console.log(`provideDocumentColors - ${document.fileName}`);
+                    return instance.colorInfoCollection.get(document.fileName);
+                },
+                provideColorPresentations: () => { return undefined; }
+            });
         });
     }
 
-    private collection: vscode.DiagnosticCollection;
+    private colorInfoCollection: Map<string, vscode.ColorInformation[]> = new Map();
+    private diagnosticCollection: vscode.DiagnosticCollection;
+
     private currentFileName?: string;
 
-    constructor(collection: vscode.DiagnosticCollection) {
-        this.collection = collection;
+    private constructor(collection: vscode.DiagnosticCollection) {
+        this.diagnosticCollection = collection;
     }
 
     private setActiveDocument(document: vscode.TextDocument | undefined): void {
         if (document) {
             if (this.currentFileName !== document.fileName) {
                 this.currentFileName = document.fileName;
-                if (!this.collection.has(document.uri)) {
+                if (!this.diagnosticCollection.has(document.uri)) {
                     this.analize(document);
                 }
             }
@@ -61,7 +62,7 @@ export class SyntaxAnalyser {
 
     private analize(document: vscode.TextDocument): void {
         console.log(`analize - ${document.fileName}`);
-        const diagnosticCollector = (() => {
+        const analyser = (() => {
             if (document.fileName.endsWith('.sbml')) {
                 return new SbmlSyntaxAnalyser(document);
             }
@@ -69,15 +70,18 @@ export class SyntaxAnalyser {
                 return new SbssSyntaxAnalyser(document);
             }
         })();
-        if (diagnosticCollector) {
-            this.collection.set(document.uri, diagnosticCollector.collect());
+        if (analyser) {
+            const diagnostics = analyser.analyse();
+
+            this.diagnosticCollection.set(document.uri, diagnostics);
+            this.colorInfoCollection.set(document.fileName, analyser.getColorInfomrations());
         }
     }
 
     private clearDiagnostics(document: vscode.TextDocument): void {
         console.log(`clearDiagnostics: ${document.fileName}`);
 
-        this.collection.delete(document.uri);
+        this.diagnosticCollection.delete(document.uri);
     }
 }
 

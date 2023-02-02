@@ -2,6 +2,7 @@ import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
 import { MediaKind, MediaRepository } from "./MediaRepository";
 import { VariableCache } from "./VariableCache";
+import { isColorText } from "./utils";
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
@@ -102,9 +103,7 @@ export class PropValueSpec {
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#color') {
-                if (value.match(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/) ||
-                    value.match(/^rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)$/) ||
-                    value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/)) {
+                if (isColorText(value)) {
                     return { success: true };
                 }
 

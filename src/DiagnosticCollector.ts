@@ -2,19 +2,21 @@ import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropRange } from './PropGroupParser';
-import { unquote } from './utils';
+import { isColorText, toColor, unquote } from './utils';
 
 export abstract class DiagnosticCollector {
     protected readonly document: vscode.TextDocument;
     protected readonly diagnostics: vscode.Diagnostic[] = [];
+    private readonly colorInformations: vscode.ColorInformation[] = [];
 
     constructor(document: vscode.TextDocument) {
         this.document = document;
     }
 
-    collect(): vscode.Diagnostic[] {
+    analyse(): vscode.Diagnostic[] {
 
         this.diagnostics.length = 0;
+        this.colorInformations.length = 0;
 
         let isContinued = false;
         for (let i = 0; i < this.document.lineCount; ++i) {
@@ -23,15 +25,25 @@ export abstract class DiagnosticCollector {
             isContinued = text.endsWith('\\');
         }
 
-        return this.diagnostics;
+        return [...this.diagnostics];
+    }
+
+    getColorInfomrations(): vscode.ColorInformation[] {
+        return [...this.colorInformations];
     }
 
     abstract processLine(line: number, lineText: string, isContinued: boolean): void;
 
     analyseProp(target: PropTarget, propRange: PropRange): void {
         const name = this.document.getText(propRange.nameRange);
-        const valueSpec = PropConfigStore.getPropValueSpec(target, name);
+        const value = unquote(this.document.getText(propRange.valueRange));
 
+        const color = toColor(value);
+        if (color) {
+            this.colorInformations.push(new vscode.ColorInformation(propRange.valueRange, color));
+        }
+
+        const valueSpec = PropConfigStore.getPropValueSpec(target, name);
         if (!valueSpec) {
             // unknown property name for this target
             if (target.kind != PropTargetKind.Unknown) {
@@ -54,7 +66,6 @@ export abstract class DiagnosticCollector {
             return;
         }
 
-        const value = unquote(this.document.getText(propRange.valueRange));
         if (value.startsWith('$') || (value.startsWith('@{') && value.startsWith('}'))) {
             // No diagnostic for a variable or a template placeholder.
             return;
