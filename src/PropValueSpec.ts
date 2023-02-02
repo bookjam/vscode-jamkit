@@ -1,12 +1,12 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { MediaRepository } from "./MediaRepository";
+import { MediaKind, MediaRepository } from "./MediaRepository";
 import { VariableCache } from "./VariableCache";
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
-    // '#audio-filename',
-    // '#video-filename',
+    '#audio-filename',
+    '#video-filename',
     // '#style-name',
     // '#function-name',
     '#color',
@@ -94,8 +94,8 @@ export class PropValueSpec {
         }
 
         for (let category of this.categories) {
-            if (category == '#image-filename') {
-                if (MediaRepository.enumerateImageNames(documentPath).includes(value)) {
+            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
+                if (MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).includes(value)) {
                     return { success: true };
                 }
 
@@ -138,8 +138,8 @@ export class PropValueSpec {
         })() ?? [];
 
         for (let category of this.categories) {
-            if (category == '#image-filename') {
-                MediaRepository.enumerateImageNames(documentPath).forEach(imageName => {
+            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
+                MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).forEach(imageName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
@@ -208,3 +208,10 @@ function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, tex
     return { label, text, icon: kind, isSnippet: true };
 }
 
+function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#video-filename'): MediaKind {
+    if (valueCategory == '#image-filename')
+        return MediaKind.Image;
+    if (valueCategory == '#audio-filename')
+        return MediaKind.Audio;
+    return MediaKind.Video;
+}
