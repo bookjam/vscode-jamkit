@@ -27,7 +27,8 @@ export function isColorText(value: string): boolean {
 }
 
 function hexToColorNum(hex: string): number {
-    return Number('0x' + hex) / 255;
+    //return Number('0x' + hex) / 255;
+    return parseInt(hex, 16) / 255;
 }
 
 export function toColor(value: string): Color | undefined {
@@ -66,4 +67,17 @@ export function toColor(value: string): Color | undefined {
         // TODO: implement
         return;
     }
+}
+
+function colorNumToHex(colorNum: number): string {
+    const hex = Math.round(colorNum * 255).toString(16);
+    return hex.length == 1 ? ('0' + hex) : hex;
+}
+
+export function toString(color: Color): string {
+    return '#' +
+        colorNumToHex(color.red) +
+        colorNumToHex(color.green) +
+        colorNumToHex(color.blue) +
+        (color.alpha < 1 ? colorNumToHex(color.alpha) : "");
 }

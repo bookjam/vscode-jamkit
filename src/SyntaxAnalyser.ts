@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { SbmlSyntaxAnalyser } from './SbmlSyntaxAnalyser';
 import { SbssSyntaxAnalyser } from './SbssSyntaxAnalyser';
+import { toColor, toString } from './utils';
 
 export class SyntaxAnalyser {
     static register(context: vscode.ExtensionContext): void {
@@ -28,18 +29,19 @@ export class SyntaxAnalyser {
 
         ['sbml', 'sbss'].forEach(documentSelector => {
             vscode.languages.registerColorProvider(documentSelector, {
-                provideDocumentColors: (document: vscode.TextDocument, _token: vscode.CancellationToken) => {
+                provideDocumentColors: (document) => {
                     console.log(`provideDocumentColors - ${document.fileName}`);
                     return instance.colorInfoCollection.get(document.fileName);
                 },
-                provideColorPresentations: () => { return undefined; }
+                provideColorPresentations: (color, context) => {
+                    return [new vscode.ColorPresentation(toString(color))];
+                }
             });
         });
     }
 
     private colorInfoCollection: Map<string, vscode.ColorInformation[]> = new Map();
     private diagnosticCollection: vscode.DiagnosticCollection;
-
     private currentFileName?: string;
 
     private constructor(collection: vscode.DiagnosticCollection) {
