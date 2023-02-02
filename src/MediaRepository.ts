@@ -6,6 +6,10 @@ const IMAGE_FOLDER_NAME = 'Images';
 const AUDIO_FOLDER_NAME = 'Audios';
 const VIDEO_FOLDER_NAME = 'Videos';
 
+export enum MediaKind {
+    Image, Audio, Video
+}
+
 export class MediaRepository {
     static init(context: vscode.ExtensionContext) {
         const globPattern = `**/{${[IMAGE_FOLDER_NAME, AUDIO_FOLDER_NAME, VIDEO_FOLDER_NAME].join(',')}}/*.*`;
@@ -21,10 +25,16 @@ export class MediaRepository {
     }
 
     static enumerateImageNames(documentPath: string): string[] {
-        return this.enumerateMediaNames(IMAGE_FOLDER_NAME, documentPath);
+        return this.enumerateMediaNames(MediaKind.Image, documentPath);
     }
 
-    private static enumerateMediaNames(mediaFolderName: string, documentPath: string): string[] {
+    static enumerateMediaNames(media: MediaKind, documentPath: string): string[] {
+        const mediaFolderName = (() => {
+            if (media == MediaKind.Image) return IMAGE_FOLDER_NAME;
+            if (media == MediaKind.Audio) return AUDIO_FOLDER_NAME;
+            return VIDEO_FOLDER_NAME;
+        })();
+
         const mediaNames: string[] = [];
 
         const pathComponents = documentPath.split(path.sep);
