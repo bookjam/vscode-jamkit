@@ -4,7 +4,6 @@ import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropGroupParser, PropListParser, PropBlockParser } from './PropGroupParser';
 import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from './patterns';
-import { assert } from 'console';
 import { toColor } from './utils';
 
 interface PropGroupBeginContext {
