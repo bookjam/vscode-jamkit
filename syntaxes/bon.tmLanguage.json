@@ -1,0 +1,207 @@
+{
+    "name": "BON (Bookjam Object Notation)",
+    "scopeName": "source.bon",
+    "patterns": [
+        {
+            "include": "#value"
+        }
+    ],
+    "repository": {
+        "array": {
+            "begin": "\\[",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.array.begin.bon"
+                }
+            },
+            "end": "\\]",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.array.end.bon"
+                }
+            },
+            "name": "meta.structure.array.bon",
+            "patterns": [
+                {
+                    "include": "#value"
+                },
+                {
+                    "match": ",",
+                    "name": "punctuation.separator.array.bon"
+                },
+                {
+                    "match": "[^\\s\\]]",
+                    "name": "invalid.illegal.expected-array-separator.bon"
+                }
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "begin": "/\\*\\*(?!/)",
+                    "captures": {
+                        "0": {
+                            "name": "punctuation.definition.comment.bon"
+                        }
+                    },
+                    "end": "\\*/",
+                    "name": "comment.block.documentation.bon"
+                },
+                {
+                    "begin": "/\\*",
+                    "captures": {
+                        "0": {
+                            "name": "punctuation.definition.comment.bon"
+                        }
+                    },
+                    "end": "\\*/",
+                    "name": "comment.block.bon"
+                },
+                {
+                    "captures": {
+                        "1": {
+                            "name": "punctuation.definition.comment.bon"
+                        }
+                    },
+                    "match": "(//).*$\\n?",
+                    "name": "comment.line.double-slash.js"
+                }
+            ]
+        },
+        "constant": {
+            "match": "\\b(?:true|false|null)\\b",
+            "name": "constant.language.bon"
+        },
+        "number": {
+            "match": "(?x)        # turn on extended mode\n  -?        # an optional minus\n  (?:\n    0       # a zero\n    |       # ...or...\n    [1-9]   # a 1-9 character\n    \\d*     # followed by zero or more digits\n  )\n  (?:\n    (?:\n      \\.    # a period\n      \\d+   # followed by one or more digits\n    )?\n    (?:\n      [eE]  # an e character\n      [+-]? # followed by an option +/-\n      \\d+   # followed by one or more digits\n    )?      # make exponent optional\n  )?        # make decimal portion optional",
+            "name": "constant.numeric.bon"
+        },
+        "object": {
+            "begin": "\\{",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.dictionary.begin.bon"
+                }
+            },
+            "end": "\\}",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.dictionary.end.bon"
+                }
+            },
+            "name": "meta.structure.dictionary.bon",
+            "patterns": [
+                {
+                    "comment": "the JSON object key",
+                    "include": "#objectkey"
+                },
+                {
+                    "include": "#comments"
+                },
+                {
+                    "begin": ":",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.separator.dictionary.key-value.bon"
+                        }
+                    },
+                    "end": "(,)|(?=\\})",
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.separator.dictionary.pair.bon"
+                        }
+                    },
+                    "name": "meta.structure.dictionary.value.bon",
+                    "patterns": [
+                        {
+                            "comment": "the JSON object value",
+                            "include": "#value"
+                        },
+                        {
+                            "match": "[^\\s,]",
+                            "name": "invalid.illegal.expected-dictionary-separator.bon"
+                        }
+                    ]
+                },
+                {
+                    "match": "[^\\s\\}]",
+                    "name": "invalid.illegal.expected-dictionary-separator.bon"
+                }
+            ]
+        },
+        "string": {
+            "begin": "\"",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.begin.bon"
+                }
+            },
+            "end": "\"",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.end.bon"
+                }
+            },
+            "name": "string.quoted.double.bon",
+            "patterns": [
+                {
+                    "include": "#stringcontent"
+                }
+            ]
+        },
+        "objectkey": {
+            "begin": "\"",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.support.type.property-name.begin.bon"
+                }
+            },
+            "end": "\"",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.support.type.property-name.end.bon"
+                }
+            },
+            "name": "string.bon support.type.property-name.bon",
+            "patterns": [
+                {
+                    "include": "#stringcontent"
+                }
+            ]
+        },
+        "stringcontent": {
+            "patterns": [
+                {
+                    "match": "(?x)                # turn on extended mode\n  \\\\                # a literal backslash\n  (?:               # ...followed by...\n    [\"\\\\/bfnrt]     # one of these characters\n    |               # ...or...\n    u               # a u\n    [0-9a-fA-F]{4}) # and four hex digits",
+                    "name": "constant.character.escape.bon"
+                },
+                {
+                    "match": "\\\\.",
+                    "name": "invalid.illegal.unrecognized-string-escape.bon"
+                }
+            ]
+        },
+        "value": {
+            "patterns": [
+                {
+                    "include": "#constant"
+                },
+                {
+                    "include": "#number"
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#array"
+                },
+                {
+                    "include": "#object"
+                },
+                {
+                    "include": "#comments"
+                }
+            ]
+        }
+    }
+}
