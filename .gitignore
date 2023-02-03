@@ -1,6 +1,8 @@
 .DS_Store
 node_modules
 *.vsix
-syntaxes
+syntaxes/sbml.tmLanguage.json
+syntaxes/sbss.tmLanguage.json
 out
-*-configuration.json
+sbml-configuration.json
+sbss-configuration.json

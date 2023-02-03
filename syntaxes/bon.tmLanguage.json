@@ -1,0 +1,166 @@
+{
+    "name": "BON (Bookjam Object Notation)",
+    "scopeName": "source.bon",
+    "patterns": [
+        {
+            "include": "#value"
+        }
+    ],
+    "repository": {
+        "value": {
+            "patterns": [
+                {
+                    "include": "#array"
+                },
+                {
+                    "include": "#object"
+                },
+                {
+                    "include": "#string"
+                }
+            ]
+        },
+        "array": {
+            "begin": "\\[",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.array.begin.bon"
+                }
+            },
+            "end": "\\]",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.array.end.bon"
+                }
+            },
+            "name": "meta.structure.array.bon",
+            "patterns": [
+                {
+                    "include": "#value"
+                },
+                {
+                    "match": ",",
+                    "name": "punctuation.separator.array.bon"
+                },
+                {
+                    "match": "[^\\s\\]]",
+                    "name": "invalid.illegal.expected-array-separator.bon"
+                }
+            ]
+        },
+        "object": {
+            "begin": "\\{",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.dictionary.begin.bon"
+                }
+            },
+            "end": "\\}",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.dictionary.end.bon"
+                }
+            },
+            "name": "meta.structure.dictionary.bon",
+            "patterns": [
+                {
+                    "comment": "the BON object key",
+                    "include": "#object-key"
+                },
+                {
+                    "begin": ":",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.separator.dictionary.key-value.bon"
+                        }
+                    },
+                    "end": "(,)|(?=\\})",
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.separator.dictionary.pair.bon"
+                        }
+                    },
+                    "name": "meta.structure.dictionary.value.bon",
+                    "patterns": [
+                        {
+                            "comment": "the BON object value",
+                            "include": "#value"
+                        },
+                        {
+                            "match": "[^\\s,]",
+                            "name": "invalid.illegal.expected-dictionary-separator.bon"
+                        }
+                    ]
+                },
+                {
+                    "match": "[^\\s\\}]",
+                    "name": "invalid.illegal.expected-dictionary-separator.bon"
+                }
+            ]
+        },
+        "string": {
+            "patterns": [
+                {
+                    "match": "\\b(?:true|false|yes|no)\\b",
+                    "name": "constant.language.bon"
+                },
+                {
+                    "include": "#quoted-string"
+                },
+                {
+                    "include": "#naked-string"
+                }
+            ]
+        },
+        "quoted-string": {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.double.bon",
+            "patterns": [
+                {
+                    "include": "#quoted-stringcontent"
+                }
+            ]
+        },
+        "naked-string": {
+            "match": ".*?(?=(,|]|}))",
+            "name": "string.quoted.double.bon"
+        },
+        "object-key": {
+            "patterns": [
+                {
+                    "include": "#quoted-object-key"
+                },
+                {
+                    "include": "#naked-object-key"
+                }
+            ]
+        },
+        "quoted-object-key": {
+            "begin": "\"",
+            "end": "\"",
+            "name": "support.type.property-name.bon",
+            "patterns": [
+                {
+                    "include": "#quoted-stringcontent"
+                }
+            ]
+        },
+        "naked-object-key": {
+            "match": "[^:]+?",
+            "name": "support.type.property-name.bon"
+        },
+        "quoted-stringcontent": {
+            "patterns": [
+                {
+                    "match": "\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4})",
+                    "-name": "constant.character.escape.bon"
+                },
+                {
+                    "match": "\\\\.",
+                    "-name": "invalid.illegal.unrecognized-string-escape.bon"
+                }
+            ]
+        }
+    }
+}
