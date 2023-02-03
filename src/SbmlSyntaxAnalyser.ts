@@ -42,10 +42,11 @@ interface Context {
 }
 
 // TODO: Use SbmlContextParser
+
 export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
     private readonly contextStack: Context[] = [];
-    private propTarget: PropTarget | null = null;
+    private propTarget: PropTarget = { kind: PropTargetKind.Unknown };
     private propParser: PropListParser | null = null;
     private lineKind = LineKind.Text;
 
@@ -53,10 +54,9 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
         if (isContinued) {
             if (this.lineKind == LineKind.Directive) {
-                if (this.propParser && this.propTarget) {
-                    const proptTarget = this.propTarget;
+                if (this.propParser) {
                     this.propParser.parse(line, 0, text).forEach(
-                        propRange => this.analyseProp(proptTarget, propRange)
+                        propRange => this.analyseProp(this.propTarget, propRange)
                     );
                     this.checkIfLineContinuationMarkerMissing(line, text);
                 }
@@ -66,7 +66,6 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             return;
         }
 
-        this.propTarget = null;
         this.propParser = null;
 
         const directive = this.parseDirective(text);
@@ -83,9 +82,8 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
                 this.propParser = new PropListParser();
 
                 const offset = directive.propListIndex;
-                const propTarget = this.propTarget;
                 this.propParser.parse(line, offset, text).forEach(
-                    propRange => this.analyseProp(propTarget, propRange)
+                    propRange => this.analyseProp(this.propTarget, propRange)
                 );
                 this.checkIfLineContinuationMarkerMissing(line, text);
             }
