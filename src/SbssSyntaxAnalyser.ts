@@ -4,7 +4,6 @@ import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropGroupParser, PropListParser, PropBlockParser } from './PropGroupParser';
 import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from './patterns';
-import { assert } from 'console';
 import { toColor } from './utils';
 
 interface PropGroupBeginContext {
@@ -15,7 +14,7 @@ interface PropGroupBeginContext {
 // TODO: Use SbssContextParser
 export class SbssSyntaxAnalyser extends SyntaxAnalyser {
 
-    private propTarget: PropTarget | null = null;
+    private propTarget: PropTarget = { kind: PropTargetKind.Unknown };
     private propParser: PropGroupParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
@@ -25,18 +24,16 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
                 this.propParser = null;
             }
             else {
-                assert(this.propTarget);
                 this.propParser.parse(line, 0, text).forEach(
-                    propRange => this.analyseProp(this.propTarget!, propRange)
+                    propRange => this.analyseProp(this.propTarget, propRange)
                 );
             }
             return;
         }
 
         if (isContinued && this.propParser instanceof PropListParser) {
-            assert(this.propTarget);
             this.propParser.parse(line, 0, text).forEach(
-                propRange => this.analyseProp(this.propTarget!, propRange)
+                propRange => this.analyseProp(this.propTarget, propRange)
             );
             return;
         }
@@ -59,7 +56,7 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
                 if (context.kind == PropGroupKind.List) {
                     this.propParser = new PropListParser();
                     this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
-                        propRange => this.analyseProp(this.propTarget!, propRange)
+                        propRange => this.analyseProp(this.propTarget, propRange)
                     );
                 }
                 else {

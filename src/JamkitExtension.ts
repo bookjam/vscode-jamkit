@@ -46,7 +46,7 @@ export class JamkitExtension {
 
                     // Occasionally, alalyse() is called slight later than provideDocumentColors().
                     const COLOR_INFO_DELAY = 0.2;
-                    return new Promise((resolve, _) => {
+                    return new Promise((resolve) => {
                         setTimeout(() => {
                             resolve(instance.colorInfoCollection.get(document.fileName));
                         }, COLOR_INFO_DELAY);

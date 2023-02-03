@@ -15,7 +15,7 @@ export interface PropGroupContext {
     kind: PropGroupKind;
     target: PropTarget;
     beginPos: vscode.Position;
-};
+}
 
 export class PropNameContext {
     readonly kind: PropGroupKind;

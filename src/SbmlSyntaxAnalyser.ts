@@ -42,10 +42,11 @@ interface Context {
 }
 
 // TODO: Use SbmlContextParser
+
 export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
     private readonly contextStack: Context[] = [];
-    private propTarget: PropTarget | null = null;
+    private propTarget: PropTarget = { kind: PropTargetKind.Unknown };
     private propParser: PropListParser | null = null;
     private lineKind = LineKind.Text;
 
@@ -55,7 +56,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             if (this.lineKind == LineKind.Directive) {
                 if (this.propParser) {
                     this.propParser.parse(line, 0, text).forEach(
-                        propRange => this.analyseProp(this.propTarget!, propRange)
+                        propRange => this.analyseProp(this.propTarget, propRange)
                     );
                     this.checkIfLineContinuationMarkerMissing(line, text);
                 }
@@ -65,7 +66,6 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             return;
         }
 
-        this.propTarget = null;
         this.propParser = null;
 
         const directive = this.parseDirective(text);
@@ -83,7 +83,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
                 const offset = directive.propListIndex;
                 this.propParser.parse(line, offset, text).forEach(
-                    propRange => this.analyseProp(this.propTarget!, propRange)
+                    propRange => this.analyseProp(this.propTarget, propRange)
                 );
                 this.checkIfLineContinuationMarkerMissing(line, text);
             }
@@ -96,9 +96,9 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
     private parseDirective(text: string): Directive | undefined {
 
-        let m;
+        let m = text.match(patterns.SBML_PROP_LIST_PREFIX);
 
-        if (m = text.match(patterns.SBML_PROP_LIST_PREFIX)) {
+        if (m) {
             const kind = (() => {
                 if (m[1] == "begin")
                     return DirectiveKind.Begin;
@@ -115,23 +115,28 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             return { kind, tag: m[2], propListIndex };
         }
 
-        if (m = text.match(patterns.SBML_END)) {
+        m = text.match(patterns.SBML_END);
+        if (m) {
             return { kind: DirectiveKind.End, tag: m[2] };
         }
 
-        if (m = text.match(patterns.SBML_COMMENT)) {
+        m = text.match(patterns.SBML_COMMENT);
+        if (m) {
             return { kind: DirectiveKind.Comment };
         }
 
-        if (m = text.match(IF_PATTERN)) {
+        m = text.match(IF_PATTERN);
+        if (m) {
             return { kind: DirectiveKind.If };
         }
 
-        if (m = text.match(ELIF_PATTERN)) {
+        m = text.match(ELIF_PATTERN);
+        if (m) {
             return { kind: DirectiveKind.Elif };
         }
 
-        if (m = text.match(ELSE_PATTERN)) {
+        m = text.match(ELSE_PATTERN);
+        if (m) {
             return { kind: DirectiveKind.Else };
         }
     }
@@ -228,7 +233,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
         let textOffset = 0;
         while (text.length > 0) {
-            const m = /=\((object|image)\s+(([a-z]+|(~\/)?[\w\.-]+)?(\s*:)?)?/.exec(text);
+            const m = /=\((object|image)\s+(([a-z]+|(~\/)?[\w.-]+)?(\s*:)?)?/.exec(text);
             if (!m)
                 break;
 

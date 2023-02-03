@@ -1,8 +1,9 @@
 .DS_Store
+.vscode-test/
 node_modules
-*.vsix
+out
 syntaxes/sbml.tmLanguage.json
 syntaxes/sbss.tmLanguage.json
-out
 sbml-configuration.json
 sbss-configuration.json
+*.vsix

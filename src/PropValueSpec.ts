@@ -33,7 +33,7 @@ export class PropValueSpec {
     private categories: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
     private patterns: string[];
 
-    static from(valueSpec: any) {
+    static from(valueSpec: object) {
         let values: string[] | undefined;
         let suggestions: string[] | undefined;
         let category: string | undefined;
@@ -97,7 +97,7 @@ export class PropValueSpec {
                 return { success: true };
         }
 
-        for (let category of this.categories) {
+        for (const category of this.categories) {
             if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
                 if (MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).includes(value)) {
                     return { success: true };
@@ -132,14 +132,14 @@ export class PropValueSpec {
     }
 
     getSuggestions(triggerChar: string | undefined, documentPath: string): PropValueSuggestion[] {
-        let suggestions = (() => {
+        const suggestions = (() => {
             if (this.suggestions.length != 0)
                 return this.suggestions.map(label => makeSuggestion(PropValueSuggestionIcon.Value, label));
             if (this.values.length != 0)
                 return this.values.map(label => makeSuggestion(PropValueSuggestionIcon.EnumMember, label));
         })() ?? [];
 
-        for (let category of this.categories) {
+        for (const category of this.categories) {
             if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
                 MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).forEach(imageName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
