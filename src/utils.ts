@@ -1,5 +1,5 @@
 import { assert } from 'console';
-import { Color, ColorPresentation } from 'vscode';
+import { Color } from 'vscode';
 
 export function unquote(value: string): string {
     if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
@@ -20,7 +20,7 @@ export function isColorText(value: string): boolean {
         return true;
 
     // rgba(128, 128, 128, 1.0)
-    if (value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)$/))
+    if (value.match(/^rgba\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d.]+\s*\)$/))
         return true;
 
     return false;
@@ -36,7 +36,8 @@ export function toColor(value: string): Color | undefined {
     let m;
 
     // #fff, #ffff, #ffffff, #ffffffff
-    if (m = value.match(/^#(([0-9A-Fa-f]{3})|([0-9A-Fa-f]{4})|([0-9A-Fa-f]{6})|([0-9A-Fa-f]{8}))$/)) {
+    m = value.match(/^#(([0-9A-Fa-f]{3})|([0-9A-Fa-f]{4})|([0-9A-Fa-f]{6})|([0-9A-Fa-f]{8}))$/);
+    if (m) {
         if (m[2] || m[3]) {
             const hex = m[2] ?? m[3];
             const r = hexToColorNum(hex.substring(0, 1).repeat(2));
@@ -62,7 +63,8 @@ export function toColor(value: string): Color | undefined {
     };
 
     // rgba(128, 50%, 128)
-    if (m = value.match(/^rgb\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)\s*\)$/)) {
+    m = value.match(/^rgb\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)\s*\)$/);
+    if (m) {
         return new Color(
             rgbFuncArgToColorNum(m[1]),
             rgbFuncArgToColorNum(m[2]),
@@ -72,7 +74,8 @@ export function toColor(value: string): Color | undefined {
     }
 
     // rgba(128, 50%, 128, 1.0)
-    if (m = value.match(/^rgba\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*([\d\.]+)\s*\)$/)) {
+    m = value.match(/^rgba\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*([\d.]+)\s*\)$/);
+    if (m) {
         return new Color(
             rgbFuncArgToColorNum(m[1]),
             rgbFuncArgToColorNum(m[2]),

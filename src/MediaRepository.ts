@@ -49,7 +49,7 @@ export class MediaRepository {
         const rootMediaDirPath = (() => {
             while (pathComponents.length > 0) {
 
-                for (let projectFileName of ['catalog.bon', 'book.bon']) {
+                for (const projectFileName of ['catalog.bon', 'book.bon']) {
                     pathComponents.pop();
                     pathComponents.push(projectFileName);
 
@@ -113,5 +113,5 @@ function isMediaFilePath(filePath: string): boolean {
 
 /// subview_btn_back@m.png -> subview_btn_back.png
 function stripAtSuffix(filename: string): string {
-    return filename.replace(/@[^\.]+/, '');
+    return filename.replace(/@[^.]+/, '');
 }

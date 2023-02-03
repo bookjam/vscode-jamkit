@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { assert } from 'console';
-import { unquote } from './utils';
 import { parseSbssVariableDefinition } from './patterns';
 
 const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;
@@ -65,7 +64,7 @@ export class VariableCache {
 
         // if filePath was dependening on other files, clear that.
         // it will be re-parsed and re
-        this.depencencyMap.forEach((files, _) => {
+        this.depencencyMap.forEach(files => {
             const index = files.indexOf(filePath);
             if (index >= 0) {
                 files.splice(index, 1);
@@ -102,7 +101,7 @@ export class VariableCache {
 
             try {
                 const content = readFileSync(filePath, 'utf-8');
-                content.split(/\r?\n/).forEach((text, line) => {
+                content.split(/\r?\n/).forEach(text => {
 
                     const varDef = parseSbssVariableDefinition(text);
                     if (varDef) {

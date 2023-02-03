@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { readdirSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
@@ -14,7 +14,7 @@ class PropConfig {
 
     static fromJsonPath(jsonPath: string): PropConfig | undefined {
         try {
-            const json = require(jsonPath);
+            const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
             const config = new PropConfig();
             Object.entries(json).forEach(entry => {
                 if (entry[0] == '@import') {
@@ -22,13 +22,13 @@ class PropConfig {
                     filenames.forEach(filename => {
                         const pathComponents = jsonPath.split(path.sep);
                         pathComponents.pop();
-                        pathComponents.push(entry[1] as string);
+                        pathComponents.push(filename);
                         const importPath = pathComponents.join(path.sep);
                         this.fromJsonPath(importPath)?.forEach((value, key) => config.map.set(key, value));
                     });
                 }
                 else {
-                    config.map.set(entry[0], PropValueSpec.from(entry[1] as any));
+                    config.map.set(entry[0], PropValueSpec.from(entry[1] as object));
                 }
             });
             return config;
@@ -79,7 +79,7 @@ export class PropConfigStore {
                     this.objectTypes.push(filename.substring(0, filename.length - 5));
                 }
 
-                const config = PropConfig.fromJsonPath(`../${configDir}/${filename}`);
+                const config = PropConfig.fromJsonPath(`${context.extensionPath}/${configDir}/${filename}`);
                 if (config) {
                     this.configMap.set(filename, config);
                     config.forEach((valueSpec, propName) => {
@@ -116,7 +116,7 @@ export class PropConfigStore {
             return this.globalConfig.get(propName);
         }
 
-        for (let filename of this.getPropFileSequence(target)) {
+        for (const filename of this.getPropFileSequence(target)) {
             const valueSpec = this.configMap.get(filename)?.get(propName);
             if (valueSpec) {
                 return valueSpec;
