@@ -37,7 +37,8 @@ export enum TokenKind {
 
 export interface Token {
     kind: TokenKind;
-    text?: string;
+    beginIndex: number;
+    endIndex: number;
 }
 
 function isAlpha(ch?: string) {
@@ -89,23 +90,28 @@ export class Scanner {
             ch = this.getChar();
         }
         if (!ch) {
-            return { kind: TokenKind.EOS };
+            return {
+                kind: TokenKind.EOS,
+                beginIndex: this.inputIndex,
+                endIndex: this.inputIndex
+            };
         }
 
         console.log(`ch = ${ch}`);
 
-        const token = { kind: TokenKind.UNDEF, text: '' };
+        const token = {
+            kind: TokenKind.UNDEF,
+            beginIndex: this.inputIndex,
+            endIndex: this.inputIndex
+        };
 
         if (ch === '$') {
             for (; ;) {
-                ch = this.getChar();
-
+                ch = this.peekChar();
                 if (ch != '_' && ch != '.' && !isAlphaNumeric(ch)) {
-                    this.ungetChar();
                     break;
                 }
-
-                token.text += ch;
+                this.getChar();
             }
 
             token.kind = TokenKind.VAR;
@@ -119,17 +125,12 @@ export class Scanner {
         else if (ch === '.' || isNumeric(ch)) {
             let dotSeen = ch === '.';
 
-            token.text += ch;
-
             for (; ;) {
                 ch = this.peekChar();
-
                 if (isNumeric(ch)) {
-                    token.text += ch;
                     this.getChar();
                 }
                 else if (ch === '.' && !dotSeen) {
-                    token.text += ch;
                     dotSeen = true;
                     this.getChar();
                 }
@@ -138,17 +139,14 @@ export class Scanner {
                 }
             }
 
-            if (token.text.at(-1) === '.') {
-                this.ungetChar();
-            }
-            else if (this.peekChar() === '%') {
+            if (this.peekChar() === '%') {
                 token.kind = TokenKind.NUM_U;
-                token.text += this.getChar();
+                this.getChar();
             }
             else if (isAlpha(this.peekChar())) {
                 token.kind = TokenKind.NUM_U;
                 for (; ;) {
-                    token.text += this.getChar();
+                    this.getChar();
                     if (!isAlpha(this.peekChar()))
                         break;
                 }
@@ -174,7 +172,6 @@ export class Scanner {
         }
         else if (ch === '=') {
             ch = this.getChar();
-
             if (ch === '=') {
                 token.kind = TokenKind.EQ;
             }
@@ -188,20 +185,20 @@ export class Scanner {
             }
         }
         else if (ch === '>') {
-            if (this.getChar() === '=') {
+            if (this.peekChar() === '=') {
+                this.getChar();
                 token.kind = TokenKind.GTE;
             }
             else {
-                this.ungetChar();
                 token.kind = TokenKind.GT;
             }
         }
         else if (ch === '<') {
-            if (this.getChar() === '=') {
+            if (this.peekChar() === '=') {
+                this.getChar();
                 token.kind = TokenKind.LTE;
             }
             else {
-                this.ungetChar();
                 token.kind = TokenKind.LT;
             }
         }
@@ -228,29 +225,18 @@ export class Scanner {
         }
         else if (ch === '_' || isAlpha(ch)) {
 
-            token.text += ch;
             for (; ;) {
-                ch = this.getChar();
+                ch = this.peekChar();
                 if (ch != '_' && !isAlphaNumeric(ch)) {
-                    this.ungetChar();
                     break;
                 }
+                this.getChar();
+            }
+            token.kind = TokenKind.IDENT;
 
-                token.text += ch;
-            }
-
-            if (token.text == "and") {
-                token.kind = TokenKind.OR;
-            }
-            else if (token.text == "or") {
-                token.kind = TokenKind.OR;
-            }
-            else {
-                token.kind = TokenKind.IDENT;
-            }
-        } else {
-            token.text += ch;
         }
+
+        token.endIndex = this.inputIndex;
 
         console.log(`token.kind = ${token.kind}`);
 
@@ -343,21 +329,112 @@ export class Scanner {
 // length = ... e.g.) 0.5cw, 1.2em
 //
 
-export interface ExprParseResult {
+export interface ExprCheckResult {
     success: boolean;
     message?: string;
 }
 
-export class ExprParser {
-    private token?: Token;
-    private scanner?: Scanner;
+export class ExprChecker {
+    private readonly text;
+    private readonly scanner;
+    private token;
 
-    parse(text: string): ExprParseResult {
+    constructor(text: string) {
+        this.text = text;
         this.scanner = new Scanner(text);
-        return { success: false };
+        this.token = this.scanner.getToken();
     }
 
-    private getToken(): Token | undefined {
-        return this.scanner?.getToken();
+    check(): ExprCheckResult {
+        try {
+            this.expression();
+        }
+        catch (e) {
+            return { success: false, message: (e as Error).message };
+        }
+
+        if (this.token.kind == TokenKind.EOS) {
+            return { success: true };
+        }
+
+        return { success: false, message: `Unexpected token: ${this.getTokenText()} (expected EOS)` };
+    }
+
+    private match(kind: TokenKind): boolean {
+        if (this.token.kind == kind) {
+            this.token = this.scanner.getToken();
+            return true;
+        }
+        return false;
+    }
+
+    private expect(kind: TokenKind): void {
+        if (!this.match(kind)) {
+            throw new Error(`Unexpected token: ${this.getTokenText()} (expected ${TokenKind[kind]})`);
+        }
+    }
+
+    private expression(): void {
+        this.term();
+        while (this.match(TokenKind.ADD) || this.match(TokenKind.SUB)) {
+            this.term();
+        }
+    }
+
+    private term(): void {
+        this.factor();
+        while (this.match(TokenKind.MUL) || this.match(TokenKind.DIV)) {
+            this.factor();
+        }
+    }
+
+    private factor(): void {
+
+        if (this.match(TokenKind.ADD) || this.match(TokenKind.SUB)) {
+            // consume
+        }
+
+        if (this.match(TokenKind.NUM) || this.match(TokenKind.NUM_U)) {
+            // pass
+        }
+        else if (this.match(TokenKind.IDENT)) {
+            const funcName = this.getTokenText();
+            const arity = getBultInFuncArity(funcName);
+            if (arity === undefined) {
+                throw new Error(`Undefined function: + ${funcName}`);
+            }
+
+            this.expect(TokenKind.LPARAN);
+            for (let i = 0; i < arity; ++i) {
+                this.expression();
+                if (i < arity - 1) {
+                    this.expect(TokenKind.COMMA);
+                }
+            }
+            this.expect(TokenKind.RPARAN);
+        }
+        else if (this.match(TokenKind.LPARAN)) {
+            this.expression();
+            this.expect(TokenKind.RPARAN);
+        }
+        else {
+            throw new Error(`Unexpected token:  + ${this.getTokenText()}`);
+        }
+    }
+
+    private getTokenText(): string {
+        return this.text.substring(this.token.beginIndex, this.token.endIndex);
+    }
+}
+
+function getBultInFuncArity(name: string): number | undefined {
+    switch (name) {
+        case 'floor':
+        case 'ceil':
+        case 'round':
+            return 1;
+        case 'max':
+        case 'min':
+            return 2;
     }
 }
