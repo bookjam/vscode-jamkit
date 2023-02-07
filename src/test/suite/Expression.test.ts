@@ -57,19 +57,43 @@ suite('LengthChecker', () => {
         assert.strictEqual(r.message, 'Unexpected end of expression: (expected RPARAN)');
     });
 
+    test('function sanity', () => {
+        assert.strictEqual(check('min(1, 3) + ceil(1.5) + round(1.5)').success, true);
+    });
+
     test('unknown function', () => {
         const r = check('1 + abc(1, 2) + 2');
         //                   ^^^
         assert.strictEqual(r.success, false);
+        assert.strictEqual(r.token?.beginIndex, 4);
+        assert.strictEqual(r.token?.endIndex, 7);
         assert.strictEqual(r.message, 'Undefined function: abc');
     });
 
-    test('function arity', () => {
+    test('function arity error - 1', () => {
         const r = check('min(2)');
         //                    ^
         assert.strictEqual(r.success, false);
         assert.strictEqual(r.token?.beginIndex, 5);
         assert.strictEqual(r.token?.endIndex, 6);
-        assert.strictEqual(r.message, 'Unexpected token: ) (expected COMMA)');
+        assert.strictEqual(r.message, "The function 'min' takes 2 parameters.");
+    });
+
+    test('function arity error - 2', () => {
+        const r = check('ceil(2, 1)');
+        //                     ^
+        assert.strictEqual(r.success, false);
+        assert.strictEqual(r.token?.beginIndex, 6);
+        assert.strictEqual(r.token?.endIndex, 7);
+        assert.strictEqual(r.message, "The function 'ceil' takes only 1 parameter.");
+    });
+
+    test('function arity error - 3', () => {
+        const r = check('min(2, 1, 3)');
+        //                       ^
+        assert.strictEqual(r.success, false);
+        assert.strictEqual(r.token?.beginIndex, 8);
+        assert.strictEqual(r.token?.endIndex, 9);
+        assert.strictEqual(r.message, "The function 'min' takes only 2 parameters.");
     });
 });

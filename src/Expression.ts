@@ -447,11 +447,18 @@ export class LengthChecker {
             for (let i = 0; i < arity; ++i) {
                 this.expression();
                 if (i < arity - 1) {
+                    if (this.token.kind == TokenKind.RPARAN) {
+                        throw new LengthExprError(this.token, `The function '${funcName}' takes ${arity} parameters.`);
+                    }
                     this.expect(TokenKind.COMMA);
                 }
             }
 
-            this.expect(TokenKind.RPARAN); // TODO: match COMMA to give a better error
+            if (this.token.kind == TokenKind.COMMA) {
+                throw new LengthExprError(this.token,
+                    `The function '${funcName}' takes only ${arity} parameter${arity > 1 ? 's' : ''}.`);
+            }
+            this.expect(TokenKind.RPARAN);
 
             return true;
         }
