@@ -431,7 +431,11 @@ export class LengthChecker {
             return;
         }
 
-        throw new LengthExprError(this.token, `Unexpected token: ${tokenText} (${TokenKind[this.token.kind]})`);
+        if (this.token.kind == TokenKind.EOS) {
+            throw new LengthExprError(this.token, 'Invalid length expression');
+        } else {
+            throw new LengthExprError(this.token, `Unexpected token: ${tokenText} (${TokenKind[this.token.kind]})`);
+        }
     }
 
     private matchFuncCall(): boolean {
@@ -464,6 +468,10 @@ export class LengthChecker {
         }
         return false;
     }
+}
+
+export function checkLength(expr: string): LengthCheckResult {
+    return new LengthChecker(expr).check();
 }
 
 function getBultInFuncArity(name: string): number | undefined {
