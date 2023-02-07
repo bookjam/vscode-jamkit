@@ -45,8 +45,6 @@ export class VariableCache {
     private static depencencyMap: DependencyMap = new Map();
 
     static getVariables(documentPath: string): VariableValues {
-        assert(documentPath.endsWith('.sbml'));
-
         const filePath = documentPath.substring(0, documentPath.length - 4) + 'sbss';
         // console.log(`======= ${filePath} ========`);
         // this.getValueMap(filePath).forEach((values, name) => {
