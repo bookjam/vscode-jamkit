@@ -7,7 +7,6 @@ export enum TokenKind {
     VAR,    // varialble:    e.g.) $DEVICE
     STR,    // string:       e.g.) "iPhone"
     NUM,    // number:       e.g.) 640
-
     NUM_U,  // number+unit:  e.g.) 0.3em
 
     AND,    // logical and:  &&
@@ -97,11 +96,9 @@ export class Scanner {
             };
         }
 
-        console.log(`ch = ${ch}`);
-
         const token = {
             kind: TokenKind.UNDEF,
-            beginIndex: this.inputIndex,
+            beginIndex: this.inputIndex - 1,
             endIndex: this.inputIndex
         };
 
@@ -238,8 +235,6 @@ export class Scanner {
 
         token.endIndex = this.inputIndex;
 
-        console.log(`token.kind = ${token.kind}`);
-
         return token;
     }
 
@@ -254,15 +249,6 @@ export class Scanner {
         }
         return ch;
     }
-
-    private ungetChar(): void {
-        if (this.inputIndex > 0) {
-            this.inputIndex -= 1;
-        }
-    }
-
-    // private readNumber(startChar: string): string {
-    // }
 
     private readQuotedText(quote: string): string | undefined {
         assert(quote === "'" || quote === '"');
@@ -329,12 +315,24 @@ export class Scanner {
 // length = ... e.g.) 0.5cw, 1.2em
 //
 
-export interface ExprCheckResult {
+class LengthExprError {
+
+    readonly token;
+    readonly message;
+
+    constructor(token: Token, message: string) {
+        this.token = token;
+        this.message = message;
+    }
+}
+
+export interface LengthCheckResult {
     success: boolean;
+    token?: Token;
     message?: string;
 }
 
-export class ExprChecker {
+export class LengthChecker {
     private readonly text;
     private readonly scanner;
     private token;
@@ -345,32 +343,42 @@ export class ExprChecker {
         this.token = this.scanner.getToken();
     }
 
-    check(): ExprCheckResult {
+    check(): LengthCheckResult {
         try {
             this.expression();
+            this.expect(TokenKind.EOS);
         }
         catch (e) {
-            return { success: false, message: (e as Error).message };
+            let token;
+            let message;
+            if (e instanceof LengthExprError) {
+                token = e.token;
+                message = e.message;
+            }
+            return { success: false, token, message };
         }
 
-        if (this.token.kind == TokenKind.EOS) {
-            return { success: true };
-        }
-
-        return { success: false, message: `Unexpected token: ${this.getTokenText()} (expected EOS)` };
+        return { success: true };
     }
 
-    private match(kind: TokenKind): boolean {
+    private match(kind: TokenKind): Token | undefined {
         if (this.token.kind == kind) {
+            const token = this.token;
             this.token = this.scanner.getToken();
-            return true;
+            return token;
         }
-        return false;
     }
 
-    private expect(kind: TokenKind): void {
-        if (!this.match(kind)) {
-            throw new Error(`Unexpected token: ${this.getTokenText()} (expected ${TokenKind[kind]})`);
+    private expect(kind: TokenKind, message?: string): void {
+        if (this.match(kind))
+            return;
+
+        if (this.token.kind === TokenKind.EOS) {
+            throw new LengthExprError(this.token, message ?? `Unexpected end of expression: (expected ${TokenKind[kind]})`);
+        }
+        else {
+            const tokenText = this.text.substring(this.token.beginIndex, this.token.endIndex);
+            throw new LengthExprError(this.token, message ?? `Unexpected token: ${tokenText} (expected ${TokenKind[kind]})`);
         }
     }
 
@@ -390,18 +398,49 @@ export class ExprChecker {
 
     private factor(): void {
 
+        const tokenText = this.text.substring(this.token.beginIndex, this.token.endIndex);
+
         if (this.match(TokenKind.ADD) || this.match(TokenKind.SUB)) {
-            // consume
+            // consume unary sign
         }
 
-        if (this.match(TokenKind.NUM) || this.match(TokenKind.NUM_U)) {
-            // pass
+        if (this.match(TokenKind.NUM)) {
+            return;
         }
-        else if (this.match(TokenKind.IDENT)) {
-            const funcName = this.getTokenText();
+
+        if (this.match(TokenKind.NUM_U)) {
+            const m = tokenText.match(/^([0-9]*[.])?[0-9]+(em|pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)$/);
+            if (!m) {
+                throw new LengthExprError(this.token, `Unknown unit used in the length expression: ${tokenText}`);
+            }
+            return;
+        }
+
+        if (this.match(TokenKind.VAR)) {
+            // TODO: perform extra validation
+            return;
+        }
+
+        if (this.match(TokenKind.LPARAN)) {
+            this.expression();
+            this.expect(TokenKind.RPARAN);
+            return;
+        }
+
+        if (this.matchFuncCall()) {
+            return;
+        }
+
+        throw new LengthExprError(this.token, `Unexpected token: ${tokenText} (${TokenKind[this.token.kind]})`);
+    }
+
+    private matchFuncCall(): boolean {
+        const ident = this.match(TokenKind.IDENT);
+        if (ident) {
+            const funcName = this.text.substring(ident.beginIndex, ident.endIndex);
             const arity = getBultInFuncArity(funcName);
             if (arity === undefined) {
-                throw new Error(`Undefined function: + ${funcName}`);
+                throw new LengthExprError(ident, `Undefined function: ${funcName}`);
             }
 
             this.expect(TokenKind.LPARAN);
@@ -411,19 +450,12 @@ export class ExprChecker {
                     this.expect(TokenKind.COMMA);
                 }
             }
-            this.expect(TokenKind.RPARAN);
-        }
-        else if (this.match(TokenKind.LPARAN)) {
-            this.expression();
-            this.expect(TokenKind.RPARAN);
-        }
-        else {
-            throw new Error(`Unexpected token:  + ${this.getTokenText()}`);
-        }
-    }
 
-    private getTokenText(): string {
-        return this.text.substring(this.token.beginIndex, this.token.endIndex);
+            this.expect(TokenKind.RPARAN); // TODO: match COMMA to give a better error
+
+            return true;
+        }
+        return false;
     }
 }
 
