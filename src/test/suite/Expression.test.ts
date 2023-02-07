@@ -3,14 +3,14 @@ import { LengthCheckResult, LengthChecker, Scanner, TokenKind } from '../../Expr
 
 suite('Scanner', () => {
     test('getToken()', () => {
-        const scanner = new Scanner('1% + (20 - 3em * $ABC) / 2');
+        const scanner = new Scanner('1% + (20 - 3em * $ABC) / ceil(1.5)');
         const TK = TokenKind;
         [
             TK.NUM_U, TK.ADD,
             TK.LPARAN,
             TK.NUM, TK.SUB, TK.NUM_U, TK.MUL, TK.VAR,
             TK.RPARAN,
-            TK.DIV, TK.NUM
+            TK.DIV, TK.IDENT, TK.LPARAN, TK.NUM, TK.RPARAN
         ].forEach(
             tk => assert.strictEqual(scanner.getToken().kind, tk)
         );
