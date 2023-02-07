@@ -409,7 +409,7 @@ export class LengthChecker {
         }
 
         if (this.match(TokenKind.NUM_U)) {
-            const m = tokenText.match(/^([0-9]*[.])?[0-9]+(em|pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)$/);
+            const m = tokenText.match(/^([0-9]*[.])?[0-9]+(dp|px|pt|em|pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)$/);
             if (!m) {
                 throw new LengthExprError(this.token, `Unknown unit used in the length expression: ${tokenText}`);
             }
