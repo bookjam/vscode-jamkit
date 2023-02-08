@@ -11,6 +11,7 @@ const KNOWN_CATEGORIES: string[] = [
     '#video-filename',
     // '#style-name',
     // '#function-name',
+    '#4-sided-length',
     '#color',
     '#length',
 ];
@@ -121,6 +122,13 @@ export class PropValueSpec {
 
                 errorMessage = result.message;
             }
+            else if (category == '#4-sided-length') {
+                if (is4SidedLength(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = 'This attribute should have 1, 2 or 4 length values separated by whitespaces.';
+            }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
@@ -154,7 +162,7 @@ export class PropValueSpec {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
-            else if (category == '#color' || category == '#length') {
+            else if (category == '#color' || category == '#length' || category == '#4-sided-length') {
                 // do nothing
             }
             else {
@@ -209,4 +217,16 @@ function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#vi
     if (valueCategory == '#audio-filename')
         return MediaKind.Audio;
     return MediaKind.Video;
+}
+
+function is4SidedLength(value: string): boolean {
+    const simpleLengthPattern = '(\\d+(\\.\\d+)?|\\.\\d+)([a-z]+|%)?';
+    const fourSidedLengthPattern = '^(' +
+        simpleLengthPattern +
+        '|' +
+        [simpleLengthPattern, simpleLengthPattern].join('\\s+') +
+        '|' +
+        [simpleLengthPattern, simpleLengthPattern, simpleLengthPattern, simpleLengthPattern].join('\\s+') +
+        ')$';
+    return value.match(new RegExp(fourSidedLengthPattern)) != null;
 }
