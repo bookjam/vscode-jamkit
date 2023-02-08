@@ -35,14 +35,14 @@ export class FuncNameCache {
 
     private static parseFuncNames(filePath: string): string[] {
 
-        const FUNC_DEF_PATTERN = /^function\s+(\w[\w\d]+)\s*\(+/;
+        const TOP_LEVEL_FUNC_DEF = /^function\s+(\w[\w\d]+)\s*\(+/;
 
         const funcNames: string[] = [];
 
         try {
             const content = readFileSync(filePath, 'utf-8');
             content.split(/\r?\n/).forEach(text => {
-                const m = text.match(FUNC_DEF_PATTERN);
+                const m = text.match(TOP_LEVEL_FUNC_DEF);
                 if (m) {
                     funcNames.push(m[1]);
                 }
