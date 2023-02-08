@@ -123,7 +123,7 @@ export class PropConfigStore {
             }
         }
 
-        if (propName.startsWith('script-when-')) {
+        if (target.kind !== PropTargetKind.Text && propName.startsWith('script-when-')) {
             return PropValueSpec.from('#function');
         }
     }
