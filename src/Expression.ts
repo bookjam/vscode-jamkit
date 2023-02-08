@@ -26,12 +26,12 @@ export enum TokenKind {
     MUL,    // multiply:  *
     DIV,    // divide:    /
 
-    IDENT,  // identifier
+    NAME,  // identifier
 
     COMMA,  // comma: ,
 
-    LPARAN, // left paran:   (
-    RPARAN  // right paran:  )
+    LPAREN, // left paran:   (
+    RPAREN  // right paran:  )
 }
 
 export interface Token {
@@ -215,10 +215,10 @@ export class Scanner {
             token.kind = TokenKind.COMMA;
         }
         else if (ch === '(') {
-            token.kind = TokenKind.LPARAN;
+            token.kind = TokenKind.LPAREN;
         }
         else if (ch === ')') {
-            token.kind = TokenKind.RPARAN;
+            token.kind = TokenKind.RPAREN;
         }
         else if (ch === '_' || isAlpha(ch)) {
 
@@ -229,7 +229,7 @@ export class Scanner {
                 }
                 this.getChar();
             }
-            token.kind = TokenKind.IDENT;
+            token.kind = TokenKind.NAME;
 
         }
 
@@ -421,9 +421,9 @@ export class LengthChecker {
             return;
         }
 
-        if (this.match(TokenKind.LPARAN)) {
+        if (this.match(TokenKind.LPAREN)) {
             this.expression();
-            this.expect(TokenKind.RPARAN);
+            this.expect(TokenKind.RPAREN);
             return;
         }
 
@@ -439,7 +439,7 @@ export class LengthChecker {
     }
 
     private matchFuncCall(): boolean {
-        const ident = this.match(TokenKind.IDENT);
+        const ident = this.match(TokenKind.NAME);
         if (ident) {
             const funcName = this.text.substring(ident.beginIndex, ident.endIndex);
             const arity = getBultInFuncArity(funcName);
@@ -447,11 +447,11 @@ export class LengthChecker {
                 throw new LengthExprError(ident, `Undefined function: ${funcName}`);
             }
 
-            this.expect(TokenKind.LPARAN);
+            this.expect(TokenKind.LPAREN);
             for (let i = 0; i < arity; ++i) {
                 this.expression();
                 if (i < arity - 1) {
-                    if (this.token.kind == TokenKind.RPARAN) {
+                    if (this.token.kind == TokenKind.RPAREN) {
                         throw new LengthExprError(this.token, `The function '${funcName}' takes ${arity} parameters.`);
                     }
                     this.expect(TokenKind.COMMA);
@@ -462,7 +462,7 @@ export class LengthChecker {
                 throw new LengthExprError(this.token,
                     `The function '${funcName}' takes only ${arity} parameter${arity > 1 ? 's' : ''}.`);
             }
-            this.expect(TokenKind.RPARAN);
+            this.expect(TokenKind.RPAREN);
 
             return true;
         }

@@ -7,10 +7,10 @@ suite('Scanner', () => {
         const TK = TokenKind;
         [
             TK.NUM_U, TK.ADD,
-            TK.LPARAN,
+            TK.LPAREN,
             TK.NUM, TK.SUB, TK.NUM_U, TK.MUL, TK.VAR,
-            TK.RPARAN,
-            TK.DIV, TK.IDENT, TK.LPARAN, TK.NUM, TK.RPARAN
+            TK.RPAREN,
+            TK.DIV, TK.NAME, TK.LPAREN, TK.NUM, TK.RPAREN
         ].forEach(
             tk => assert.strictEqual(scanner.getToken().kind, tk)
         );
