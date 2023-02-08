@@ -53,7 +53,7 @@ export class FuncNameCache {
                     else if (node.type === 'VariableDeclaration' && 'declarations' in node) {
                         const varDecls = node.declarations as acorn.Node[];
                         varDecls.forEach(node => {
-                            if (isArrowFuncInitDeclarator(node)) {
+                            if (isFuncInitDeclarator(node)) {
                                 funcNames.push(getNodeIdName(node));
                             }
                         });
@@ -69,10 +69,15 @@ export class FuncNameCache {
     }
 }
 
-function isArrowFuncInitDeclarator(node: acorn.Node): boolean {
+function isFuncInitDeclarator(node: acorn.Node): boolean {
     if (node.type !== 'VariableDeclarator')
         return false;
-    return 'init' in node && node.init instanceof acorn.Node && node.init.type === 'ArrowFunctionExpression';
+
+    if ('init' in node && node.init instanceof acorn.Node) {
+        return node.init.type === 'FunctionExpression' || node.init.type === 'ArrowFunctionExpression';
+    }
+
+    return false;
 }
 
 function getNodeIdName(node: acorn.Node): string {
