@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { assert } from 'console';
 import { parseSbssVariableDefinition } from './patterns';
 
 const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;

@@ -122,6 +122,10 @@ export class PropConfigStore {
                 return valueSpec;
             }
         }
+
+        if (propName === 'script' || propName.startsWith('script-when-') || propName.endsWith('-script')) {
+            return PropValueSpec.from('#function');
+        }
     }
 
     private static getPropFileSequence(target: PropTarget): string[] {
