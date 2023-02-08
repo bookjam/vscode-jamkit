@@ -123,7 +123,7 @@ export class PropConfigStore {
             }
         }
 
-        if (propName === 'script' || propName.startsWith('script-when-')) {
+        if (propName === 'script' || propName.startsWith('script-when-') || propName.endsWith('-script')) {
             return PropValueSpec.from('#function');
         }
     }
