@@ -4,16 +4,17 @@ import { MediaKind, MediaRepository } from "./MediaRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
+import { FuncNameCache } from "./FuncNameCache";
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
     '#audio-filename',
     '#video-filename',
     // '#style-name',
-    // '#function-name',
     '#4-sided-length',
     '#color',
     '#length',
+    '#function',
 ];
 
 export interface PropValueSuggestion {
@@ -35,7 +36,7 @@ export class PropValueSpec {
     private categories: string[];  // '#length', '#color', '#image-filename', '#script-function', etc.
     private patterns: string[];
 
-    static from(valueSpec: object) {
+    static from(valueSpec: unknown) {
         let values: string[] | undefined;
         let suggestions: string[] | undefined;
         let category: string | undefined;
@@ -51,20 +52,21 @@ export class PropValueSpec {
             }
         }
         else if (typeof valueSpec === 'object') {
-            if ('values' in valueSpec) {
-                values = valueSpec.values as string[];
+            const specObj = valueSpec as object;
+            if ('values' in specObj) {
+                values = specObj.values as string[];
             }
-            if ('suggestions' in valueSpec) {
-                suggestions = valueSpec.suggestions as string[];
+            if ('suggestions' in specObj) {
+                suggestions = specObj.suggestions as string[];
             }
-            if ('value-category' in valueSpec) {
-                const valueCategory = valueSpec['value-category'] as string;
+            if ('value-category' in specObj) {
+                const valueCategory = specObj['value-category'] as string;
                 if (KNOWN_CATEGORIES.includes(valueCategory)) {
                     category = valueCategory;
                 }
             }
-            if ('value-pattern' in valueSpec) {
-                pattern = valueSpec['value-pattern'] as string;
+            if ('value-pattern' in specObj) {
+                pattern = specObj['value-pattern'] as string;
             }
         }
 
@@ -106,6 +108,13 @@ export class PropValueSpec {
                 }
 
                 errorMessage = `'${value}' does not exist.`;
+            }
+            else if (category == '#function') {
+                if (FuncNameCache.getFuncNames(documentPath).includes(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = `Unknown function name.`;
             }
             else if (category == '#color') {
                 if (isColorText(value)) {
@@ -160,6 +169,11 @@ export class PropValueSpec {
             if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
                 MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).forEach(imageName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
+                });
+            }
+            else if (category == '#function') {
+                FuncNameCache.getFuncNames(documentPath).forEach(funcName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.Function, funcName));
                 });
             }
             else if (category == '#color' || category == '#length' || category == '#4-sided-length') {

@@ -54,7 +54,7 @@ suite('LengthChecker', () => {
     test('paran mismatch', () => {
         const r = check('(1 + 3');
         assert.strictEqual(r.success, false);
-        assert.strictEqual(r.message, 'Unexpected end of expression: (expected RPARAN)');
+        assert.strictEqual(r.message, 'Unexpected end of expression: (expected RPAREN)');
     });
 
     test('function sanity', () => {
