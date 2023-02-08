@@ -2,6 +2,9 @@ import { assert } from 'console';
 import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
 
+/**
+ * Keeps top-level function names in memory for *.js files.
+ */
 export class FuncNameCache {
     static init(context: vscode.ExtensionContext) {
         const watcher = vscode.workspace.createFileSystemWatcher('**/*.js', /*ignoreCreationEvents*/ true);
