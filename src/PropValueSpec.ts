@@ -114,7 +114,9 @@ export class PropValueSpec {
                     return { success: true };
                 }
 
-                errorMessage = `Unknown function name.`;
+                errorMessage =
+                    `Unknown function name. Please make sure '${value}' is a top-level function name ` +
+                    `defined in '${documentPath.substring(0, documentPath.length - 4) + 'js'}'.`;
             }
             else if (category == '#color') {
                 if (isColorText(value)) {

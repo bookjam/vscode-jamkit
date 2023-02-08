@@ -35,7 +35,7 @@ export class FuncNameCache {
 
     private static parseFuncNames(filePath: string): string[] {
 
-        const FUNC_DEF_PATTERN = /^\s*function\s+(\w[\w\d]+)\s*\(+/;
+        const FUNC_DEF_PATTERN = /^function\s+(\w[\w\d]+)\s*\(+/;
 
         const funcNames: string[] = [];
 
