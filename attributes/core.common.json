@@ -34,6 +34,7 @@
         "yes",
         "no"
     ],
+    "font-family": {},
     "text-orientation": [
         "mixed",
         "upright",
