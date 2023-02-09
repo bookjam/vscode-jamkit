@@ -61,6 +61,7 @@ _STYLE_MAP = {
     '__STYLE_SBML_IF_ELIF__':       'keyword.other',        # =if =elif
     '__STYLE_SBML_ELSE__':          'keyword.other',        # =else
     '__STYLE_SBML_BLOCK_OBJECT__':  'keyword.control',      # =object
+    '__STYLE_SBML_STYLE__':         'keyword.control',      # =style
     '__STYLE_SBML_INLINE_OBJECT__': 'keyword.other',        # =(:)=
     '__STYLE_SBML_OBJECT_TYPE__':   'entity.name.type',
     '__STYLE_SBML_STYLE_MARK__':    'keyword.other',        # =[|]=
