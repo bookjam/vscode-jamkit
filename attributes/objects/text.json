@@ -1,1 +1,23 @@
-{}
+{
+    "text": "?",
+    "font": "#[weight] [style] size family",
+    "font-family": "?",
+    "font-size": "?",
+    "font-weight": [
+        "normal",
+        "bold"
+    ],
+    "font-style": [
+        "normal",
+        "italic"
+    ],
+    "font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "text-color": "#color",
+    "editable": [
+        "no",
+        "yes"
+    ]
+}

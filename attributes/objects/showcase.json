@@ -1,0 +1,272 @@
+{
+    "name": "#showcase-name",
+    "filename": "#json-filename",
+    "alternate-name": "?",
+    "catalog": "?",
+    "subcatalog": "?",
+    "category": "?",
+    "row-count": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "column-count": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "cell-size": "#length",
+    "cell-spacing": "?",
+    "content-margin": "?",
+    "has-header": [
+        "yes",
+        "no"
+    ],
+    "header-display-unit": "?",
+    "header-width": "#length",
+    "header-height": "#length",
+    "header-spacing": "?",
+    "has-footer": [
+        "yes",
+        "no"
+    ],
+    "footer-display-unit": "?",
+    "footer-width": "#length",
+    "footer-height": "#length",
+    "footer-spacing": "?",
+    "has-toolbar": [
+        "yes",
+        "no"
+    ],
+    "toolbar-display-unit": "?",
+    "toolbar-height": "#length",
+    "toolbar-position": [
+        "top",
+        "bottom"
+    ],
+    "auto-hides-toolbar": [
+        "yes",
+        "no"
+    ],
+    "auto-minimizes-toolbar": [
+        "yes",
+        "no"
+    ],
+    "has-page-control": [
+        "yes",
+        "no"
+    ],
+    "page-control-height": "?",
+    "page-control-position": [
+        "left-top",
+        "right-top",
+        "left-bottom",
+        "right-bottom",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "center"
+    ],
+    "page-control-margin": "?",
+    "inner-page-control": [
+        "yes",
+        "no"
+    ],
+    "page-dot-size": "#length",
+    "page-dot-spacing": "?",
+    "active-page-dot": "#image-filename",
+    "inactive-page-dot": "#image-filename",
+    "sortable": [
+        "yes",
+        "no"
+    ],
+    "sortkey": "?",
+    "sortorder": [
+        "ascending",
+        "descending",
+        "random"
+    ],
+    "selectable": [
+        "yes",
+        "no"
+    ],
+    "selected-color": "#color",
+    "search-mode": [
+        "yes",
+        "no"
+    ],
+    "clear-when-search": [
+        "no",
+        "yes"
+    ],
+    "editing": [
+        "yes",
+        "no"
+    ],
+    "history-enabled": [
+        "yes",
+        "no"
+    ],
+    "history": "?",
+    "series-mode": [
+        "yes",
+        "no"
+    ],
+    "series": "?",
+    "max-cell-count": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "first-cell": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "extends-data": [
+        "yes",
+        "no"
+    ],
+    "data-downloadable": [
+        "yes",
+        "no"
+    ],
+    "data-url": "#url",
+    "data-path": "?",
+    "data-key": "?",
+    "loads-more": [
+        "yes",
+        "no"
+    ],
+    "more-count": {
+        "value-pattern": "[1-9][0-9]*"
+    },
+    "download-path": "?",
+    "eager-loading": [
+        "yes",
+        "no"
+    ],
+    "lazy-loading": [
+        "no",
+        "yes"
+    ],
+    "preload-count": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "keep-count": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "keeps-offscreen-cells": [
+        "yes",
+        "no"
+    ],
+    "reloads-when-pull": [
+        "yes",
+        "no"
+    ],
+    "page-enabled": [
+        "yes",
+        "no"
+    ],
+    "appearance": "?",
+    "focused-cell": "?",
+    "focus-when-loading": [
+        "yes",
+        "no"
+    ],
+    "scroll-indicator-hidden": [
+        "yes",
+        "no"
+    ],
+    "divider-image": "#image-filename",
+    "divider-gravity": [
+        "left-top",
+        "right-top",
+        "left-bottom",
+        "right-bottom",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "center"
+    ],
+    "divider-size": "#length",
+    "hidden-header-color": "#color",
+    "hidden-footer-color": "#color",
+    "hidden-header-image": "#image-filename",
+    "hidden-footer-image": "#image-filename",
+    "has-own-navibar": [
+        "yes",
+        "no"
+    ],
+    "hides-navibar": [
+        "yes",
+        "no"
+    ],
+    "has-own-title": [
+        "yes",
+        "no"
+    ],
+    "expiry-labels-hidden": [
+        "yes",
+        "no"
+    ]
+}

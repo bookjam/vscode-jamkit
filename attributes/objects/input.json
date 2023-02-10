@@ -1,1 +1,15 @@
-{}
+{
+    "enabled": [
+        "no",
+        "yes"
+    ],
+    "value": "?",
+    "resigns-responder": [
+        "yes",
+        "no"
+    ],
+    "hides-when-disabled": [
+        "yes",
+        "no"
+    ]
+}

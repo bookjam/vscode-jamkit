@@ -1,0 +1,17 @@
+{
+    "display-unit": "?",
+    "filename": "#json-filename",
+    "alternate-name": "?",
+    "catalog": "?",
+    "data-downloadable": [
+        "yes",
+        "no"
+    ],
+    "data-url": "#json-url",
+    "data-path": "?",
+    "data-key": "?",
+    "lazy-loading": [
+        "no",
+        "yes"
+    ]
+}

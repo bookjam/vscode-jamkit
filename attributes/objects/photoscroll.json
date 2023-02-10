@@ -1,1 +1,59 @@
-{}
+{
+    "filename": "#image-filename",
+    "image-url": "#image-url",
+    "default-image": "#image-filename",
+    "image-downloadable": [
+        "yes",
+        "no"
+    ],
+    "scale-mode": [
+        "fill",
+        "fit"
+    ],
+    "max-scale": "?",
+    "caption": "?",
+    "subcaption": "?",
+    "caption-font": "#[weight] [style] size family",
+    "caption-font-family": "?",
+    "caption-font-size": "?",
+    "caption-font-weight": [
+        "normal",
+        "bold"
+    ],
+    "caption-font-style": [
+        "normal",
+        "italic"
+    ],
+    "caption-font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "subcaption-font": "#[weight] [style] size family",
+    "subcaption-font-family": "?",
+    "subcaption-font-size": "?",
+    "subcaption-font-weight": [
+        "normal",
+        "bold"
+    ],
+    "subcaption-font-style": [
+        "normal",
+        "italic"
+    ],
+    "subcaption-font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "caption-align": [
+        "left",
+        "right",
+        "center"
+    ],
+    "caption-height": "?",
+    "inner-caption": [
+        "yes",
+        "no"
+    ],
+    "caption-color": "#color",
+    "subcaption-color": "#color",
+    "caption-background-color": "#color"
+}

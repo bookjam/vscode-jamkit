@@ -1,0 +1,34 @@
+{
+    "name": "#card-name",
+    "filename": "#json-filename",
+    "alternate-name": "?",
+    "catalog": "?",
+    "subcatalog": "?",
+    "category": "?",
+    "cell-spacing": "?",
+    "has-page-control": [
+        "yes",
+        "no"
+    ],
+    "page-control-height": "?",
+    "page-control-position": [
+        "left-top",
+        "right-top",
+        "left-bottom",
+        "right-bottom",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "center"
+    ],
+    "page-control-margin": "?",
+    "inner-page-control": [
+        "yes",
+        "no"
+    ],
+    "page-dot-size": "#length",
+    "page-dot-spacing": "?",
+    "active-page-dot": "#image-filename",
+    "inactive-page-dot": "#image-filename"
+}

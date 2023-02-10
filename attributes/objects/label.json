@@ -1,7 +1,7 @@
 {
     "text": "?",
     "waiting-text": "?",
-    "font": "?",
+    "font": "#[weight] [style] size family",
     "font-family": "?",
     "text-align": [ 
         "left",
@@ -28,6 +28,8 @@
             "7"
         ]
     },
-    "content-size": "?",
+    "text-color": "#color",
+    "shadow-color": "#color",
+    "shadow-offset": "?",
     "content-padding": "?"
 }

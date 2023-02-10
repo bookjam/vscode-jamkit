@@ -1,0 +1,9 @@
+{
+    "name": "#list-name",
+    "filename": "#json-filename",
+    "alternate-name": "?",
+    "catalog": "?",
+    "subcatalog": "?",
+    "category": "?",
+    "cell-spacing": "?"
+}

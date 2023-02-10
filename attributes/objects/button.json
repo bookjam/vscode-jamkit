@@ -56,27 +56,13 @@
         "yes",
         "no"
     ],
-    "label-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
-    "highlight-label-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
-    "selected-label-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
-    "disable-label-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
-    "highlight-background-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
-    "selected-background-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
-    "disable-background-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
+    "label-color": "#color",
+    "highlight-label-color": "#color",
+    "selected-label-color": "#color",
+    "disable-label-color": "#color",
+    "highlight-background-color": "#color",
+    "selected-background-color": "#color",
+    "disable-background-color": "#color",
     "content-padding": "?",
     "scale-mode": [
         "fill",

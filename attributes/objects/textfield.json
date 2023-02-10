@@ -1,1 +1,81 @@
-{}
+{
+    "text": "?",
+    "placeholder": "?",
+    "font": "#[weight] [style] size family",
+    "font-family": "?",
+    "font-size": "?",
+    "font-weight": [
+        "normal",
+        "bold"
+    ],
+    "font-style": [
+        "normal",
+        "italic"
+    ],
+    "font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "text-align": [
+        "justify",
+        "center",
+        "right",
+        "left"
+    ],
+    "text-color": "#color",
+    "disable-text-color": "#color",
+    "placeholder-color": "#color",
+    "editable": [
+        "no",
+        "yes"
+    ],
+    "secure": [
+        "yes",
+        "no"
+    ],
+    "keyboard-type": [
+        "default",
+        "email",
+        "url",
+        "number",
+        "decimal",
+        "phone",
+        "name-phone",
+        "twitter",
+        "alphabet"
+    ],
+    "return-key-type": [
+        "default",
+        "next",
+        "done",
+        "join",
+        "go",
+        "search",
+        "send"
+    ],
+    "auto-capitalization-type": [
+        "words",
+        "all",
+        "none"
+    ],
+    "invalid-when-empty": [
+        "yes",
+        "no"
+    ],
+    "message-when-empty": "?",
+    "action-when-empty": [
+        "none",
+        "toast",
+        "alert",
+        "script"
+    ],
+    "script-when-empty": "#script-name",
+    "valid-format": [
+        "email",
+        "#regex"
+    ],
+    "prevents-invalid-text": [
+        "yes",
+        "no"
+    ]
+}

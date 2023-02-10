@@ -3,7 +3,7 @@
     "group": "?",
     "reuse-id": "?",
     "alpha": {
-        "value-pattern": "0에서 1 사이 숫자"
+        "value-pattern": "?"
     },
     "hidden": [
         "yes",
@@ -46,13 +46,9 @@
         "no"
     ],
     "stake-key": "?",
-    "content-background-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
+    "content-background-color": "#color",
     "content-border-width": "?",
-    "content-border-color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
-    },
+    "content-border-color": "#color",
     "content-border-radius": "?",
     "offset": "?",
     "draggable": [
@@ -72,9 +68,7 @@
     "min-x": "?",
     "max-y": "?",
     "min-y": "?",
-    "velocity-when-follow": {
-        "value-pattern": "\\d"
-    },
+    "velocity-when-follow": "?",
     "resizes-on-keyboard": [
         "yes",
         "no"

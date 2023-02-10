@@ -1,1 +1,11 @@
-{}
+{
+    "filename": "#pdf-filename",
+    "url": "#pdf-url",
+    "page": {
+        "value-pattern": "\\d"
+    },
+    "bounces": [
+        "no",
+        "yes"
+    ]
+}

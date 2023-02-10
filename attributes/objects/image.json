@@ -1,1 +1,25 @@
-{}
+{
+    "filename": "#image-filename",
+    "image-url": "#image-url",
+    "mask-image": "#image-filename",
+    "default-image": "#image-filename",
+    "image-downloadable": [
+        "yes",
+        "no"
+    ],
+    "scale-mode": [
+        "fill",
+        "fit"
+    ],
+    "content-gravity": [
+        "left-top",
+        "right-top",
+        "left-bottom",
+        "right-bottom",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "center"
+    ]
+}

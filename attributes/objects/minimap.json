@@ -1,1 +1,7 @@
-{}
+{
+    "latitude": "#latitude",
+    "longitude": "#longitude",
+    "zoom-level": "?",
+    "title": "?",
+    "subtitle": "?"
+}

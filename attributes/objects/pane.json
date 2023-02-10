@@ -1,0 +1,83 @@
+{
+    "name": "#pane-name",
+    "filename": "#json-filename",
+    "alternate-name": "?",
+    "catalog": "?",
+    "subcatalog": "?",
+    "category": "?",
+    "number-of-panes": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ]
+    },
+    "pane-display-unit": "?",
+    "focused-pane": "?",
+    "has-header": [
+        "yes",
+        "no"
+    ],
+    "header-display-unit": "?",
+    "header-width": "#length",
+    "header-height": "#length",
+    "has-toolbar": [
+        "yes",
+        "no"
+    ],
+    "toolbar-display-unit": "?",
+    "toolbar-height": "#length",
+    "toolbar-position": [
+        "top",
+        "bottom"
+    ],
+    "has-navibar": [
+        "yes",
+        "no"
+    ],
+    "navibar-cell-size": "#length",
+    "navibar-cell-spacing": "?",
+    "navibar-margin": "?",
+    "navibar-position": [
+        "top",
+        "bottom"
+    ],
+    "navibar-center-align": [
+        "yes",
+        "no"
+    ],
+    "navibar-background-color": "#color",
+    "single-mode": [
+        "yes",
+        "no"
+    ],
+    "weekday-mode": [
+        "yes",
+        "no"
+    ],
+    "monday-is-first": [
+        "yes",
+        "no"
+    ],
+    "weekday-offset": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ]
+    },
+    "shows-throbber": [
+        "yes",
+        "no"
+    ],
+    "bounces": [
+        "no",
+        "yes"
+    ]
+}
