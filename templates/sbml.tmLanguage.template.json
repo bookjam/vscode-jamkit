@@ -17,6 +17,9 @@
             "include": "#object"
         },
         {
+            "include": "#style"
+        },
+        {
             "include": "#if"
         },
         {
@@ -87,6 +90,23 @@
                 },
                 "3": {
                     "name": "__STYLE_SBML_OBJECT_TYPE__"
+                }
+            },
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
+            ]
+        },
+        "style": {
+            "begin": "^\\s*(=style)\\s+([^:]+)",
+            "beginCaptures": {
+                "1": {
+                    "name": "__STYLE_SBML_STYLE__"
+                },
+                "2": {
+                    "name": "__STYLE_SBML_STYLE_NAME__"
                 }
             },
             "end": "$",

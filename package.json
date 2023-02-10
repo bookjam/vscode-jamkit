@@ -2,10 +2,10 @@
     "name": "vscode-jamkit",
     "displayName": "Jamkit",
     "description": "Jamkit support for Visual Studio Code ",
-    "version": "0.1.2",
+    "version": "0.1.5",
     "publisher": "bookjam",
     "engines": {
-        "vscode": "^1.32.0"
+        "vscode": "^1.74.0"
     },
     "categories": [
         "Programming Languages",
@@ -13,6 +13,13 @@
     ],
     "contributes": {
         "languages": [
+            {
+                "id": "bon",
+                "extensions": [
+                    ".bon"
+                ],
+                "configuration": "./bon-configuration.json"
+            },
             {
                 "id": "sbss",
                 "extensions": [
@@ -29,6 +36,11 @@
             }
         ],
         "grammars": [
+            {
+                "language": "bon",
+                "scopeName": "source.bon",
+                "path": "./syntaxes/bon.tmLanguage.json"
+            },
             {
                 "language": "sbss",
                 "scopeName": "source.sbss",
@@ -61,15 +73,25 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
-        "lint": "eslint \"src/**/*.ts\"",
-        "watch": "tsc -watch -p ./"
+        "watch": "tsc -watch -p ./",
+        "lint": "eslint src --ext ts",
+        "pretest": "npm run compile && npm run lint",
+        "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
+        "@types/glob": "^8.0.0",
+        "@types/mocha": "^10.0.1",
         "@types/node": "^16.11.7",
-        "@types/vscode": "^1.32.0",
-        "@typescript-eslint/eslint-plugin": "^5.42.0",
-        "@typescript-eslint/parser": "^5.42.0",
-        "eslint": "^8.26.0",
-        "typescript": "^4.8.4"
+        "@types/vscode": "^1.74.0",
+        "@typescript-eslint/eslint-plugin": "^5.50.0",
+        "@typescript-eslint/parser": "^5.50.0",
+        "@vscode/test-electron": "^2.2.0",
+        "eslint": "^8.28.0",
+        "glob": "^8.0.3",
+        "mocha": "^10.1.0",
+        "typescript": "^4.9.3"
+    },
+    "dependencies": {
+        "acorn": "^8.8.2"
     }
 }

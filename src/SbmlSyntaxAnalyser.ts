@@ -2,11 +2,10 @@ import * as vscode from 'vscode';
 import { assert } from 'console';
 import * as patterns from './patterns';
 import { PropListParser } from './PropGroupParser';
-import { DiagnosticCollector } from './DiagnosticCollector';
+import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropConfigStore } from './PropConfigStore';
-import test from 'node:test';
-import { ImageStore } from './ImageStore';
+import { MediaRepository } from './MediaRepository';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -27,6 +26,7 @@ enum DirectiveKind {
 interface Directive {
     kind: DirectiveKind;
     tag?: string;
+    propListIndex?: number;
 }
 
 enum LineKind {
@@ -42,10 +42,11 @@ interface Context {
 }
 
 // TODO: Use SbmlContextParser
-export class SbmlDiagnosticCollector extends DiagnosticCollector {
+
+export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
 
     private readonly contextStack: Context[] = [];
-    private propTarget: PropTarget | null = null;
+    private propTarget: PropTarget = { kind: PropTargetKind.Unknown };
     private propParser: PropListParser | null = null;
     private lineKind = LineKind.Text;
 
@@ -55,8 +56,9 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             if (this.lineKind == LineKind.Directive) {
                 if (this.propParser) {
                     this.propParser.parse(line, 0, text).forEach(
-                        propRange => this.verifyProperty(this.propTarget!, propRange)
+                        propRange => this.analyseProp(this.propTarget, propRange)
                     );
+                    this.checkIfLineContinuationMarkerMissing(line, text);
                 }
             } else {
                 this.handleText(line, text);
@@ -64,7 +66,6 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             return;
         }
 
-        this.propTarget = null;
         this.propParser = null;
 
         const directive = this.parseDirective(text);
@@ -76,17 +77,15 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
             this.handleDirective(directive, line, text);
 
-            if (canHavePropList(directive.kind)) {
-                const propListMarkerIndex = text.indexOf(':');
-                if (propListMarkerIndex > 0) {
-                    this.propTarget = toPropTarget(directive);
-                    this.propParser = new PropListParser();
+            if (directive.propListIndex) {
+                this.propTarget = toPropTarget(directive);
+                this.propParser = new PropListParser();
 
-                    const offset = propListMarkerIndex + 1;
-                    this.propParser.parse(line, offset, text).forEach(
-                        propRange => this.verifyProperty(this.propTarget!, propRange)
-                    );
-                }
+                const offset = directive.propListIndex;
+                this.propParser.parse(line, offset, text).forEach(
+                    propRange => this.analyseProp(this.propTarget, propRange)
+                );
+                this.checkIfLineContinuationMarkerMissing(line, text);
             }
         }
         else {
@@ -97,9 +96,9 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
 
     private parseDirective(text: string): Directive | undefined {
 
-        let m;
+        let m = text.match(patterns.SBML_PROP_LIST_PREFIX);
 
-        if (m = text.match(patterns.SBML_PROP_LIST_PREFIX)) {
+        if (m) {
             const kind = (() => {
                 if (m[1] == "begin")
                     return DirectiveKind.Begin;
@@ -110,26 +109,34 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 assert(m[1] == "style");
                 return DirectiveKind.Style;
             })();
-            return { kind, tag: m[2] };
+
+            const colonIndex = text.indexOf(':');
+            const propListIndex = colonIndex > 0 ? colonIndex + 1 : undefined;
+            return { kind, tag: m[2], propListIndex };
         }
 
-        if (m = text.match(patterns.SBML_END)) {
+        m = text.match(patterns.SBML_END);
+        if (m) {
             return { kind: DirectiveKind.End, tag: m[2] };
         }
 
-        if (m = text.match(patterns.SBML_COMMENT)) {
+        m = text.match(patterns.SBML_COMMENT);
+        if (m) {
             return { kind: DirectiveKind.Comment };
         }
 
-        if (m = text.match(IF_PATTERN)) {
+        m = text.match(IF_PATTERN);
+        if (m) {
             return { kind: DirectiveKind.If };
         }
 
-        if (m = text.match(ELIF_PATTERN)) {
+        m = text.match(ELIF_PATTERN);
+        if (m) {
             return { kind: DirectiveKind.Elif };
         }
 
-        if (m = text.match(ELSE_PATTERN)) {
+        m = text.match(ELSE_PATTERN);
+        if (m) {
             return { kind: DirectiveKind.Else };
         }
     }
@@ -193,7 +200,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         }
         else if (directive.kind == DirectiveKind.Image) {
             if (directive.tag != undefined) {
-                if (!ImageStore.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
+                if (!MediaRepository.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
                     const offset = text.indexOf(directive.tag, text.indexOf('=') + 6);
                     this.addImageNameDiagnostic(directive.tag, line, offset);
                 }
@@ -204,11 +211,29 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
         }
     }
 
+    // Check if the line continuation marker (`\`) is mistakely omitted.
+    private checkIfLineContinuationMarkerMissing(line: number, text: string): void {
+
+        if (line + 1 >= this.document.lineCount || !text.trimEnd().endsWith(',')) {
+            return;
+        }
+
+        const nextLineText = this.document.lineAt(line + 1).text;
+        const m = nextLineText.match(/\s+[a-z-]+\s*=/); // does it look like a continue propery list?
+        if (m && m.index == 0) {
+            this.diagnostics.push({
+                message: `Is a line continuation marker ('\\') missing in the previous line?`,
+                range: new vscode.Range(line + 1, 0, line + 1, nextLineText.length),
+                severity: vscode.DiagnosticSeverity.Warning,
+            });
+        }
+    }
+
     private handleText(line: number, text: string): void {
 
         let textOffset = 0;
         while (text.length > 0) {
-            const m = /=\((object|image)\s+(([a-z]+|(~\/)?[\w\.-]+)?(\s*:)?)?/.exec(text);
+            const m = /=\((object|image)\s+(([a-z]+|(~\/)?[\w.-]+)?(\s*:)?)?/.exec(text);
             if (!m)
                 break;
 
@@ -222,7 +247,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             }
             else {
                 assert(m[1] === 'image');
-                const imageNames = ImageStore.enumerateImageNames(this.document.fileName);
+                const imageNames = MediaRepository.enumerateImageNames(this.document.fileName);
                 if (!imageNames.includes(tag)) {
                     this.addImageNameDiagnostic(tag, line, textOffset + tagBeginIndex);
                 }
@@ -241,7 +266,7 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
                 };
                 const propListParser = new PropListParser();
                 propListParser.parse(line, propBeginIndex, propListText).forEach(
-                    propRange => this.verifyProperty(propTarget, propRange)
+                    propRange => this.analyseProp(propTarget, propRange)
                 );
             }
 
@@ -268,10 +293,6 @@ export class SbmlDiagnosticCollector extends DiagnosticCollector {
             severity: vscode.DiagnosticSeverity.Error,
         });
     }
-}
-
-function canHavePropList(type: DirectiveKind): boolean {
-    return type == DirectiveKind.Begin || type == DirectiveKind.Object || type == DirectiveKind.Style;
 }
 
 function toPropTarget(directive: Directive): PropTarget {

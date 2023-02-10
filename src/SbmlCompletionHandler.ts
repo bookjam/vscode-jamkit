@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { ImageNameContext, ObjectTypeContext, SbmlContextParser } from './SbmlContextParser';
-import { ImageStore } from './ImageStore';
+import { MediaRepository } from './MediaRepository';
 import { PropConfigStore } from './PropConfigStore';
 
 function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined): boolean {
@@ -12,7 +12,7 @@ function shouldSuggestInlineObject(document: vscode.TextDocument, position: vsco
 }
 
 export class SbmlCompletionHandler {
-    static register(context: vscode.ExtensionContext) {
+    static init(context: vscode.ExtensionContext) {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
             'sbml',
             {
@@ -27,7 +27,7 @@ export class SbmlCompletionHandler {
                     {
                         const context = contextParser.parsePropContext();
                         if (context) {
-                            return new PropCompletionItemProvider(context, _context.triggerCharacter).provide();
+                            return new PropCompletionItemProvider(document, context, _context.triggerCharacter).provide();
                         }
                     }
 
@@ -70,7 +70,7 @@ export class SbmlCompletionHandler {
                             });
                         }
                         else if (context instanceof ImageNameContext) {
-                            let imageNames = ImageStore.enumerateImageNames(document.fileName);
+                            let imageNames = MediaRepository.enumerateImageNames(document.fileName);
                             if (context.prefix) {
                                 const prefix = context.prefix;
                                 imageNames = imageNames.filter(imageName => imageName.startsWith(prefix));
@@ -88,7 +88,8 @@ export class SbmlCompletionHandler {
             },
             ':', ',', '=',
             '(', // inline object/image
-            '~', '/', '.' // image name prefix
+            '~', '/', '.', // image name prefix
+            '$'
         ));
     }
 }

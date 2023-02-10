@@ -1,18 +1,41 @@
 import * as vscode from "vscode";
-import { readdirSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
+import * as path from 'path';
 
 class PropConfig {
-    private readonly map = new Map<string, PropValueSpec>();
+    private readonly map;
 
-    static fromJSON(json: any): PropConfig {
-        const config = new PropConfig();
-        Object.entries(json).forEach(entry => {
-            config.map.set(entry[0], PropValueSpec.from(entry[1] as any));
-        });
-        return config;
+    constructor(map?: Map<string, PropValueSpec>) {
+        this.map = map ?? new Map<string, PropValueSpec>();
+    }
+
+    static fromJsonPath(jsonPath: string): PropConfig | undefined {
+        try {
+            const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+            const config = new PropConfig();
+            Object.entries(json).forEach(entry => {
+                if (entry[0] == '@import') {
+                    const filenames = entry[1] as string[];
+                    filenames.forEach(filename => {
+                        const pathComponents = jsonPath.split(path.sep);
+                        pathComponents.pop();
+                        pathComponents.push(filename);
+                        const importPath = pathComponents.join(path.sep);
+                        this.fromJsonPath(importPath)?.forEach((value, key) => config.map.set(key, value));
+                    });
+                }
+                else {
+                    config.map.set(entry[0], PropValueSpec.from(entry[1] as object));
+                }
+            });
+            return config;
+        } catch (e) {
+            console.error(e);
+        }
+
     }
 
     get propNames(): string[] {
@@ -50,21 +73,18 @@ export class PropConfigStore {
         configDirs.forEach((configDir, index) => {
             const isObjectDir = index == 1;
             readdirSync(`${context.extensionPath}/${configDir}`).forEach(filename => {
-                if (!filename.endsWith('.json'))
+                if (!filename.endsWith('.json') || filename.startsWith('_'))
                     return;
                 if (isObjectDir) {
                     this.objectTypes.push(filename.substring(0, filename.length - 5));
                 }
-                try {
-                    const json = require(`../${configDir}/${filename}`);
-                    const config = PropConfig.fromJSON(json);
-                    this.configMap.set(filename, config);
 
+                const config = PropConfig.fromJsonPath(`${context.extensionPath}/${configDir}/${filename}`);
+                if (config) {
+                    this.configMap.set(filename, config);
                     config.forEach((valueSpec, propName) => {
                         this.globalConfig.merge(propName, valueSpec);
                     });
-                } catch (e) {
-                    console.error(e);
                 }
             });
         });
@@ -96,11 +116,15 @@ export class PropConfigStore {
             return this.globalConfig.get(propName);
         }
 
-        for (let filename of this.getPropFileSequence(target)) {
+        for (const filename of this.getPropFileSequence(target)) {
             const valueSpec = this.configMap.get(filename)?.get(propName);
             if (valueSpec) {
                 return valueSpec;
             }
+        }
+
+        if (propName === 'script' || propName.startsWith('script-when-') || propName.endsWith('-script')) {
+            return PropValueSpec.from('#function');
         }
     }
 

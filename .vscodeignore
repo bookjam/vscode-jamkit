@@ -5,3 +5,7 @@
 templates/**
 scripts/**
 makefile
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts

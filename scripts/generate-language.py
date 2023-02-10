@@ -5,8 +5,8 @@ import sys
 
 def _build_word_pattern():
     return '(' + '|'.join([
-        r'[\\w-]+(@(verso|recto))?',     # property name & value
-        r'\\$[A-Z_]+'                    # variable
+        r'([\\w-]+(@(verso|recto))?)',     # property name & value
+        r'(\\$[A-Z_]+)',                   # variable
     ]) + ')' 
 
 def _read_file(filename):
