@@ -2,7 +2,7 @@
     "filename": "#pdf-filename",
     "url": "#pdf-url",
     "page": {
-        "value-pattern": "\\d"
+        "value-pattern": "[1-9][0-9]*"
     },
     "bounces": [
         "no",
