@@ -236,13 +236,13 @@ function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#vi
 }
 
 function is4SidedLength(value: string): boolean {
-    const simpleLengthPattern = '(\\d+(\\.\\d+)?|\\.\\d+)([a-z]+|%)?';
-    const fourSidedLengthPattern = '^(' +
-        simpleLengthPattern +
-        '|' +
-        [simpleLengthPattern, simpleLengthPattern].join('\\s+') +
-        '|' +
-        [simpleLengthPattern, simpleLengthPattern, simpleLengthPattern, simpleLengthPattern].join('\\s+') +
-        ')$';
-    return value.match(new RegExp(fourSidedLengthPattern)) != null;
+    const arr = value.split(/\s+/);
+    if (arr.length != 1 && arr.length != 2 && arr.length != 4) {
+        return false;
+    }
+    for (const length of arr) {
+        if (!checkLength(length))
+            return false;
+    }
+    return true;
 }
