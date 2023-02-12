@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { MediaKind, MediaRepository } from "./MediaRepository";
+import { MediaKind, ResourceRepository } from "./ResourceRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
@@ -115,7 +115,7 @@ export class PropValueSpec {
 
         for (const category of this.categories) {
             if (isFileValueCategory(category)) {
-                if (MediaRepository.enumerateMediaNames(toResouceKind(category), documentPath).includes(value)) {
+                if (ResourceRepository.enumerateMediaNames(toResouceKind(category), documentPath).includes(value)) {
                     return { success: true };
                 }
 
@@ -181,7 +181,7 @@ export class PropValueSpec {
 
         for (const category of this.categories) {
             if (isFileValueCategory(category)) {
-                MediaRepository.enumerateMediaNames(toResouceKind(category), documentPath).forEach(imageName => {
+                ResourceRepository.enumerateMediaNames(toResouceKind(category), documentPath).forEach(imageName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
-import { MediaRepository } from './MediaRepository';
+import { ResourceRepository } from './ResourceRepository';
 import { FuncNameCache } from './FuncNameCache';
 import { VariableCache } from './VariableCache';
 import { toString } from './utils';
@@ -15,7 +15,7 @@ export class JamkitExtension {
         FuncNameCache.init(context);
         VariableCache.init(context);
         PropConfigStore.init(context);
-        MediaRepository.init(context);
+        ResourceRepository.init(context);
         SbssCompletionHandler.init(context);
         SbmlCompletionHandler.init(context);
 

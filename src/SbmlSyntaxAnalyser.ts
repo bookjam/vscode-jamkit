@@ -5,7 +5,7 @@ import { PropListParser } from './PropGroupParser';
 import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropConfigStore } from './PropConfigStore';
-import { MediaRepository } from './MediaRepository';
+import { ResourceRepository } from './ResourceRepository';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -200,7 +200,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
         }
         else if (directive.kind == DirectiveKind.Image) {
             if (directive.tag != undefined) {
-                if (!MediaRepository.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
+                if (!ResourceRepository.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
                     const offset = text.indexOf(directive.tag, text.indexOf('=') + 6);
                     this.addImageNameDiagnostic(directive.tag, line, offset);
                 }
@@ -247,7 +247,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             }
             else {
                 assert(m[1] === 'image');
-                const imageNames = MediaRepository.enumerateImageNames(this.document.fileName);
+                const imageNames = ResourceRepository.enumerateImageNames(this.document.fileName);
                 if (!imageNames.includes(tag)) {
                     this.addImageNameDiagnostic(tag, line, textOffset + tagBeginIndex);
                 }

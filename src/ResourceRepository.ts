@@ -11,7 +11,7 @@ export enum MediaKind {
     Image, Audio, Video, Text
 }
 
-export class MediaRepository {
+export class ResourceRepository {
     static init(context: vscode.ExtensionContext) {
         const globPattern = `**/{${[IMAGE_FOLDER_NAME, AUDIO_FOLDER_NAME, VIDEO_FOLDER_NAME].join(',')}}/*.*`;
         const watcher = vscode.workspace.createFileSystemWatcher(
