@@ -6,10 +6,22 @@ import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
 import { FuncNameCache } from "./FuncNameCache";
 
+type FileValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#json-filename';
+
+function isFileValueCategory(s: string): s is FileValueCategory {
+    return (
+        s === '#image-filename' ||
+        s === '#audio-filename' ||
+        s === '#video-filename' ||
+        s === '#json-filename'
+    );
+}
+
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
     '#audio-filename',
     '#video-filename',
+    '#json-filename',
     // '#style-name',
     '#4-sided-length',
     '#color',
@@ -102,8 +114,8 @@ export class PropValueSpec {
         }
 
         for (const category of this.categories) {
-            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
-                if (MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).includes(value)) {
+            if (isFileValueCategory(category)) {
+                if (MediaRepository.enumerateMediaNames(toResouceKind(category), documentPath).includes(value)) {
                     return { success: true };
                 }
 
@@ -168,8 +180,8 @@ export class PropValueSpec {
         })() ?? [];
 
         for (const category of this.categories) {
-            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
-                MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).forEach(imageName => {
+            if (isFileValueCategory(category)) {
+                MediaRepository.enumerateMediaNames(toResouceKind(category), documentPath).forEach(imageName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
@@ -227,12 +239,14 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 //     return { label, text, icon: kind, isSnippet: true };
 // }
 
-function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#video-filename'): MediaKind {
+function toResouceKind(valueCategory: FileValueCategory): MediaKind {
     if (valueCategory == '#image-filename')
         return MediaKind.Image;
     if (valueCategory == '#audio-filename')
         return MediaKind.Audio;
-    return MediaKind.Video;
+    if (valueCategory == '#video-filename')
+        return MediaKind.Video;
+    return MediaKind.Text;
 }
 
 function is4SidedLength(value: string): boolean {

@@ -5,9 +5,10 @@ import { readdirSync, existsSync } from 'fs';
 const IMAGE_FOLDER_NAME = 'Images';
 const AUDIO_FOLDER_NAME = 'Audios';
 const VIDEO_FOLDER_NAME = 'Videos';
+const TEXT_FOLDER_NAME = 'Texts';
 
 export enum MediaKind {
-    Image, Audio, Video
+    Image, Audio, Video, Text
 }
 
 export class MediaRepository {
@@ -32,7 +33,8 @@ export class MediaRepository {
         const mediaFolderName = (() => {
             if (media == MediaKind.Image) return IMAGE_FOLDER_NAME;
             if (media == MediaKind.Audio) return AUDIO_FOLDER_NAME;
-            return VIDEO_FOLDER_NAME;
+            if (media == MediaKind.Video) return VIDEO_FOLDER_NAME;
+            return TEXT_FOLDER_NAME;
         })();
 
         const mediaNames: string[] = [];
@@ -65,8 +67,8 @@ export class MediaRepository {
             }
         })();
         if (rootMediaDirPath) {
-            this.getMediaNamesAtDirPath(rootMediaDirPath).forEach(imageName => {
-                mediaNames.push('~/' + imageName);
+            this.getMediaNamesAtDirPath(rootMediaDirPath).forEach(mediaName => {
+                mediaNames.push('~/' + mediaName);
             });
         }
 
@@ -105,6 +107,7 @@ function isMediaFilePath(filePath: string): boolean {
         case IMAGE_FOLDER_NAME:
         case AUDIO_FOLDER_NAME:
         case VIDEO_FOLDER_NAME:
+        case TEXT_FOLDER_NAME:
             return true;
         default:
             return false;
