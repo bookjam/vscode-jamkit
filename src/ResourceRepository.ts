@@ -7,7 +7,7 @@ const AUDIO_FOLDER_NAME = 'Audios';
 const VIDEO_FOLDER_NAME = 'Videos';
 const TEXT_FOLDER_NAME = 'Texts';
 
-export enum MediaKind {
+export enum ResourceKind {
     Image, Audio, Video, Text
 }
 
@@ -26,29 +26,29 @@ export class ResourceRepository {
     }
 
     static enumerateImageNames(documentPath: string): string[] {
-        return this.enumerateMediaNames(MediaKind.Image, documentPath);
+        return this.enumerateResourceNames(ResourceKind.Image, documentPath);
     }
 
-    static enumerateMediaNames(media: MediaKind, documentPath: string): string[] {
-        const mediaFolderName = (() => {
-            if (media == MediaKind.Image) return IMAGE_FOLDER_NAME;
-            if (media == MediaKind.Audio) return AUDIO_FOLDER_NAME;
-            if (media == MediaKind.Video) return VIDEO_FOLDER_NAME;
+    static enumerateResourceNames(kind: ResourceKind, documentPath: string): string[] {
+        const resourceFolderName = (() => {
+            if (kind == ResourceKind.Image) return IMAGE_FOLDER_NAME;
+            if (kind == ResourceKind.Audio) return AUDIO_FOLDER_NAME;
+            if (kind == ResourceKind.Video) return VIDEO_FOLDER_NAME;
             return TEXT_FOLDER_NAME;
         })();
 
-        const mediaNames: string[] = [];
+        const resourceNames: string[] = [];
 
         const pathComponents = documentPath.split(path.sep);
 
-        const currentMediaDirPath = (() => {
+        const currentResDirPath = (() => {
             pathComponents.pop();
-            pathComponents.push(mediaFolderName);
+            pathComponents.push(resourceFolderName);
             return pathComponents.join(path.sep);
         })();
-        mediaNames.push(...this.getMediaNamesAtDirPath(currentMediaDirPath));
+        resourceNames.push(...this.getResourceNamesAtDirPath(currentResDirPath));
 
-        const rootMediaDirPath = (() => {
+        const rootResDirPath = (() => {
             while (pathComponents.length > 0) {
 
                 for (const projectFileName of ['catalog.bon', 'book.bon']) {
@@ -58,7 +58,7 @@ export class ResourceRepository {
                     const projectFilePath = pathComponents.join(path.sep);
                     if (existsSync(projectFilePath)) {
                         pathComponents.pop();
-                        pathComponents.push(mediaFolderName);
+                        pathComponents.push(resourceFolderName);
                         return pathComponents.join(path.sep);
                     }
                 }
@@ -66,43 +66,43 @@ export class ResourceRepository {
                 pathComponents.pop();
             }
         })();
-        if (rootMediaDirPath) {
-            this.getMediaNamesAtDirPath(rootMediaDirPath).forEach(mediaName => {
-                mediaNames.push('~/' + mediaName);
+        if (rootResDirPath) {
+            this.getResourceNamesAtDirPath(rootResDirPath).forEach(name => {
+                resourceNames.push('~/' + name);
             });
         }
 
-        return mediaNames;
+        return resourceNames;
     }
 
-    private static mediaNamesCache = new Map</*dirPath*/ string, /*imageNames*/ string[]>;
+    private static resourceNamesCache = new Map</*dirPath*/ string, /*imageNames*/ string[]>;
 
-    private static getMediaNamesAtDirPath(dirPath: string): string[] {
-        let imageNames = this.mediaNamesCache.get(dirPath);
+    private static getResourceNamesAtDirPath(dirPath: string): string[] {
+        let imageNames = this.resourceNamesCache.get(dirPath);
         if (!imageNames) {
-            const uniqueMediaNames = new Set<string>();
+            const uniqueResNames = new Set<string>();
             readdirSync(dirPath).forEach(filename => {
                 if (filename.startsWith('.'))
                     return;
-                uniqueMediaNames.add(stripAtSuffix(filename));
+                uniqueResNames.add(stripAtSuffix(filename));
             });
-            imageNames = Array.from(uniqueMediaNames);
-            this.mediaNamesCache.set(dirPath, imageNames);
+            imageNames = Array.from(uniqueResNames);
+            this.resourceNamesCache.set(dirPath, imageNames);
         }
         return imageNames;
     }
 
     private static updateCache(filePath: string): void {
-        if (isMediaFilePath(filePath)) {
+        if (isResourceFilePath(filePath)) {
             const pathComponents = filePath.split(path.sep);
             pathComponents.pop();
             const dirPath = pathComponents.join(path.sep);
-            this.mediaNamesCache.delete(dirPath);
+            this.resourceNamesCache.delete(dirPath);
         }
     }
 }
 
-function isMediaFilePath(filePath: string): boolean {
+function isResourceFilePath(filePath: string): boolean {
     switch (filePath.split(path.sep).at(-2)) {
         case IMAGE_FOLDER_NAME:
         case AUDIO_FOLDER_NAME:

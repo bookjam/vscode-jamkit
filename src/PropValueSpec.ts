@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { MediaKind, ResourceRepository } from "./ResourceRepository";
+import { ResourceKind, ResourceRepository } from "./ResourceRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
@@ -115,7 +115,7 @@ export class PropValueSpec {
 
         for (const category of this.categories) {
             if (isFileValueCategory(category)) {
-                if (ResourceRepository.enumerateMediaNames(toResouceKind(category), documentPath).includes(value)) {
+                if (ResourceRepository.enumerateResourceNames(toResouceKind(category), documentPath).includes(value)) {
                     return { success: true };
                 }
 
@@ -181,7 +181,7 @@ export class PropValueSpec {
 
         for (const category of this.categories) {
             if (isFileValueCategory(category)) {
-                ResourceRepository.enumerateMediaNames(toResouceKind(category), documentPath).forEach(imageName => {
+                ResourceRepository.enumerateResourceNames(toResouceKind(category), documentPath).forEach(imageName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
                 });
             }
@@ -239,14 +239,14 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 //     return { label, text, icon: kind, isSnippet: true };
 // }
 
-function toResouceKind(valueCategory: FileValueCategory): MediaKind {
+function toResouceKind(valueCategory: FileValueCategory): ResourceKind {
     if (valueCategory == '#image-filename')
-        return MediaKind.Image;
+        return ResourceKind.Image;
     if (valueCategory == '#audio-filename')
-        return MediaKind.Audio;
+        return ResourceKind.Audio;
     if (valueCategory == '#video-filename')
-        return MediaKind.Video;
-    return MediaKind.Text;
+        return ResourceKind.Video;
+    return ResourceKind.Text;
 }
 
 function is4SidedLength(value: string): boolean {
