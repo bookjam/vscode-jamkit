@@ -6,20 +6,33 @@ import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
 import { FuncNameCache } from "./FuncNameCache";
 
-type MediaValueCategory = '#image-filename' | '#audio-filename' | '#video-filename';
+type NonTextResourceValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
 
-function isMediaValueCategory(s: string): s is MediaValueCategory {
+function isNonTextResourceValueCategory(s: string): s is NonTextResourceValueCategory {
     return (
         s === '#image-filename' ||
         s === '#audio-filename' ||
-        s === '#video-filename'
+        s === '#video-filename' ||
+        s === '#sound-filename' ||
+        s === '#effect-filename'
     );
+}
+
+function toResouceKind(valueCategory: NonTextResourceValueCategory):
+    ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video | ResourceKind.Sound | ResourceKind.Effect {
+    if (valueCategory == '#image-filename') return ResourceKind.Image;
+    if (valueCategory == '#audio-filename') return ResourceKind.Audio;
+    if (valueCategory == '#video-filename') return ResourceKind.Video;
+    if (valueCategory == '#sound-filename') return ResourceKind.Sound;
+    return ResourceKind.Effect;
 }
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
     '#audio-filename',
     '#video-filename',
+    '#sound-filename',
+    '#effect-filename',
     '#json-filename',
     // '#style-name',
     '#4-sided-length',
@@ -113,8 +126,8 @@ export class PropValueSpec {
         }
 
         for (const category of this.categories) {
-            if (isMediaValueCategory(category)) {
-                if (ResourceRepository.enumerateMediaFileNames(toResouceKind(category), documentPath).includes(value)) {
+            if (isNonTextResourceValueCategory(category)) {
+                if (ResourceRepository.enumerateResourceFileNames(toResouceKind(category), documentPath).includes(value)) {
                     return { success: true };
                 }
 
@@ -186,8 +199,8 @@ export class PropValueSpec {
         })() ?? [];
 
         for (const category of this.categories) {
-            if (isMediaValueCategory(category)) {
-                ResourceRepository.enumerateMediaFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
+            if (isNonTextResourceValueCategory(category)) {
+                ResourceRepository.enumerateResourceFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, resourceName));
                 });
             }
@@ -249,14 +262,6 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 // function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, text: string): PropValueSuggestion {
 //     return { label, text, icon: kind, isSnippet: true };
 // }
-
-function toResouceKind(valueCategory: MediaValueCategory): ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video {
-    if (valueCategory == '#image-filename')
-        return ResourceKind.Image;
-    if (valueCategory == '#audio-filename')
-        return ResourceKind.Audio;
-    return ResourceKind.Video;
-}
 
 function is4SidedLength(value: string): boolean {
     const arr = value.split(/\s+/);
