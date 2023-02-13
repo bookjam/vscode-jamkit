@@ -1,15 +1,26 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { MediaKind, MediaRepository } from "./MediaRepository";
+import { ResourceKind, ResourceRepository } from "./ResourceRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
 import { FuncNameCache } from "./FuncNameCache";
 
+type MediaValueCategory = '#image-filename' | '#audio-filename' | '#video-filename';
+
+function isMediaValueCategory(s: string): s is MediaValueCategory {
+    return (
+        s === '#image-filename' ||
+        s === '#audio-filename' ||
+        s === '#video-filename'
+    );
+}
+
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
     '#audio-filename',
     '#video-filename',
+    '#json-filename',
     // '#style-name',
     '#4-sided-length',
     '#color',
@@ -102,8 +113,15 @@ export class PropValueSpec {
         }
 
         for (const category of this.categories) {
-            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
-                if (MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).includes(value)) {
+            if (isMediaValueCategory(category)) {
+                if (ResourceRepository.enumerateMediaFileNames(toResouceKind(category), documentPath).includes(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = `'${value}' does not exist.`;
+            }
+            else if (category === '#json-filename') {
+                if (ResourceRepository.enumerateTextFileNames(documentPath, '.json').includes(value)) {
                     return { success: true };
                 }
 
@@ -168,9 +186,14 @@ export class PropValueSpec {
         })() ?? [];
 
         for (const category of this.categories) {
-            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
-                MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).forEach(imageName => {
-                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
+            if (isMediaValueCategory(category)) {
+                ResourceRepository.enumerateMediaFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, resourceName));
+                });
+            }
+            else if (category === '#json-filename') {
+                ResourceRepository.enumerateTextFileNames(documentPath, '.json').forEach(fileName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, fileName));
                 });
             }
             else if (category == '#function') {
@@ -227,12 +250,12 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 //     return { label, text, icon: kind, isSnippet: true };
 // }
 
-function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#video-filename'): MediaKind {
+function toResouceKind(valueCategory: MediaValueCategory): ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video {
     if (valueCategory == '#image-filename')
-        return MediaKind.Image;
+        return ResourceKind.Image;
     if (valueCategory == '#audio-filename')
-        return MediaKind.Audio;
-    return MediaKind.Video;
+        return ResourceKind.Audio;
+    return ResourceKind.Video;
 }
 
 function is4SidedLength(value: string): boolean {
