@@ -1,20 +1,32 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { readdirSync, existsSync } from 'fs';
-import { assert } from 'console';
 
 const IMAGE_FOLDER_NAME = 'Images';
 const AUDIO_FOLDER_NAME = 'Audios';
 const VIDEO_FOLDER_NAME = 'Videos';
+const SOUND_FOLDER_NAME = 'Sounds';
+const EFFECT_FOLDER_NAME = 'Effects';
 const TEXT_FOLDER_NAME = 'Texts';
 
+const ALL_FOLDER_NAMES = [
+    IMAGE_FOLDER_NAME,
+    AUDIO_FOLDER_NAME,
+    VIDEO_FOLDER_NAME,
+    SOUND_FOLDER_NAME,
+    EFFECT_FOLDER_NAME,
+    TEXT_FOLDER_NAME
+];
+
 export enum ResourceKind {
-    Image, Audio, Video, Text
+    Image, Audio, Video, Sound, Effect, Text
 }
+
+export type NonTextResourceKind = ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video | ResourceKind.Sound | ResourceKind.Effect;
 
 export class ResourceRepository {
     static init(context: vscode.ExtensionContext) {
-        const globPattern = `**/{${[IMAGE_FOLDER_NAME, AUDIO_FOLDER_NAME, VIDEO_FOLDER_NAME].join(',')}}/*.*`;
+        const globPattern = `**/{${ALL_FOLDER_NAMES.join(',')}}/*.*`;
         const watcher = vscode.workspace.createFileSystemWatcher(
             globPattern,
             /*ignoreCreateEvents*/ false,
@@ -27,25 +39,16 @@ export class ResourceRepository {
     }
 
     static enumerateImageFileNames(documentPath: string): string[] {
-        return this.enumerateResourceNames(ResourceKind.Image, documentPath);
+        return this.enumerateResourceFileNames(ResourceKind.Image, documentPath);
     }
 
-    static enumerateMediaFileNames(kind: ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video, documentPath: string): string[] {
-        return this.enumerateResourceNames(kind, documentPath);
+    static enumerateTextFileNames(documentPath: string, suffix: string | undefined): string[] {
+        return this.enumerateResourceFileNames(ResourceKind.Text, documentPath, suffix);
     }
 
-    static enumerateTextFileNames(documentPath: string, suffix: string): string[] {
-        return this.enumerateResourceNames(ResourceKind.Text, documentPath, suffix);
-    }
+    static enumerateResourceFileNames(kind: ResourceKind, documentPath: string, suffix: string | undefined = undefined): string[] {
 
-    private static enumerateResourceNames(kind: ResourceKind, documentPath: string, suffix: string | undefined = undefined): string[] {
-
-        const resourceFolderName = (() => {
-            if (kind == ResourceKind.Image) return IMAGE_FOLDER_NAME;
-            if (kind == ResourceKind.Audio) return AUDIO_FOLDER_NAME;
-            if (kind == ResourceKind.Video) return VIDEO_FOLDER_NAME;
-            return TEXT_FOLDER_NAME;
-        })();
+        const resourceDirName = toResourceDirName(kind);
 
         const resourceNames: string[] = [];
 
@@ -53,7 +56,7 @@ export class ResourceRepository {
 
         const currentResDirPath = (() => {
             pathComponents.pop();
-            pathComponents.push(resourceFolderName);
+            pathComponents.push(resourceDirName);
             return pathComponents.join(path.sep);
         })();
         for (const name of this.getResourceNamesAtDirPath(currentResDirPath)) {
@@ -72,7 +75,7 @@ export class ResourceRepository {
                     const projectFilePath = pathComponents.join(path.sep);
                     if (existsSync(projectFilePath)) {
                         pathComponents.pop();
-                        pathComponents.push(resourceFolderName);
+                        pathComponents.push(resourceDirName);
                         return pathComponents.join(path.sep);
                     }
                 }
@@ -119,18 +122,20 @@ export class ResourceRepository {
 }
 
 function isResourceFilePath(filePath: string): boolean {
-    switch (filePath.split(path.sep).at(-2)) {
-        case IMAGE_FOLDER_NAME:
-        case AUDIO_FOLDER_NAME:
-        case VIDEO_FOLDER_NAME:
-        case TEXT_FOLDER_NAME:
-            return true;
-        default:
-            return false;
-    }
+    const dirName = filePath.split(path.sep).at(-2);
+    return dirName !== undefined && ALL_FOLDER_NAMES.includes(dirName);
 }
 
 /// subview_btn_back@m.png -> subview_btn_back.png
 function stripAtSuffix(filename: string): string {
     return filename.replace(/@[^.]+/, '');
+}
+
+function toResourceDirName(kind: ResourceKind): string {
+    if (kind == ResourceKind.Image) return IMAGE_FOLDER_NAME;
+    if (kind == ResourceKind.Audio) return AUDIO_FOLDER_NAME;
+    if (kind == ResourceKind.Video) return VIDEO_FOLDER_NAME;
+    if (kind == ResourceKind.Sound) return SOUND_FOLDER_NAME;
+    if (kind == ResourceKind.Effect) return EFFECT_FOLDER_NAME;
+    return TEXT_FOLDER_NAME;
 }
