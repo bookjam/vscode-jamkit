@@ -126,6 +126,10 @@ export class PropConfigStore {
         if (propName === 'script' || propName.startsWith('script-when-') || propName.endsWith('-script')) {
             return PropValueSpec.from('#function');
         }
+
+        if (propName === 'sound' || propName.startsWith('sound-when-')) {
+            return PropValueSpec.from('#sound-filename');
+        }
     }
 
     private static getPropFileSequence(target: PropTarget): string[] {
