@@ -200,7 +200,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
         }
         else if (directive.kind == DirectiveKind.Image) {
             if (directive.tag != undefined) {
-                if (!ResourceRepository.enumerateImageNames(this.document.fileName).includes(directive.tag)) {
+                if (!ResourceRepository.enumerateImageFileNames(this.document.fileName).includes(directive.tag)) {
                     const offset = text.indexOf(directive.tag, text.indexOf('=') + 6);
                     this.addImageNameDiagnostic(directive.tag, line, offset);
                 }
@@ -247,7 +247,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             }
             else {
                 assert(m[1] === 'image');
-                const imageNames = ResourceRepository.enumerateImageNames(this.document.fileName);
+                const imageNames = ResourceRepository.enumerateImageFileNames(this.document.fileName);
                 if (!imageNames.includes(tag)) {
                     this.addImageNameDiagnostic(tag, line, textOffset + tagBeginIndex);
                 }

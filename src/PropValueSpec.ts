@@ -6,14 +6,13 @@ import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
 import { FuncNameCache } from "./FuncNameCache";
 
-type FileValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#json-filename';
+type MediaValueCategory = '#image-filename' | '#audio-filename' | '#video-filename';
 
-function isFileValueCategory(s: string): s is FileValueCategory {
+function isMediaValueCategory(s: string): s is MediaValueCategory {
     return (
         s === '#image-filename' ||
         s === '#audio-filename' ||
-        s === '#video-filename' ||
-        s === '#json-filename'
+        s === '#video-filename'
     );
 }
 
@@ -114,8 +113,15 @@ export class PropValueSpec {
         }
 
         for (const category of this.categories) {
-            if (isFileValueCategory(category)) {
-                if (ResourceRepository.enumerateResourceNames(toResouceKind(category), documentPath).includes(value)) {
+            if (isMediaValueCategory(category)) {
+                if (ResourceRepository.enumerateMediaFileNames(toResouceKind(category), documentPath).includes(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = `'${value}' does not exist.`;
+            }
+            else if (category === '#json-filename') {
+                if (ResourceRepository.enumerateTextFileNames(documentPath, '.json').includes(value)) {
                     return { success: true };
                 }
 
@@ -180,9 +186,14 @@ export class PropValueSpec {
         })() ?? [];
 
         for (const category of this.categories) {
-            if (isFileValueCategory(category)) {
-                ResourceRepository.enumerateResourceNames(toResouceKind(category), documentPath).forEach(imageName => {
-                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
+            if (isMediaValueCategory(category)) {
+                ResourceRepository.enumerateMediaFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, resourceName));
+                });
+            }
+            else if (category === '#json-filename') {
+                ResourceRepository.enumerateTextFileNames(documentPath, '.json').forEach(fileName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, fileName));
                 });
             }
             else if (category == '#function') {
@@ -239,14 +250,12 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 //     return { label, text, icon: kind, isSnippet: true };
 // }
 
-function toResouceKind(valueCategory: FileValueCategory): ResourceKind {
+function toResouceKind(valueCategory: MediaValueCategory): ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video {
     if (valueCategory == '#image-filename')
         return ResourceKind.Image;
     if (valueCategory == '#audio-filename')
         return ResourceKind.Audio;
-    if (valueCategory == '#video-filename')
-        return ResourceKind.Video;
-    return ResourceKind.Text;
+    return ResourceKind.Video;
 }
 
 function is4SidedLength(value: string): boolean {

@@ -70,7 +70,7 @@ export class SbmlCompletionHandler {
                             });
                         }
                         else if (context instanceof ImageNameContext) {
-                            let imageNames = ResourceRepository.enumerateImageNames(document.fileName);
+                            let imageNames = ResourceRepository.enumerateImageFileNames(document.fileName);
                             if (context.prefix) {
                                 const prefix = context.prefix;
                                 imageNames = imageNames.filter(imageName => imageName.startsWith(prefix));

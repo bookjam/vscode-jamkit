@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { readdirSync, existsSync } from 'fs';
+import { assert } from 'console';
 
 const IMAGE_FOLDER_NAME = 'Images';
 const AUDIO_FOLDER_NAME = 'Audios';
@@ -25,11 +26,20 @@ export class ResourceRepository {
         context.subscriptions.push(watcher);
     }
 
-    static enumerateImageNames(documentPath: string): string[] {
+    static enumerateImageFileNames(documentPath: string): string[] {
         return this.enumerateResourceNames(ResourceKind.Image, documentPath);
     }
 
-    static enumerateResourceNames(kind: ResourceKind, documentPath: string): string[] {
+    static enumerateMediaFileNames(kind: ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video, documentPath: string): string[] {
+        return this.enumerateResourceNames(kind, documentPath);
+    }
+
+    static enumerateTextFileNames(documentPath: string, suffix: string): string[] {
+        return this.enumerateResourceNames(ResourceKind.Text, documentPath, suffix);
+    }
+
+    private static enumerateResourceNames(kind: ResourceKind, documentPath: string, suffix: string | undefined = undefined): string[] {
+
         const resourceFolderName = (() => {
             if (kind == ResourceKind.Image) return IMAGE_FOLDER_NAME;
             if (kind == ResourceKind.Audio) return AUDIO_FOLDER_NAME;
@@ -46,7 +56,11 @@ export class ResourceRepository {
             pathComponents.push(resourceFolderName);
             return pathComponents.join(path.sep);
         })();
-        resourceNames.push(...this.getResourceNamesAtDirPath(currentResDirPath));
+        for (const name of this.getResourceNamesAtDirPath(currentResDirPath)) {
+            if (suffix === undefined || name.endsWith(suffix)) {
+                resourceNames.push(name);
+            }
+        }
 
         const rootResDirPath = (() => {
             while (pathComponents.length > 0) {
@@ -68,7 +82,9 @@ export class ResourceRepository {
         })();
         if (rootResDirPath) {
             this.getResourceNamesAtDirPath(rootResDirPath).forEach(name => {
-                resourceNames.push('~/' + name);
+                if (suffix === undefined || name.endsWith(suffix)) {
+                    resourceNames.push('~/' + name);
+                }
             });
         }
 
@@ -78,18 +94,18 @@ export class ResourceRepository {
     private static resourceNamesCache = new Map</*dirPath*/ string, /*imageNames*/ string[]>;
 
     private static getResourceNamesAtDirPath(dirPath: string): string[] {
-        let imageNames = this.resourceNamesCache.get(dirPath);
-        if (!imageNames) {
-            const uniqueResNames = new Set<string>();
+        let resourceNames = this.resourceNamesCache.get(dirPath);
+        if (!resourceNames) {
+            const uniqueNames = new Set<string>();
             readdirSync(dirPath).forEach(filename => {
                 if (filename.startsWith('.'))
                     return;
-                uniqueResNames.add(stripAtSuffix(filename));
+                uniqueNames.add(stripAtSuffix(filename));
             });
-            imageNames = Array.from(uniqueResNames);
-            this.resourceNamesCache.set(dirPath, imageNames);
+            resourceNames = Array.from(uniqueNames);
+            this.resourceNamesCache.set(dirPath, resourceNames);
         }
-        return imageNames;
+        return resourceNames;
     }
 
     private static updateCache(filePath: string): void {
