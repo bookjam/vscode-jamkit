@@ -6,7 +6,7 @@ export enum ResourceKind {
     Image, Audio, Video, Sound, Effect, Text
 }
 
-const ALL_FOLDER_NAMES = [
+const RESOURCE_DIR_NAMES = [
     toResourceDirName(ResourceKind.Image),
     toResourceDirName(ResourceKind.Audio),
     toResourceDirName(ResourceKind.Video),
@@ -19,7 +19,7 @@ export type NonTextResourceKind = ResourceKind.Image | ResourceKind.Audio | Reso
 
 export class ResourceRepository {
     static init(context: vscode.ExtensionContext) {
-        const globPattern = `**/{${ALL_FOLDER_NAMES.join(',')}}/*.*`;
+        const globPattern = `**/{${RESOURCE_DIR_NAMES.join(',')}}/*.*`;
         const watcher = vscode.workspace.createFileSystemWatcher(
             globPattern,
             /*ignoreCreateEvents*/ false,
@@ -116,7 +116,7 @@ export class ResourceRepository {
 
 function isResourceFilePath(filePath: string): boolean {
     const dirName = filePath.split(path.sep).at(-2);
-    return dirName !== undefined && ALL_FOLDER_NAMES.includes(dirName);
+    return dirName !== undefined && RESOURCE_DIR_NAMES.includes(dirName);
 }
 
 /// subview_btn_back@m.png -> subview_btn_back.png
