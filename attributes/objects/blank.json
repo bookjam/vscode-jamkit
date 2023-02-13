@@ -1,5 +1,5 @@
 {
     "color": {
-        "value-pattern": "#[a-fA-F0-9]{6}"
+        "value-category": "#color"
     }
 }
