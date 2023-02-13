@@ -2,25 +2,18 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { readdirSync, existsSync } from 'fs';
 
-const IMAGE_FOLDER_NAME = 'Images';
-const AUDIO_FOLDER_NAME = 'Audios';
-const VIDEO_FOLDER_NAME = 'Videos';
-const SOUND_FOLDER_NAME = 'Sounds';
-const EFFECT_FOLDER_NAME = 'Effects';
-const TEXT_FOLDER_NAME = 'Texts';
-
-const ALL_FOLDER_NAMES = [
-    IMAGE_FOLDER_NAME,
-    AUDIO_FOLDER_NAME,
-    VIDEO_FOLDER_NAME,
-    SOUND_FOLDER_NAME,
-    EFFECT_FOLDER_NAME,
-    TEXT_FOLDER_NAME
-];
-
 export enum ResourceKind {
     Image, Audio, Video, Sound, Effect, Text
 }
+
+const ALL_FOLDER_NAMES = [
+    toResourceDirName(ResourceKind.Image),
+    toResourceDirName(ResourceKind.Audio),
+    toResourceDirName(ResourceKind.Video),
+    toResourceDirName(ResourceKind.Sound),
+    toResourceDirName(ResourceKind.Effect),
+    toResourceDirName(ResourceKind.Text)
+];
 
 export type NonTextResourceKind = ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video | ResourceKind.Sound | ResourceKind.Effect;
 
@@ -132,10 +125,5 @@ function stripAtSuffix(filename: string): string {
 }
 
 function toResourceDirName(kind: ResourceKind): string {
-    if (kind == ResourceKind.Image) return IMAGE_FOLDER_NAME;
-    if (kind == ResourceKind.Audio) return AUDIO_FOLDER_NAME;
-    if (kind == ResourceKind.Video) return VIDEO_FOLDER_NAME;
-    if (kind == ResourceKind.Sound) return SOUND_FOLDER_NAME;
-    if (kind == ResourceKind.Effect) return EFFECT_FOLDER_NAME;
-    return TEXT_FOLDER_NAME;
+    return ResourceKind[kind] + 's';
 }
