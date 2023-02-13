@@ -1,14 +1,14 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { ResourceKind, ResourceRepository } from "./ResourceRepository";
+import { AssetKind, AssetRepository } from "./ResourceRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
 import { FuncNameCache } from "./FuncNameCache";
 
-type NonTextResourceValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
+type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
 
-function isNonTextResourceValueCategory(s: string): s is NonTextResourceValueCategory {
+function isNonTextResourceValueCategory(s: string): s is NonTextAssetValueCategory {
     return (
         s === '#image-filename' ||
         s === '#audio-filename' ||
@@ -18,13 +18,13 @@ function isNonTextResourceValueCategory(s: string): s is NonTextResourceValueCat
     );
 }
 
-function toResouceKind(valueCategory: NonTextResourceValueCategory):
-    ResourceKind.Image | ResourceKind.Audio | ResourceKind.Video | ResourceKind.Sound | ResourceKind.Effect {
-    if (valueCategory == '#image-filename') return ResourceKind.Image;
-    if (valueCategory == '#audio-filename') return ResourceKind.Audio;
-    if (valueCategory == '#video-filename') return ResourceKind.Video;
-    if (valueCategory == '#sound-filename') return ResourceKind.Sound;
-    return ResourceKind.Effect;
+function toResouceKind(valueCategory: NonTextAssetValueCategory):
+    AssetKind.Image | AssetKind.Audio | AssetKind.Video | AssetKind.Sound | AssetKind.Effect {
+    if (valueCategory == '#image-filename') return AssetKind.Image;
+    if (valueCategory == '#audio-filename') return AssetKind.Audio;
+    if (valueCategory == '#video-filename') return AssetKind.Video;
+    if (valueCategory == '#sound-filename') return AssetKind.Sound;
+    return AssetKind.Effect;
 }
 
 const KNOWN_CATEGORIES: string[] = [
@@ -127,14 +127,14 @@ export class PropValueSpec {
 
         for (const category of this.categories) {
             if (isNonTextResourceValueCategory(category)) {
-                if (ResourceRepository.enumerateResourceFileNames(toResouceKind(category), documentPath).includes(value)) {
+                if (AssetRepository.enumerateFileNames(toResouceKind(category), documentPath).includes(value)) {
                     return { success: true };
                 }
 
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category === '#json-filename') {
-                if (ResourceRepository.enumerateTextFileNames(documentPath, '.json').includes(value)) {
+                if (AssetRepository.enumerateTextFileNames(documentPath, '.json').includes(value)) {
                     return { success: true };
                 }
 
@@ -200,12 +200,12 @@ export class PropValueSpec {
 
         for (const category of this.categories) {
             if (isNonTextResourceValueCategory(category)) {
-                ResourceRepository.enumerateResourceFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
+                AssetRepository.enumerateFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, resourceName));
                 });
             }
             else if (category === '#json-filename') {
-                ResourceRepository.enumerateTextFileNames(documentPath, '.json').forEach(fileName => {
+                AssetRepository.enumerateTextFileNames(documentPath, '.json').forEach(fileName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, fileName));
                 });
             }
