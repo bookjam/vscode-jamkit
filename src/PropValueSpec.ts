@@ -31,6 +31,8 @@ const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
     '#audio-filename',
     '#video-filename',
+    '#sound-filename',
+    '#effect-filename',
     '#json-filename',
     // '#style-name',
     '#4-sided-length',
