@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
-import { AssetRepository } from './ResourceRepository';
+import { AssetRepository } from './AssetRepository';
 import { FuncNameCache } from './FuncNameCache';
 import { VariableCache } from './VariableCache';
 import { toString } from './utils';

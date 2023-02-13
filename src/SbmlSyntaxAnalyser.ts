@@ -5,7 +5,7 @@ import { PropListParser } from './PropGroupParser';
 import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropConfigStore } from './PropConfigStore';
-import { AssetRepository } from './ResourceRepository';
+import { AssetRepository } from './AssetRepository';
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;

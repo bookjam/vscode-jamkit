@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { ImageNameContext, ObjectTypeContext, SbmlContextParser } from './SbmlContextParser';
-import { AssetRepository } from './ResourceRepository';
+import { AssetRepository } from './AssetRepository';
 import { PropConfigStore } from './PropConfigStore';
 
 function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined): boolean {

@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { AssetKind, AssetRepository } from "./ResourceRepository";
+import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
