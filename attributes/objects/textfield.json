@@ -2,7 +2,7 @@
     "text": "?",
     "placeholder": "?",
     "font": "#font",
-    "font-family": "?",
+    "font-family": "#font-family",
     "font-size": "#font-size",
     "font-weight": [
         "normal",

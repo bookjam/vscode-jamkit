@@ -10,7 +10,7 @@
     "caption": "?",
     "subcaption": "?",
     "caption-font": "#font",
-    "caption-font-family": "?",
+    "caption-font-family": "#font-family",
     "caption-font-size": "#font-size",
     "caption-font-weight": [
         "normal",
@@ -25,7 +25,7 @@
         "no"
     ],
     "subcaption-font": "#font",
-    "subcaption-font-family": "?",
+    "subcaption-font-family": "#font-family",
     "subcaption-font-size": "#font-size",
     "subcaption-font-weight": [
         "normal",
