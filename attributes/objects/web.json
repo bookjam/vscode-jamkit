@@ -1,6 +1,6 @@
 {
     "filename": "#webpage-filename",
-    "url": "#webpage-url",
+    "url": "#url",
     "bounces": [
         "no",
         "yes"

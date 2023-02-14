@@ -17,7 +17,7 @@
         "yes",
         "no"
     ],
-    "label-font": "#[weight] [style] size family",
+    "label-font": "#font",
     "label-font-family": "?",
     "label-font-size": "?",
     "label-font-weight": [

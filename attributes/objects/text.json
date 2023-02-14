@@ -1,6 +1,6 @@
 {
     "text": "?",
-    "font": "#[weight] [style] size family",
+    "font": "#font",
     "font-family": "?",
     "font-size": "?",
     "font-weight": [

@@ -9,7 +9,7 @@
         "yes",
         "no"
     ],
-    "data-url": "#json-url",
+    "data-url": "#url",
     "data-path": "?",
     "data-key": "?",
     "transition-style": [
@@ -19,7 +19,7 @@
         "none"
     ],
     "rotate-interval": {
-        "value-pattern": "[1-9][0-9]*",
+        "value-pattern": "\\d",
         "suggestions": [
             "1",
             "2",
@@ -33,7 +33,7 @@
         ]
     },
     "transition-duration": {
-        "value-pattern": "[1-9][0-9]*",
+        "value-pattern": "\\d",
         "suggestions": [
             "0.1",
             "0.2",
@@ -43,7 +43,6 @@
             "0.8",
             "0.9",
             "1.0"
-
         ]
     },
     "has-page-control": [
