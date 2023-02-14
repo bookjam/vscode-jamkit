@@ -6,7 +6,7 @@ import * as acorn from 'acorn';
 /**
  * Keeps top-level function names in memory for *.js files.
  */
-export class FuncNameCache {
+export class ScriptNameCache {
     static init(context: vscode.ExtensionContext) {
         const watcher = vscode.workspace.createFileSystemWatcher('**/*.js', /*ignoreCreationEvents*/ true);
         watcher.onDidChange(event => this.removeCache(event.fsPath));

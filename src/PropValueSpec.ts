@@ -4,7 +4,7 @@ import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
-import { FuncNameCache } from "./FuncNameCache";
+import { ScriptNameCache } from "./FuncNameCache";
 
 type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
 
@@ -141,7 +141,7 @@ export class PropValueSpec {
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#function') {
-                if (FuncNameCache.getFuncNames(documentPath).includes(value)) {
+                if (ScriptNameCache.getFuncNames(documentPath).includes(value)) {
                     return { success: true };
                 }
 
@@ -210,7 +210,7 @@ export class PropValueSpec {
                 });
             }
             else if (category == '#function') {
-                FuncNameCache.getFuncNames(documentPath).forEach(funcName => {
+                ScriptNameCache.getFuncNames(documentPath).forEach(funcName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Function, funcName));
                 });
             }
