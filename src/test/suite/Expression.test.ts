@@ -44,6 +44,7 @@ suite('LengthChecker', () => {
         assert.strictEqual(check('9sbh').success, true);
         assert.strictEqual(check('10eb').success, true);
         assert.strictEqual(check('11%').success, true);
+        assert.strictEqual(check('-1.2em').success, true);
 
         assert.strictEqual(check('1ab').success, false);
         assert.strictEqual(check('2cd').success, false);
