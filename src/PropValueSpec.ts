@@ -4,7 +4,7 @@ import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
 import { ScriptNameCache } from "./ScriptNameCache";
 import { isColorText } from "./utils";
-import { LengthCheckResult, checkLength } from "./Expression";
+import { checkLength } from "./Expression";
 
 type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
 
