@@ -18,8 +18,8 @@
         "no"
     ],
     "label-font": "#font",
-    "label-font-family": "?",
-    "label-font-size": "?",
+    "label-font-family": "#font-family",
+    "label-font-size": "#font-size",
     "label-font-weight": [
         "normal",
         "bold"

@@ -2,8 +2,8 @@
     "text": "?",
     "waiting-text": "?",
     "font": "#font",
-    "font-family": "?",
-    "text-align": [ 
+    "font-family": "#font-family",
+    "text-align": [
         "left",
         "right",
         "center"

@@ -39,6 +39,9 @@ const KNOWN_CATEGORIES: string[] = [
     '#color',
     '#length',
     '#function',
+    '#font',
+    '#font-size',
+    '#font-family'
 ];
 
 export interface PropValueSuggestion {
@@ -172,6 +175,29 @@ export class PropValueSpec {
 
                 errorMessage = 'This attribute should have 1, 2 or 4 length values separated by whitespaces.';
             }
+            else if (category === '#font-size') {
+                if (isValidFontSize(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = 'Invalid font size. A font size should be a number (usually, 0.5 ~ 5) with an optional "em" unit suffix. ex) 1.2, 0.8em';
+            }
+            else if (category === '#font-family') {
+                // no verification rules for now
+                return { success: true };
+            }
+            else if (category === '#font') {
+                if (isValidFont(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = 'Invalid font value. A valid value should be in "[weight] [style] size family" format.\n' +
+                    'ex)\n' +
+                    '  - "bold italic 1.2 NotoSerif-Regular"\n' +
+                    '  - "bold 1.2em $SERIF_THIN"\n' +
+                    '  - "italic 2 $SERIF_BLACK"\n' +
+                    '  - "0.7em $SANS_KR_BOLD"\n';
+            }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
@@ -218,6 +244,17 @@ export class PropValueSpec {
             else if (category == '#color' || category == '#length' || category == '#4-sided-length') {
                 // do nothing
             }
+            else if (category == '#font-size') {
+                ['1.2', '1.3', '1.5', '2.0', '2.5', '3.0'].forEach(fontSize => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.Value, fontSize));
+                });
+            }
+            else if (category === '#font-family') {
+                // do nothing here but we will suggest variables start either with "SANS_" or "SERIF_" below
+            }
+            else if (category == '#font') {
+                // do nothing
+            }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
@@ -227,21 +264,29 @@ export class PropValueSpec {
         //  - users really want them (triggerChar == '$'), or
         //  - we have strict rules to verify the variables.
         if (triggerChar == '$' || this.hasValidationRules()) {
-            const variables = VariableCache.getVariables(documentPath);
-            if (variables.size > 0) {
-                variables.forEach((values, name) => {
-                    const validValues = values.filter(value => this.verify(value, documentPath).success);
-                    if (validValues.length > 0) {
-                        const label = `$${name}`;
-                        suggestions.push({
-                            icon: PropValueSuggestionIcon.Variable,
-                            label: label,
-                            text: label,
-                            hint: validValues.toString()
-                        });
+            const isStrictlyFontFamily = (
+                this.values.length === 0 &&
+                this.patterns.length === 0 &&
+                this.categories.length === 1 &&
+                this.categories[0] === '#font-family'
+            );
+            VariableCache.getVariables(documentPath).forEach((values, name) => {
+                const validValues = (() => {
+                    if (isStrictlyFontFamily) {
+                        return (name.startsWith('SANS_') || name.startsWith('SERIF_')) ? values : [];
                     }
-                });
-            }
+                    return values.filter(value => this.verify(value, documentPath).success);
+                })();
+                if (validValues.length > 0) {
+                    const label = `$${name}`;
+                    suggestions.push({
+                        icon: PropValueSuggestionIcon.Variable,
+                        label: label,
+                        text: label,
+                        hint: validValues.toString()
+                    });
+                }
+            });
         }
 
         return suggestions;
@@ -274,4 +319,28 @@ function is4SidedLength(value: string): boolean {
             return false;
     }
     return true;
+}
+
+function isValidFontSize(value: string): boolean {
+    return value.match(/^[0-9]+(\.[0-9]+)?(em)?$/) !== null;
+}
+
+function isValidFont(value: string): boolean {
+    const arr = value.split(/\s+/);
+    if (arr.length == 4) {
+        if (arr[0] !== 'normal' && arr[0] !== 'bold')
+            return false;
+        if (arr[1] !== 'normal' && arr[1] !== 'italic')
+            return false;
+        return isValidFontSize(arr[2]);
+    }
+    else if (arr.length == 3) {
+        if (arr[0] !== 'normal' && arr[0] !== 'bold' && arr[0] !== 'italic')
+            return false;
+        return isValidFontSize(arr[1]);
+    }
+    else if (arr.length == 2) {
+        return isValidFontSize(arr[0]);
+    }
+    return false;
 }

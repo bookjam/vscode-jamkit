@@ -48,8 +48,8 @@
     "check-image": "#image-filename",
     "answer-image": "#image-filename",
     "font": "#font",
-    "font-family": "?",
-    "font-size": "?",
+    "font-family": "#font-family",
+    "font-size": "#font-size",
     "font-weight": [
         "normal",
         "bold"
