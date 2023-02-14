@@ -3,7 +3,7 @@
     "selected-label": "?",
     "disable-label": "?",
     "image": "#image-filename",
-    "image-url": "#image-url",
+    "url": "#url",
     "highlight-image": "#image-filename",
     "selected-image": "#image-filename",
     "disable-image": "#image-filename",

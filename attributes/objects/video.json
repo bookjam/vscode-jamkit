@@ -1,6 +1,6 @@
 {
     "filename": "#video-filename",
-    "url": "#video-url",
+    "url": "#url",
     "autoplay": [
         "yes",
         "no"

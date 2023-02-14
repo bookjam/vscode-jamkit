@@ -7,7 +7,7 @@
         "yes",
         "no"
     ],
-    "data-url": "#json-url",
+    "data-url": "#url",
     "data-path": "?",
     "data-key": "?",
     "lazy-loading": [

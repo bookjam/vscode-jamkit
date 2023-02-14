@@ -1,5 +1,5 @@
 {
-    "url": "#video-url",
+    "url": "#url",
     "autoplay": [
         "yes",
         "no"
