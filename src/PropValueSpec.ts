@@ -39,8 +39,8 @@ const KNOWN_CATEGORIES: string[] = [
     '#color',
     '#length',
     '#function',
-    '#font-size',
-    '#font-family'
+    '#font',
+    '#font-size'
 ];
 
 export interface PropValueSuggestion {
@@ -175,15 +175,23 @@ export class PropValueSpec {
                 errorMessage = 'This attribute should have 1, 2 or 4 length values separated by whitespaces.';
             }
             else if (category === '#font-size') {
-                if (value.match(/^[0-9]+(\.[0-9]+)?(em)?$/)) {
+                if (isValidFontSize(value)) {
                     return { success: true };
                 }
 
                 errorMessage = 'Invalid font size. A font size should be a number (usually, 0.5 ~ 5) with an optional "em" unit suffix. ex) 1.2, 0.8em';
             }
-            else if (category === '#font-family') {
-                // No verification rules for now
-                return { success: true };
+            else if (category === '#font') {
+                if (isValidFont(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = 'Invalid font value. A valid value should be in "[weight] [style] size family" format.\n' +
+                    'ex)\n' +
+                    '  - "bold italic 1.2 NotoSerif-Regular"\n' +
+                    '  - "bold 1.2em $SERIF_THIN"\n' +
+                    '  - "italic 2 $SERIF_BLACK"\n' +
+                    '  - "0.7em $SANS_KR_BOLD"\n';
             }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
@@ -236,8 +244,8 @@ export class PropValueSpec {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Value, fontSize));
                 });
             }
-            else if (category == '#font-family') {
-                // No known suggestions
+            else if (category == '#font') {
+                // do nothing
             }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
@@ -295,4 +303,28 @@ function is4SidedLength(value: string): boolean {
             return false;
     }
     return true;
+}
+
+function isValidFontSize(value: string): boolean {
+    return value.match(/^[0-9]+(\.[0-9]+)?(em)?$/) !== null;
+}
+
+function isValidFont(value: string): boolean {
+    const arr = value.split(/\s+/);
+    if (arr.length == 4) {
+        if (arr[0] !== 'normal' && arr[0] !== 'bold')
+            return false;
+        if (arr[1] !== 'normal' && arr[1] !== 'italic')
+            return false;
+        return isValidFontSize(arr[2]);
+    }
+    else if (arr.length == 3) {
+        if (arr[0] !== 'normal' && arr[0] !== 'bold' && arr[0] !== 'italic')
+            return false;
+        return isValidFontSize(arr[1]);
+    }
+    else if (arr.length == 2) {
+        return isValidFontSize(arr[0]);
+    }
+    return false;
 }
