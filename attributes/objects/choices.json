@@ -28,9 +28,9 @@
     },
     "check-image": "#image-filename",
     "answer-image": "#image-filename",
-    "font": "#[weight] [style] size family",
+    "font": "#font",
     "font-family": "?",
-    "font-size": "?",
+    "font-size": "#font-size",
     "font-weight": [
         "normal",
         "bold"

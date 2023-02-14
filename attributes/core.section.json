@@ -105,9 +105,7 @@
         "normal",
         "italic"
     ],
-    "bullet-font-size": {
-        "value-pattern": "[0-9]+(\\.[0-9]+)?(em)?"
-    },
+    "bullet-font-size": '#font-size',
     "bullet-font-no-scale": [
         "yes",
         "no"

@@ -1,9 +1,9 @@
 {
     "text": "?",
     "waiting-text": "?",
-    "font": "#[weight] [style] size family",
+    "font": "#font",
     "font-family": "?",
-    "text-align": [ 
+    "text-align": [
         "left",
         "right",
         "center"
