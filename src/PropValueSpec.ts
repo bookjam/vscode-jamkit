@@ -4,7 +4,7 @@ import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
 import { ScriptNameCache } from "./ScriptNameCache";
 import { isColorText } from "./utils";
-import { checkLength } from "./Expression";
+import { LengthCheckResult, checkLength } from "./Expression";
 
 type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
 
@@ -36,12 +36,13 @@ const KNOWN_CATEGORIES: string[] = [
     '#json-filename',
     // '#style-name',
     '#4-sided-length',
-    '#color',
+    '#size',
     '#length',
-    '#function',
+    '#color',
     '#font',
     '#font-size',
-    '#font-family'
+    '#font-family',
+    '#function',
 ];
 
 export interface PropValueSuggestion {
@@ -168,6 +169,14 @@ export class PropValueSpec {
 
                 errorMessage = result.message;
             }
+            else if (category == '#size') {
+                const result = checkSize(value);
+                if (result.success) {
+                    return { success: true };
+                }
+
+                errorMessage = result.errorMessage;
+            }
             else if (category == '#4-sided-length') {
                 if (is4SidedLength(value)) {
                     return { success: true };
@@ -241,7 +250,7 @@ export class PropValueSpec {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Function, funcName));
                 });
             }
-            else if (category == '#color' || category == '#length' || category == '#4-sided-length') {
+            else if (category == '#color' || category == '#length' || category == '#size' || category == '#4-sided-length') {
                 // do nothing
             }
             else if (category == '#font-size') {
@@ -308,6 +317,23 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 // function makeSnippetSuggestion(kind: PropValueSuggestionIcon, label: string, text: string): PropValueSuggestion {
 //     return { label, text, icon: kind, isSnippet: true };
 // }
+
+function checkSize(value: string): PropValueVerifyResult {
+    const arr = value.split(/\s+/);
+
+    if (arr.length !== 2) {
+        return { success: false, errorMessage: 'A size value should be two length values separated by whitespace' };
+    }
+
+    for (const length of arr) {
+        const result = checkLength(length);
+        if (!result.success) {
+            return { success: false, errorMessage: result.message };
+        }
+    }
+
+    return { success: true };
+}
 
 function is4SidedLength(value: string): boolean {
     const arr = value.split(/\s+/);
