@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PropCompletionItemProvider } from './PropCompletionItemProvider';
 import { ImageNameContext, ObjectTypeContext, SbmlContextParser } from './SbmlContextParser';
-import { ResourceRepository } from './ResourceRepository';
+import { AssetRepository } from './AssetRepository';
 import { PropConfigStore } from './PropConfigStore';
 
 function shouldSuggestInlineObject(document: vscode.TextDocument, position: vscode.Position, triggerChar: string | undefined): boolean {
@@ -70,7 +70,7 @@ export class SbmlCompletionHandler {
                             });
                         }
                         else if (context instanceof ImageNameContext) {
-                            let imageNames = ResourceRepository.enumerateImageFileNames(document.fileName);
+                            let imageNames = AssetRepository.enumerateImageFileNames(document.fileName);
                             if (context.prefix) {
                                 const prefix = context.prefix;
                                 imageNames = imageNames.filter(imageName => imageName.startsWith(prefix));

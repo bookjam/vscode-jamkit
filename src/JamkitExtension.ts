@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
-import { ResourceRepository } from './ResourceRepository';
-import { FuncNameCache } from './FuncNameCache';
+import { AssetRepository } from './AssetRepository';
+import { ScriptNameCache } from './ScriptNameCache';
 import { VariableCache } from './VariableCache';
 import { toString } from './utils';
 import { SbmlSyntaxAnalyser } from './SbmlSyntaxAnalyser';
@@ -12,10 +12,10 @@ import { SbmlCompletionHandler } from './SbmlCompletionHandler';
 export class JamkitExtension {
     static init(context: vscode.ExtensionContext): void {
 
-        FuncNameCache.init(context);
         VariableCache.init(context);
+        ScriptNameCache.init(context);
         PropConfigStore.init(context);
-        ResourceRepository.init(context);
+        AssetRepository.init(context);
         SbssCompletionHandler.init(context);
         SbmlCompletionHandler.init(context);
 
