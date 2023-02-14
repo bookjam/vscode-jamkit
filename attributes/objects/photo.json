@@ -1,6 +1,6 @@
 {
     "filename": "#image-filename",
-    "url": "#url",
+    "image-url": "#image-url",
     "hidden-image": "#image-filename",
     "mask-image": "#image-filename",
     "default-image": "#image-filename",
@@ -49,6 +49,7 @@
     "caption": "?",
     "subcaption": "?",
     "caption-font": "#font",
+    "caption-font": "#[weight] [style] size family",
     "caption-font-family": "?",
     "caption-font-size": "?",
     "caption-font-weight": [

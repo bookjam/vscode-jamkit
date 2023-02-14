@@ -1,15 +1,39 @@
 import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
-import { MediaKind, MediaRepository } from "./MediaRepository";
+import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
+import { ScriptNameCache } from "./ScriptNameCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
-import { FuncNameCache } from "./FuncNameCache";
+
+type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
+
+function isNonTextResourceValueCategory(s: string): s is NonTextAssetValueCategory {
+    return (
+        s === '#image-filename' ||
+        s === '#audio-filename' ||
+        s === '#video-filename' ||
+        s === '#sound-filename' ||
+        s === '#effect-filename'
+    );
+}
+
+function toResouceKind(valueCategory: NonTextAssetValueCategory):
+    AssetKind.Image | AssetKind.Audio | AssetKind.Video | AssetKind.Sound | AssetKind.Effect {
+    if (valueCategory == '#image-filename') return AssetKind.Image;
+    if (valueCategory == '#audio-filename') return AssetKind.Audio;
+    if (valueCategory == '#video-filename') return AssetKind.Video;
+    if (valueCategory == '#sound-filename') return AssetKind.Sound;
+    return AssetKind.Effect;
+}
 
 const KNOWN_CATEGORIES: string[] = [
     '#image-filename',
     '#audio-filename',
     '#video-filename',
+    '#sound-filename',
+    '#effect-filename',
+    '#json-filename',
     // '#style-name',
     '#4-sided-length',
     '#color',
@@ -102,20 +126,28 @@ export class PropValueSpec {
         }
 
         for (const category of this.categories) {
-            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
-                if (MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).includes(value)) {
+            if (isNonTextResourceValueCategory(category)) {
+                if (AssetRepository.enumerateFileNames(toResouceKind(category), documentPath).includes(value)) {
+                    return { success: true };
+                }
+
+                errorMessage = `'${value}' does not exist.`;
+            }
+            else if (category === '#json-filename') {
+                if (AssetRepository.enumerateTextFileNames(documentPath, '.json').includes(value)) {
                     return { success: true };
                 }
 
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#function') {
-                if (FuncNameCache.getFuncNames(documentPath).includes(value)) {
+                const candidates = ScriptNameCache.getTopLevelFunctionNames(documentPath);
+                if (candidates.includes(value)) {
                     return { success: true };
                 }
 
                 errorMessage =
-                    `Unknown function name. Please make sure '${value}' is a top-level function name ` +
+                    `Please make sure '${value}' is a top-level function name ` +
                     `defined in '${documentPath.substring(0, documentPath.length - 4) + 'js'}'.`;
             }
             else if (category == '#color') {
@@ -168,13 +200,18 @@ export class PropValueSpec {
         })() ?? [];
 
         for (const category of this.categories) {
-            if (category == '#image-filename' || category == '#audio-filename' || category == '#video-filename') {
-                MediaRepository.enumerateMediaNames(toMediaKind(category), documentPath).forEach(imageName => {
-                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, imageName));
+            if (isNonTextResourceValueCategory(category)) {
+                AssetRepository.enumerateFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, resourceName));
+                });
+            }
+            else if (category === '#json-filename') {
+                AssetRepository.enumerateTextFileNames(documentPath, '.json').forEach(fileName => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, fileName));
                 });
             }
             else if (category == '#function') {
-                FuncNameCache.getFuncNames(documentPath).forEach(funcName => {
+                ScriptNameCache.getTopLevelFunctionNames(documentPath).forEach(funcName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Function, funcName));
                 });
             }
@@ -227,22 +264,14 @@ function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: str
 //     return { label, text, icon: kind, isSnippet: true };
 // }
 
-function toMediaKind(valueCategory: '#image-filename' | '#audio-filename' | '#video-filename'): MediaKind {
-    if (valueCategory == '#image-filename')
-        return MediaKind.Image;
-    if (valueCategory == '#audio-filename')
-        return MediaKind.Audio;
-    return MediaKind.Video;
-}
-
 function is4SidedLength(value: string): boolean {
-    const simpleLengthPattern = '(\\d+(\\.\\d+)?|\\.\\d+)([a-z]+|%)?';
-    const fourSidedLengthPattern = '^(' +
-        simpleLengthPattern +
-        '|' +
-        [simpleLengthPattern, simpleLengthPattern].join('\\s+') +
-        '|' +
-        [simpleLengthPattern, simpleLengthPattern, simpleLengthPattern, simpleLengthPattern].join('\\s+') +
-        ')$';
-    return value.match(new RegExp(fourSidedLengthPattern)) != null;
+    const arr = value.split(/\s+/);
+    if (arr.length != 1 && arr.length != 2 && arr.length != 4) {
+        return false;
+    }
+    for (const length of arr) {
+        if (!checkLength(length))
+            return false;
+    }
+    return true;
 }

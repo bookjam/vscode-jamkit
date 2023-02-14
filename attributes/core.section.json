@@ -144,5 +144,21 @@
     "border-collapse": [
         "collapse",
         "separate"
+    ],
+    "reloads-when-resize": [
+        "yes",
+        "no"
+    ],
+    "fits-to-page": [
+        "yes",
+        "no"
+    ],
+    "control-touchable": [
+        "yes",
+        "no"
+    ],
+    "dragging-enabled": [
+        "yes",
+        "no"
     ]
 }
