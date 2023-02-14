@@ -1,6 +1,6 @@
 {
     "filename": "#video-filename",
-    "url": "#video-url",
+    "url": "#url",
     "autoplay": [
         "yes",
         "no"
@@ -20,7 +20,7 @@
     ],
     "caption": "?",
     "subcaption": "?",
-    "caption-font": "#[weight] [style] size family",
+    "caption-font": "#font",
     "caption-font-family": "?",
     "caption-font-size": "?",
     "caption-font-weight": [
@@ -35,7 +35,7 @@
         "yes",
         "no"
     ],
-    "subcaption-font": "#[weight] [style] size family",
+    "subcaption-font": "#font",
     "subcaption-font-family": "?",
     "subcaption-font-size": "?",
     "subcaption-font-weight": [

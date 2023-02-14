@@ -1,7 +1,7 @@
 {
     "text": "?",
     "waiting-text": "?",
-    "font": "#[weight] [style] size family",
+    "font": "#font",
     "font-family": "?",
     "text-align": [ 
         "left",

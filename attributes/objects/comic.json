@@ -1,6 +1,6 @@
 {
     "image": "#image-filename",
-    "image-url": "#image-url",
+    "url": "#url",
     "default-image": "#image-filename",
     "image-downloadable": [
         "yes",

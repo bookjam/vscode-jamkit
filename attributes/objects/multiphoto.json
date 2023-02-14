@@ -1,5 +1,24 @@
 {
-    "photo-n": "#image-filename;caption;subcaption",
+    "photo-1": ".+?.(jpg|png);.+?;.+",
+    "photo-2": ".+?.(jpg|png);.+?;.+",
+    "photo-3": ".+?.(jpg|png);.+?;.+",
+    "photo-4": ".+?.(jpg|png);.+?;.+",
+    "photo-5": ".+?.(jpg|png);.+?;.+",
+    "photo-6": ".+?.(jpg|png);.+?;.+",
+    "photo-7": ".+?.(jpg|png);.+?;.+",
+    "photo-8": ".+?.(jpg|png);.+?;.+",
+    "photo-9": ".+?.(jpg|png);.+?;.+",
+    "photo-10": ".+?.(jpg|png);.+?;.+",
+    "photo-11": ".+?.(jpg|png);.+?;.+",
+    "photo-12": ".+?.(jpg|png);.+?;.+",
+    "photo-13": ".+?.(jpg|png);.+?;.+",
+    "photo-14": ".+?.(jpg|png);.+?;.+",
+    "photo-15": ".+?.(jpg|png);.+?;.+",
+    "photo-16": ".+?.(jpg|png);.+?;.+",
+    "photo-17": ".+?.(jpg|png);.+?;.+",
+    "photo-18": ".+?.(jpg|png);.+?;.+",
+    "photo-19": ".+?.(jpg|png);.+?;.+",
+    "photo-20": ".+?.(jpg|png);.+?;.+",
     "scale-mode": [
         "fill",
         "fit"
@@ -7,7 +26,7 @@
     "dim-color": "#color",
     "caption": "?",
     "subcaption": "?",
-    "caption-font": "#[weight] [style] size family",
+    "caption-font": "#font",
     "caption-font-family": "?",
     "caption-font-size": "?",
     "caption-font-weight": [
@@ -22,7 +41,7 @@
         "yes",
         "no"
     ],
-    "subcaption-font": "#[weight] [style] size family",
+    "subcaption-font": "#font",
     "subcaption-font-family": "?",
     "subcaption-font-size": "?",
     "subcaption-font-weight": [

@@ -1,12 +1,16 @@
 {
-    "latitude": "#latitude",
-    "longitude": "#longitude",
+    "latitude": {
+        "value-pattern": "^(\\+|-)?(?:90(?:(?:\\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,6})?))$"
+    },
+    "longitude": {
+        "value-pattern": "^(\\+|-)?(?:180(?:(?:\\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,6})?))$"
+    },
     "zoom-level": "?",
     "title": "?",
     "subtitle": "?",
     "caption": "?",
     "subcaption": "?",
-    "caption-font": "#[weight] [style] size family",
+    "caption-font": "#font",
     "caption-font-family": "?",
     "caption-font-size": "?",
     "caption-font-weight": [
@@ -21,7 +25,7 @@
         "yes",
         "no"
     ],
-    "subcaption-font": "#[weight] [style] size family",
+    "subcaption-font": "#font",
     "subcaption-font-family": "?",
     "subcaption-font-size": "?",
     "subcaption-font-weight": [
