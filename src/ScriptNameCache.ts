@@ -16,7 +16,7 @@ export class ScriptNameCache {
 
     private static cache = new Map<string, string[]>();
 
-    static getFuncNames(documentPath: string): string[] {
+    static getTopLevelFunctionNames(documentPath: string): string[] {
         assert(documentPath.endsWith('.sbss') || documentPath.endsWith('.sbml'));
 
         const scriptFilePath = documentPath.substring(0, documentPath.length - 4) + 'js';

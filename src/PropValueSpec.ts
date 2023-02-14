@@ -2,9 +2,9 @@ import { assert } from "console";
 import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
 import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
+import { ScriptNameCache } from "./ScriptNameCache";
 import { isColorText } from "./utils";
 import { checkLength } from "./Expression";
-import { ScriptNameCache } from "./FuncNameCache";
 
 type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
 
@@ -141,12 +141,13 @@ export class PropValueSpec {
                 errorMessage = `'${value}' does not exist.`;
             }
             else if (category == '#function') {
-                if (ScriptNameCache.getFuncNames(documentPath).includes(value)) {
+                const candidates = ScriptNameCache.getTopLevelFunctionNames(documentPath);
+                if (candidates.includes(value)) {
                     return { success: true };
                 }
 
                 errorMessage =
-                    `Unknown function name. Please make sure '${value}' is a top-level function name ` +
+                    `Please make sure '${value}' is a top-level function name ` +
                     `defined in '${documentPath.substring(0, documentPath.length - 4) + 'js'}'.`;
             }
             else if (category == '#color') {
@@ -210,7 +211,7 @@ export class PropValueSpec {
                 });
             }
             else if (category == '#function') {
-                ScriptNameCache.getFuncNames(documentPath).forEach(funcName => {
+                ScriptNameCache.getTopLevelFunctionNames(documentPath).forEach(funcName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Function, funcName));
                 });
             }

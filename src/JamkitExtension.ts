@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PropConfigStore } from './PropConfigStore';
 import { AssetRepository } from './AssetRepository';
-import { ScriptNameCache } from './FuncNameCache';
+import { ScriptNameCache } from './ScriptNameCache';
 import { VariableCache } from './VariableCache';
 import { toString } from './utils';
 import { SbmlSyntaxAnalyser } from './SbmlSyntaxAnalyser';
