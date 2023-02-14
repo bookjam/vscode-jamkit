@@ -105,7 +105,7 @@
         "normal",
         "italic"
     ],
-    "bullet-font-size": '#font-size',
+    "bullet-font-size": "#font-size",
     "bullet-font-no-scale": [
         "yes",
         "no"

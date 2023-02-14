@@ -39,6 +39,7 @@ const KNOWN_CATEGORIES: string[] = [
     '#color',
     '#length',
     '#function',
+    '#font-size'
 ];
 
 export interface PropValueSuggestion {
@@ -172,6 +173,13 @@ export class PropValueSpec {
 
                 errorMessage = 'This attribute should have 1, 2 or 4 length values separated by whitespaces.';
             }
+            else if (category === '#font-size') {
+                if (value.match(/^[0-9]+(\.[0-9]+)?(em)?$/)) {
+                    return { success: true };
+                }
+
+                errorMessage = 'Invalid font size. A font size should be a number (usually, 0.5 ~ 5) with an optional "em" unit suffix. ex) 1.2, 0.8em';
+            }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
@@ -217,6 +225,11 @@ export class PropValueSpec {
             }
             else if (category == '#color' || category == '#length' || category == '#4-sided-length') {
                 // do nothing
+            }
+            else if (category == '#font-size') {
+                ['1.2', '1.3', '1.5', '2.0', '2.5', '3.0'].forEach(fontSize => {
+                    suggestions.push(makeSuggestion(PropValueSuggestionIcon.Value, fontSize));
+                });
             }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
