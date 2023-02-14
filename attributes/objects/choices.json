@@ -1,1 +1,54 @@
-{}
+{
+    "choice-n": "#symbol;example",
+    "blank-text": "?",
+    "number": {
+        "value-pattern": "\\d",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "answer": {
+        "value-pattern": "\\d",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ]
+    },
+    "check-image": "#image-filename",
+    "answer-image": "#image-filename",
+    "font": "#[weight] [style] size family",
+    "font-family": "?",
+    "font-size": "?",
+    "font-weight": [
+        "normal",
+        "bold"
+    ],
+    "font-style": [
+        "normal",
+        "italic"
+    ],
+    "font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "line-break-mode": [
+        "word-wrap",
+        "character-wrap",
+        "tail-truncation",
+        "middle-truncation",
+        "head-truncation"
+    ],
+    "paragraph-spacing": "?"
+}

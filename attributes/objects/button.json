@@ -1,1 +1,91 @@
-{}
+{
+    "label": "?",
+    "selected-label": "?",
+    "disable-label": "?",
+    "image": "#image-filename",
+    "image-url": "#image-url",
+    "highlight-image": "#image-filename",
+    "selected-image": "#image-filename",
+    "disable-image": "#image-filename",
+    "mask-image": "#image-filename",
+    "default-image": "#image-filename",
+    "image-downloadable": [
+        "yes",
+        "no"
+    ],
+    "label-font": "#[weight] [style] size family",
+    "label-font-family": "?",
+    "label-font-size": "?",
+    "label-font-weight": [
+        "normal",
+        "bold"
+    ],
+    "label-font-style": [
+        "normal",
+        "italic"
+    ],
+    "label-font-no-scale": [
+        "yes",
+        "no"
+    ],
+    "label-align": [
+        "left",
+        "right",
+        "center"
+    ],
+    "line-break-mode": [
+        "word-wrap",
+        "character-wrap",
+        "tail-truncation",
+        "middle-truncation",
+        "head-truncation"
+    ],
+    "number-of-lines": {
+        "value-pattern": "\\d",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7"
+        ]
+    },
+    "label-hidden": [
+        "yes",
+        "no"
+    ],
+    "label-color": "#color",
+    "highlight-label-color": "#color",
+    "selected-label-color": "#color",
+    "disable-label-color": "#color",
+    "highlight-background-color": "#color",
+    "selected-background-color": "#color",
+    "disable-background-color": "#color",
+    "content-padding": "?",
+    "scale-mode": [
+        "fill",
+        "fit"
+    ],
+    "enabled": [
+        "no",
+        "yes"
+    ],
+    "selected": [
+        "yes",
+        "no"
+    ],
+    "hides-when-disabled": [
+        "yes",
+        "no"
+    ],
+    "disable-when-selected": [
+        "yes",
+        "no"
+    ],
+    "hides-when-selected": [
+        "yes",
+        "no"
+    ]
+}

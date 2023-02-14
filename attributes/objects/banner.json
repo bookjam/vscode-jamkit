@@ -1,1 +1,74 @@
-{}
+{
+    "name": "#banner-name",
+    "filename": "#json-filename",
+    "alternate-name": "?",
+    "catalog": "?",
+    "subcatalog": "?",
+    "category": "?",
+    "data-downloadable": [
+        "yes",
+        "no"
+    ],
+    "data-url": "#json-url",
+    "data-path": "?",
+    "data-key": "?",
+    "transition-style": [
+        "slide",
+        "dissolve",
+        "cross-dissolve",
+        "none"
+    ],
+    "rotate-interval": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "9",
+            "10"
+        ]
+    },
+    "transition-duration": {
+        "value-pattern": "[1-9][0-9]*",
+        "suggestions": [
+            "0.1",
+            "0.2",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.8",
+            "0.9",
+            "1.0"
+
+        ]
+    },
+    "has-page-control": [
+        "yes",
+        "no"
+    ],
+    "page-control-height": "?",
+    "page-control-position": [
+        "left-top",
+        "right-top",
+        "left-bottom",
+        "right-bottom",
+        "top",
+        "bottom",
+        "left",
+        "right",
+        "center"
+    ],
+    "page-control-margin": "?",
+    "inner-page-control": [
+        "yes",
+        "no"
+    ],
+    "page-dot-size": "#length",
+    "page-dot-spacing": "?",
+    "active-page-dot": "#image-filename",
+    "inactive-page-dot": "#image-filename"
+}

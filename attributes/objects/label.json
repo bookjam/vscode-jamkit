@@ -1,8 +1,13 @@
 {
-    "content-size": "?",
-    "content-padding": "?",
     "text": "?",
-    "font": "?",
+    "waiting-text": "?",
+    "font": "#[weight] [style] size family",
+    "font-family": "?",
+    "text-align": [ 
+        "left",
+        "right",
+        "center"
+    ],
     "line-spacing": "?",
     "line-break-mode": [
         "word-wrap",
@@ -22,5 +27,9 @@
             "6",
             "7"
         ]
-    }
+    },
+    "text-color": "#color",
+    "shadow-color": "#color",
+    "shadow-offset": "?",
+    "content-padding": "?"
 }

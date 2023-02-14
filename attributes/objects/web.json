@@ -1,1 +1,12 @@
-{}
+{
+    "filename": "#webpage-filename",
+    "url": "#webpage-url",
+    "bounces": [
+        "no",
+        "yes"
+    ],
+    "loads-when-appear": [
+        "yes",
+        "no"
+    ]
+}

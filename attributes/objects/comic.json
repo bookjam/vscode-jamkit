@@ -1,1 +1,26 @@
-{}
+{
+    "image": "#image-filename",
+    "image-url": "#image-url",
+    "default-image": "#image-filename",
+    "image-downloadable": [
+        "yes",
+        "no"
+    ],
+    "scale-mode": [
+        "fill",
+        "fit"
+    ],
+    "zoomable": [
+        "no",
+        "yes"
+    ],
+    "gutter-align": [
+        "left",
+        "right",
+        "none"
+    ],
+    "gutter-hidden": [
+        "no",
+        "yes"
+    ]
+}
