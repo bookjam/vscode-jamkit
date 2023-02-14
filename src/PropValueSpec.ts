@@ -40,7 +40,8 @@ const KNOWN_CATEGORIES: string[] = [
     '#length',
     '#function',
     '#font',
-    '#font-size'
+    '#font-size',
+    '#font-family'
 ];
 
 export interface PropValueSuggestion {
@@ -181,6 +182,10 @@ export class PropValueSpec {
 
                 errorMessage = 'Invalid font size. A font size should be a number (usually, 0.5 ~ 5) with an optional "em" unit suffix. ex) 1.2, 0.8em';
             }
+            else if (category === '#font-family') {
+                // no verification rules for now
+                return { success: true };
+            }
             else if (category === '#font') {
                 if (isValidFont(value)) {
                     return { success: true };
@@ -244,6 +249,9 @@ export class PropValueSpec {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Value, fontSize));
                 });
             }
+            else if (category === '#font-family') {
+                // do nothing here but we will suggest variables start either with "SANS_" or "SERIF_" below
+            }
             else if (category == '#font') {
                 // do nothing
             }
@@ -256,21 +264,29 @@ export class PropValueSpec {
         //  - users really want them (triggerChar == '$'), or
         //  - we have strict rules to verify the variables.
         if (triggerChar == '$' || this.hasValidationRules()) {
-            const variables = VariableCache.getVariables(documentPath);
-            if (variables.size > 0) {
-                variables.forEach((values, name) => {
-                    const validValues = values.filter(value => this.verify(value, documentPath).success);
-                    if (validValues.length > 0) {
-                        const label = `$${name}`;
-                        suggestions.push({
-                            icon: PropValueSuggestionIcon.Variable,
-                            label: label,
-                            text: label,
-                            hint: validValues.toString()
-                        });
+            const isStrictlyFontFamily = (
+                this.values.length === 0 &&
+                this.patterns.length === 0 &&
+                this.categories.length === 1 &&
+                this.categories[0] === '#font-family'
+            );
+            VariableCache.getVariables(documentPath).forEach((values, name) => {
+                const validValues = (() => {
+                    if (isStrictlyFontFamily) {
+                        return (name.startsWith('SANS_') || name.startsWith('SERIF_')) ? values : [];
                     }
-                });
-            }
+                    return values.filter(value => this.verify(value, documentPath).success);
+                })();
+                if (validValues.length > 0) {
+                    const label = `$${name}`;
+                    suggestions.push({
+                        icon: PropValueSuggestionIcon.Variable,
+                        label: label,
+                        text: label,
+                        hint: validValues.toString()
+                    });
+                }
+            });
         }
 
         return suggestions;
