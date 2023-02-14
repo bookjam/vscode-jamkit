@@ -39,7 +39,8 @@ const KNOWN_CATEGORIES: string[] = [
     '#color',
     '#length',
     '#function',
-    '#font-size'
+    '#font-size',
+    '#font-family'
 ];
 
 export interface PropValueSuggestion {
@@ -180,6 +181,10 @@ export class PropValueSpec {
 
                 errorMessage = 'Invalid font size. A font size should be a number (usually, 0.5 ~ 5) with an optional "em" unit suffix. ex) 1.2, 0.8em';
             }
+            else if (category === '#font-family') {
+                // No verification rules for now
+                return { success: true };
+            }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
             }
@@ -230,6 +235,9 @@ export class PropValueSpec {
                 ['1.2', '1.3', '1.5', '2.0', '2.5', '3.0'].forEach(fontSize => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.Value, fontSize));
                 });
+            }
+            else if (category == '#font-family') {
+                // No known suggestions
             }
             else {
                 assert(false, `WTF? Unknown value category: ${category}`);
