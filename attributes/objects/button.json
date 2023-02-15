@@ -14,6 +14,9 @@
         "yes",
         "no"
     ],
+    "product": "?",
+    "cover": "?",
+    "item": "?",
     "label-font": "#font",
     "label-font-family": "#font-family",
     "label-font-size": "#font-size",
@@ -77,10 +80,6 @@
         "yes",
         "no"
     ],
-    "toggle": [
-        "yes",
-        "no"
-    ],
     "hides-when-disabled": [
         "yes",
         "no"
@@ -92,5 +91,6 @@
     "hides-when-selected": [
         "yes",
         "no"
-    ]
+    ],
+    "seconds": "//d"
 }

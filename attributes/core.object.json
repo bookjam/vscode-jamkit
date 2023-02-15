@@ -1,32 +1,72 @@
 {
     "id": "?",
+    "reuse-id": "?",
     "group": "?",
     "peer-group": "?",
-    "reuse-id": "?",
+    "alt": "?",
     "action": [
         "purchase",
+        "open",
+        "preview",
+        "subview",
+        "restore",
+        "hide",
+        "prompt",
         "toast",
         "page",
+        "page-back",
         "popup",
+        "popup-close",
         "bottom-sheet",
-        "flash-on",
-        "toggle-position"
-    ],
-    "type": [
         "bgm",
+        "play",
+        "flash-on",
+        "toggle-position",
+        "clear",
+        "forward",
+        "rewind",
+        "seek",
+        "reload",
+        "sort",
+        "link"
+    ],
+    "post-action": [
+        "hide"
+    ],
+    "post-params": "?",
+    "type": [
+        "cover",
+        "youtube",
+        "bgm",
+        "play",
         "loading",
         "time",
         "flash",
         "position",
         "lottie",
-        "toolbar"
+        "toolbar",
+        "duration",
+        "rss",
+        "media",
+        "type",
+        "search",
+        "price",
+        "purchase",
+        "preview",
+        "back",
+        "date"
     ],
+    "prompt": "?",
     "message": "?",
+    "prompt-message": "?",
     "owner": "?",
     "target": "?",
     "object": "?",
     "display-unit": "?",
-    "format": "",
+    "subview": "?",
+    "event": "?",
+    "format": "?",
+    "source-format": "?",
     "alpha": {
         "value-pattern": "^(0(?:\\.[0-9])?|1(?:\\.0)?)$",
         "suggestions": [
@@ -42,6 +82,10 @@
         ]
     },
     "hidden": [
+        "yes",
+        "no"
+    ],
+    "toggle": [
         "yes",
         "no"
     ],
@@ -64,6 +108,8 @@
         "right",
         "none"
     ],
+    "width": "#length",
+    "height": "#length",
     "max-width": "#length",
     "min-width": "#length",
     "max-height": "#length",
@@ -137,5 +183,8 @@
     "constraint-disabled": [
         "yes",
         "no"
-    ]
+    ],
+    "has-own-title": "?",
+    "navibar-title": "?",
+    "params-when-selected": "?"
 }

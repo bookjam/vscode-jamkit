@@ -8,6 +8,10 @@
         "yes",
         "no"
     ],
+    "repeats": [
+        "yes",
+        "no"
+    ],
     "plays-inline": [
         "no",
         "yes"
@@ -16,6 +20,7 @@
         "yes",
         "no"
     ],
+    "alternate-control-section": "?",
     "info-hidden": [
         "yes",
         "no"
@@ -24,6 +29,12 @@
         "no",
         "yes"
     ],
+    "begin-time": {
+        "value-pattern": "^([0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})|([0-9]{1,2}:[0-9]{1,2})|([0-9]{1,2})$"
+    },
+    "end-time": {
+        "value-pattern": "^([0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})|([0-9]{1,2}:[0-9]{1,2})|([0-9]{1,2})$"
+    },
     "preview-image": "#image-filename",
     "image-downloadable": [
         "yes",

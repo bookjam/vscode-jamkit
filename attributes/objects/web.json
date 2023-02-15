@@ -20,5 +20,10 @@
     "edge-swipe-enabled": [
         "yes",
         "no"
-    ]
+    ],
+    "uses-brower-user-agent": [
+        "yes",
+        "no"
+    ],
+    "content-script@start": "?"
 }

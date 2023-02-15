@@ -1,6 +1,7 @@
 {
     "filename": "#image-filename",
     "image-url": "#image-url",
+    "cover": "?",
     "video-id": "#video-id",
     "quality": [
         "low",
