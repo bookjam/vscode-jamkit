@@ -14,9 +14,15 @@ interface PropGroupBeginContext {
     target: PropTarget;
 }
 
+interface CondContext {
+    ifLine: number;
+    elseLine?: number;
+}
+
 // TODO: Use SbssContextParser
 export class SbssSyntaxAnalyser extends SyntaxAnalyser {
 
+    private readonly contextStack: CondContext[] = [];
     private propTarget: PropTarget = { kind: PropTargetKind.Unknown };
     private propParser: PropGroupParser | null = null;
 
@@ -73,35 +79,11 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
 
         this.propParser = null;
 
-        // import line
-        const m = text.match(/^\s*import\s+.+$/);
-        if (m) {
-            const importItem = text.substring(text.indexOf('import') + 7).trim();
-            const importFilename = unquote(importItem);
-            const getImportItemRange = () => {
-                const index = text.indexOf(importItem);
-                return new vscode.Range(line, index, line, index + importItem.length);
-            };
-            if (!importFilename.endsWith('.sbss')) {
-                this.diagnostics.push({
-                    message: 'We can only import a file ".sbss" suffix.',
-                    range: getImportItemRange(),
-                    severity: vscode.DiagnosticSeverity.Error
-                });
-            }
+        if (this.parseImportDirective(line, text))
+            return;
 
-            const pathComponents = this.document.fileName.split(path.sep);
-            pathComponents.pop();
-            pathComponents.push(importFilename);
-            const importFilePath = pathComponents.join(path.sep);
-            if (!existsSync(importFilePath)) {
-                this.diagnostics.push({
-                    message: `"${importFilename}" does not exist.`,
-                    range: getImportItemRange(),
-                    severity: vscode.DiagnosticSeverity.Error
-                });
-            }
-        }
+        if (this.parseCondDirective(line, text))
+            return;
     }
 
     private parsePropGroupPrefix(text: string): PropGroupBeginContext | undefined {
@@ -125,4 +107,99 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
                 return { kind: PropTargetKind.Unknown };
         }
     }
+
+    private parseImportDirective(line: number, text: string): boolean {
+        const m = text.match(/^\s*import\s+.+$/);
+        if (!m) {
+            return false;
+        }
+
+        const importItem = text.substring(text.indexOf('import') + 7).trim();
+        const importFilename = unquote(importItem);
+        const getImportItemRange = () => {
+            const index = text.indexOf(importItem);
+            return new vscode.Range(line, index, line, index + importItem.length);
+        };
+        if (!importFilename.endsWith('.sbss')) {
+            this.diagnostics.push({
+                message: 'We can only import a file ".sbss" suffix.',
+                range: getImportItemRange(),
+                severity: vscode.DiagnosticSeverity.Error
+            });
+        }
+
+        const pathComponents = this.document.fileName.split(path.sep);
+        pathComponents.pop();
+        pathComponents.push(importFilename);
+        const importFilePath = pathComponents.join(path.sep);
+        if (!existsSync(importFilePath)) {
+            this.diagnostics.push({
+                message: `"${importFilename}" does not exist.`,
+                range: getImportItemRange(),
+                severity: vscode.DiagnosticSeverity.Error
+            });
+        }
+
+        return true;
+    }
+
+    private parseCondDirective(line: number, text: string): boolean {
+        const m = text.match(/^\s*(if|elif|else|end)/);
+        if (!m) {
+            return false;
+        }
+
+        const directive = m[1];
+
+        if (directive === 'if') {
+            this.contextStack.push({ ifLine: line });
+
+            // TODO: verify expression
+
+            return true;
+        }
+
+        const condContext = this.contextStack.at(-1);
+        if (!condContext) {
+            // dangling elif/else/end!
+            const index = text.indexOf(directive);
+            this.diagnostics.push({
+                message: `'${directive}' has no matching 'if'`,
+                range: new vscode.Range(line, index, line, index + directive.length),
+                severity: vscode.DiagnosticSeverity.Error
+            });
+            return true;
+        }
+
+        if (directive === 'end') {
+            this.contextStack.pop();
+            return true;
+        }
+
+        if (condContext.elseLine && (directive === 'elif' || directive === 'else')) {
+            const relatedInfo = new vscode.DiagnosticRelatedInformation(
+                new vscode.Location(
+                    this.document.uri,
+                    new vscode.Range(condContext.elseLine, 0, condContext.elseLine, 0)
+                ),
+                '"else" appeared here.'
+            );
+            const index = text.indexOf(directive);
+            this.diagnostics.push({
+                message: `'${directive}' cannot come after 'else'`,
+                range: new vscode.Range(line, index, line, index + directive.length),
+                severity: vscode.DiagnosticSeverity.Error,
+                relatedInformation: [relatedInfo]
+            });
+
+            // fallthrough to handle else.
+        }
+
+        if (directive === 'else') {
+            condContext.elseLine = line;
+        }
+
+        return true;
+    }
+
 }
