@@ -75,6 +75,8 @@
         "right-bottom",
         "bottom-right"
     ],
+    "width": "#length",
+    "height": "#length",
     "x": "#length",
     "y": "#length",
     "adaptive": [

@@ -27,7 +27,7 @@
         "yes",
         "no"
     ],
-    "page-dot-size": "#length",
+    "page-dot-size": "#size",
     "page-dot-spacing": "?",
     "active-page-dot": "#image-filename",
     "inactive-page-dot": "#image-filename"

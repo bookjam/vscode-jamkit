@@ -38,7 +38,7 @@
         "yes",
         "no"
     ],
-    "navibar-cell-size": "#length",
+    "navibar-cell-size": "#size",
     "navibar-cell-spacing": "?",
     "navibar-margin": "?",
     "navibar-position": [

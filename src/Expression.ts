@@ -398,8 +398,6 @@ export class LengthChecker {
 
     private factor(): void {
 
-        const tokenText = this.text.substring(this.token.beginIndex, this.token.endIndex);
-
         if (this.match(TokenKind.ADD) || this.match(TokenKind.SUB)) {
             // consume unary sign
         }
@@ -407,6 +405,8 @@ export class LengthChecker {
         if (this.match(TokenKind.NUM)) {
             return;
         }
+
+        const tokenText = this.text.substring(this.token.beginIndex, this.token.endIndex);
 
         if (this.match(TokenKind.NUM_U)) {
             const m = tokenText.match(/^([0-9]*[.])?[0-9]+(dp|px|pt|em|pw|ph|cw|ch|mt|mr|mb|ml|sbh|eb|%)$/);
