@@ -38,7 +38,7 @@ interface Context {
     line: number;
     type: DirectiveKind.Begin | DirectiveKind.If;
     tag?: string;
-    else_seen?: boolean; // used when type == DirectiveKind.If
+    elseSeen?: boolean; // used when type == DirectiveKind.If
 }
 
 // TODO: Use SbmlContextParser

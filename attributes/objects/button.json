@@ -2,8 +2,9 @@
     "label": "?",
     "selected-label": "?",
     "disable-label": "?",
-    "image": "#image-filename",
     "url": "#url",
+    "image": "#image-filename",
+    "image-url": "#url",
     "highlight-image": "#image-filename",
     "selected-image": "#image-filename",
     "disable-image": "#image-filename",
@@ -13,6 +14,9 @@
         "yes",
         "no"
     ],
+    "product": "?",
+    "cover": "?",
+    "item": "?",
     "label-font": "#font",
     "label-font-family": "#font-family",
     "label-font-size": "#font-size",
@@ -87,5 +91,6 @@
     "hides-when-selected": [
         "yes",
         "no"
-    ]
+    ],
+    "seconds": "//d"
 }

@@ -1,6 +1,12 @@
 {
     "filename": "#image-filename",
     "image-url": "#image-url",
+    "video-id": "#video-id",
+    "quality": [
+        "low",
+        "medium",
+        "high"
+    ],
     "mask-image": "#image-filename",
     "default-image": "#image-filename",
     "image-downloadable": [
@@ -11,6 +17,10 @@
         "fill",
         "fit"
     ],
+    "floating-size": "#size",
+    "content-size": "#size",
+    "default-size": "#size",
+    "constraint-size": "#size",
     "content-gravity": [
         "left-top",
         "right-top",

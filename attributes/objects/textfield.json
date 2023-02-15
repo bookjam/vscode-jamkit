@@ -33,6 +33,7 @@
         "yes",
         "no"
     ],
+    "keyword": "?",
     "keyboard-type": [
         "default",
         "email",
@@ -53,6 +54,7 @@
         "search",
         "send"
     ],
+    "next-control": "?",
     "auto-capitalization-type": [
         "words",
         "all",
