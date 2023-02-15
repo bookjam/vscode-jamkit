@@ -65,10 +65,6 @@
         "type": "git",
         "url": "https://github.com/bookjam/vscode-jamkit.git"
     },
-    "activationEvents": [
-        "onLanguage:sbss",
-        "onLanguage:sbml"
-    ],
     "main": "./out/extension.js",
     "scripts": {
         "vscode:prepublish": "npm run compile",
