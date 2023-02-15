@@ -109,6 +109,17 @@
         "yes",
         "no"
     ],
+    "action-when-selected": [
+        "page",
+        "detail",
+        "popup",
+        "play"
+    ],
+    "alternate-play-action": [
+        "page",
+        "detail",
+        "popup"
+    ],
     "selected-color": "#color",
     "search-mode": [
         "yes",
@@ -266,6 +277,10 @@
         "no"
     ],
     "expiry-labels-hidden": [
+        "yes",
+        "no"
+    ],
+    "decodes-html": [
         "yes",
         "no"
     ]

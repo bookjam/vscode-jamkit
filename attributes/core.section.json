@@ -1,6 +1,12 @@
 {
+    "id": {},
     "title": {},
     "toc": {},
+    "alt": {},
+    "guide-popup": {},
+    "action-when-touched": [
+        "popup-close"
+    ],
     "episode": "// TODO: define value spec",
     "reading-track": "// TODO: define value spec",
     "audio-track": "// TODO: define value spec",
@@ -52,7 +58,8 @@
         "none",
         "left",
         "right",
-        "both"
+        "both",
+        "yes"
     ],
     "begin-new-page": [
         "yes",

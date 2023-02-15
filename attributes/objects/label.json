@@ -31,5 +31,8 @@
     "text-color": "#color",
     "shadow-color": "#color",
     "shadow-offset": "?",
-    "content-padding": "?"
-}
+    "content-padding": "?",
+    "inverts-value": [
+        "yes",
+        "no"
+    ]}
