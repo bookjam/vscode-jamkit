@@ -4,7 +4,10 @@ import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropGroupParser, PropListParser, PropBlockParser } from './PropGroupParser';
 import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from './patterns';
-import { toColor } from './utils';
+import { toColor, unquote } from './utils';
+import { existsSync } from 'fs';
+import * as path from 'path';
+
 
 interface PropGroupBeginContext {
     kind: PropGroupKind;
@@ -49,25 +52,55 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
             return;
         }
 
-        if (!isContinued) {
-            const context = this.parsePropGroupPrefix(text);
-            if (context) {
-                this.propTarget = context.target;
-                if (context.kind == PropGroupKind.List) {
-                    this.propParser = new PropListParser();
-                    this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
-                        propRange => this.analyseProp(this.propTarget, propRange)
-                    );
-                }
-                else {
-                    this.propParser = new PropBlockParser();
-                }
-                return;
+        if (isContinued) {
+            return;
+        }
+
+        const context = this.parsePropGroupPrefix(text);
+        if (context) {
+            this.propTarget = context.target;
+            if (context.kind == PropGroupKind.List) {
+                this.propParser = new PropListParser();
+                this.propParser.parse(line, text.indexOf(':') + 1, text).forEach(
+                    propRange => this.analyseProp(this.propTarget, propRange)
+                );
+            }
+            else {
+                this.propParser = new PropBlockParser();
+            }
+            return;
+        }
+
+        this.propParser = null;
+
+        // import line
+        const m = text.match(/^\s*import\s+.+$/);
+        if (m) {
+            const importItem = text.substring(text.indexOf('import') + 7).trim();
+            const importFilename = unquote(importItem);
+            const getImportItemRange = () => {
+                const index = text.indexOf(importItem);
+                return new vscode.Range(line, index, line, index + importItem.length);
+            };
+            if (!importFilename.endsWith('.sbss')) {
+                this.diagnostics.push({
+                    message: 'We can only import a file ".sbss" suffix.',
+                    range: getImportItemRange(),
+                    severity: vscode.DiagnosticSeverity.Error
+                });
             }
 
-            this.propParser = null;
-
-            // TODO: do import/if/else related stuff
+            const pathComponents = this.document.fileName.split(path.sep);
+            pathComponents.pop();
+            pathComponents.push(importFilename);
+            const importFilePath = pathComponents.join(path.sep);
+            if (!existsSync(importFilePath)) {
+                this.diagnostics.push({
+                    message: `"${importFilename}" does not exist.`,
+                    range: getImportItemRange(),
+                    severity: vscode.DiagnosticSeverity.Error
+                });
+            }
         }
     }
 
