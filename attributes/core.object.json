@@ -1,7 +1,32 @@
 {
     "id": "?",
     "group": "?",
+    "peer-group": "?",
     "reuse-id": "?",
+    "action": [
+        "purchase",
+        "toast",
+        "page",
+        "popup",
+        "bottom-sheet",
+        "flash-on",
+        "toggle-position"
+    ],
+    "type": [
+        "bgm",
+        "loading",
+        "time",
+        "flash",
+        "position",
+        "lottie",
+        "toolbar"
+    ],
+    "message": "?",
+    "owner": "?",
+    "target": "?",
+    "object": "?",
+    "display-unit": "?",
+    "format": "",
     "alpha": {
         "value-pattern": "^(0(?:\\.[0-9])?|1(?:\\.0)?)$",
         "suggestions": [

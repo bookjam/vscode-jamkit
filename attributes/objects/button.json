@@ -2,8 +2,9 @@
     "label": "?",
     "selected-label": "?",
     "disable-label": "?",
-    "image": "#image-filename",
     "url": "#url",
+    "image": "#image-filename",
+    "image-url": "#url",
     "highlight-image": "#image-filename",
     "selected-image": "#image-filename",
     "disable-image": "#image-filename",
@@ -73,6 +74,10 @@
         "yes"
     ],
     "selected": [
+        "yes",
+        "no"
+    ],
+    "toggle": [
         "yes",
         "no"
     ],

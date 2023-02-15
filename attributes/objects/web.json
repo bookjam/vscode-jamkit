@@ -8,5 +8,17 @@
     "loads-when-appear": [
         "yes",
         "no"
+    ],
+    "reloads-when-pull": [
+        "yes",
+        "no"
+    ],
+    "handles-back-key": [
+        "yes",
+        "no"
+    ],
+    "edge-swipe-enabled": [
+        "yes",
+        "no"
     ]
 }
