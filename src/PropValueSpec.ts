@@ -3,28 +3,18 @@ import { CompletionItemKind as PropValueSuggestionIcon } from "vscode";
 import { AssetKind, AssetRepository } from "./AssetRepository";
 import { VariableCache } from "./VariableCache";
 import { ScriptNameCache } from "./ScriptNameCache";
-import { isColorText } from "./utils";
+import { enumerateReferrableFiles, existsReferredFile, isColorText } from "./utils";
 import { checkLength } from "./Expression";
 
-type NonTextAssetValueCategory = '#image-filename' | '#audio-filename' | '#video-filename' | '#sound-filename' | '#effect-filename';
-
-function isNonTextResourceValueCategory(s: string): s is NonTextAssetValueCategory {
-    return (
-        s === '#image-filename' ||
-        s === '#audio-filename' ||
-        s === '#video-filename' ||
-        s === '#sound-filename' ||
-        s === '#effect-filename'
-    );
-}
-
-function toResouceKind(valueCategory: NonTextAssetValueCategory):
-    AssetKind.Image | AssetKind.Audio | AssetKind.Video | AssetKind.Sound | AssetKind.Effect {
-    if (valueCategory == '#image-filename') return AssetKind.Image;
-    if (valueCategory == '#audio-filename') return AssetKind.Audio;
-    if (valueCategory == '#video-filename') return AssetKind.Video;
-    if (valueCategory == '#sound-filename') return AssetKind.Sound;
-    return AssetKind.Effect;
+function toAssetKind(valueCategory: string): AssetKind | undefined {
+    switch (valueCategory) {
+        case '#image-filename': return AssetKind.Image;
+        case '#audio-filename': return AssetKind.Audio;
+        case '#video-filename': return AssetKind.Video;
+        case '#sound-filename': return AssetKind.Sound;
+        case '#effect-filename': return AssetKind.Effect;
+        case '#json-filename': return AssetKind.Text;
+    }
 }
 
 const KNOWN_CATEGORIES: string[] = [
@@ -34,6 +24,7 @@ const KNOWN_CATEGORIES: string[] = [
     '#sound-filename',
     '#effect-filename',
     '#json-filename',
+    '#sbml-filename',
     // '#style-name',
     '#4-sided-length',
     '#size',
@@ -130,15 +121,17 @@ export class PropValueSpec {
         }
 
         for (const category of this.categories) {
-            if (isNonTextResourceValueCategory(category)) {
-                if (AssetRepository.enumerateFileNames(toResouceKind(category), documentPath).includes(value)) {
+            const assetKind = toAssetKind(category);
+            if (assetKind) {
+                const suffix = category === '#json-filename' ? '.json' : undefined;
+                if (AssetRepository.enumerateFileNames(assetKind, documentPath, suffix).includes(value)) {
                     return { success: true };
                 }
 
                 errorMessage = `'${value}' does not exist.`;
             }
-            else if (category === '#json-filename') {
-                if (AssetRepository.enumerateTextFileNames(documentPath, '.json').includes(value)) {
+            else if (category === '#sbml-filename') {
+                if (existsReferredFile(documentPath, value)) {
                     return { success: true };
                 }
 
@@ -235,13 +228,15 @@ export class PropValueSpec {
         })() ?? [];
 
         for (const category of this.categories) {
-            if (isNonTextResourceValueCategory(category)) {
-                AssetRepository.enumerateFileNames(toResouceKind(category), documentPath).forEach(resourceName => {
+            const assetKind = toAssetKind(category);
+            if (assetKind) {
+                const suffix = category === '#json-filename' ? '.json' : undefined;
+                AssetRepository.enumerateFileNames(assetKind, documentPath, suffix).forEach(resourceName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, resourceName));
                 });
             }
-            else if (category === '#json-filename') {
-                AssetRepository.enumerateTextFileNames(documentPath, '.json').forEach(fileName => {
+            else if (category === '#sbml-filename') {
+                enumerateReferrableFiles(documentPath, '.sbml').forEach(fileName => {
                     suggestions.push(makeSuggestion(PropValueSuggestionIcon.File, fileName));
                 });
             }

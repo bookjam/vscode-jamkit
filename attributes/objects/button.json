@@ -93,5 +93,6 @@
     "hides-when-selected": [
         "yes",
         "no"
-    ]
+    ],
+    "seconds": "//d"
 }
