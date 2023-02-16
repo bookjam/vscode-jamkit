@@ -1,4 +1,6 @@
 import { assert } from 'console';
+import { existsSync, readdirSync } from 'fs';
+import * as path from 'path';
 import { Color } from 'vscode';
 
 // #fff, #ffff, #ffffff, #ffffffff
@@ -102,4 +104,29 @@ export function unquote(value: string): string {
         value = value.replace(/(?:\\(.))/g, '$1');
     }
     return value;
+}
+
+export function existsReferredFile(documentPath: string, referredFilename: string): boolean {
+    const pathComponents = documentPath.split(path.sep);
+    pathComponents.pop();
+    pathComponents.push(referredFilename);
+    return existsSync(pathComponents.join(path.sep));
+}
+
+export function enumerateReferrableFiles(documentPath: string, suffix: string | undefined): string[] {
+    const pathComponents = documentPath.split(path.sep);
+    const documentFilename = pathComponents.pop();
+    const dirPath = pathComponents.join(path.sep);
+
+    const filenames: string[] = [];
+    readdirSync(dirPath).forEach(filename => {
+        if (filename === documentFilename) {
+            // we don't allow recursive reference
+            return;
+        }
+        if (!suffix || filename.endsWith(suffix)) {
+            filenames.push(filename);
+        }
+    });
+    return filenames;
 }
