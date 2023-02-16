@@ -13,7 +13,9 @@
         "yes",
         "no"
     ],
-    "seconds": "\\d",
+    "seconds": {
+        "value-pattern": "\\d*\\.?\\d+"
+    },
     "preview-image": "#image-filename",
     "image-downloadable": [
         "yes",
