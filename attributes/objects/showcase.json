@@ -36,6 +36,7 @@
     "cell-size": "#size",
     "cell-spacing": "?",
     "content-margin": "?",
+    "floating-size": "#size",
     "has-header": [
         "yes",
         "no"

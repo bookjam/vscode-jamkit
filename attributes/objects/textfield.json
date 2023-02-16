@@ -25,6 +25,7 @@
     "text-color": "#color",
     "disable-text-color": "#color",
     "placeholder-color": "#color",
+    "content-size": "#size",
     "editable": [
         "no",
         "yes"

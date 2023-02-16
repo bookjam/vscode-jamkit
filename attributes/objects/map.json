@@ -8,6 +8,7 @@
     "zoom-level": "?",
     "title": "?",
     "subtitle": "?",
+    "content-size": "#size",
     "caption": "?",
     "subcaption": "?",
     "caption-font": "#font",

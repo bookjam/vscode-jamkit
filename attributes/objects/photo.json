@@ -8,6 +8,7 @@
         "yes",
         "no"
     ],
+    "content-size": "#size",
     "scale-mode": [
         "fill",
         "fit"

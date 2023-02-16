@@ -2,6 +2,7 @@
     "photo-n": "#image-filename;caption;subcaption",
     "photo-width": "?",
     "photo-spacing": "?",
+    "content-size": "#size",
     "maximize-scale-mode": [
         "fill",
         "fit"
