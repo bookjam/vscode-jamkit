@@ -4,9 +4,7 @@ import { SyntaxAnalyser } from './SyntaxAnalyser';
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropGroupParser, PropListParser, PropBlockParser } from './PropGroupParser';
 import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from './patterns';
-import { toColor, unquote } from './utils';
-import { existsSync } from 'fs';
-import * as path from 'path';
+import { existsReferredFile, toColor, unquote } from './utils';
 
 
 interface PropGroupBeginContext {
@@ -128,11 +126,7 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
             });
         }
 
-        const pathComponents = this.document.fileName.split(path.sep);
-        pathComponents.pop();
-        pathComponents.push(importFilename);
-        const importFilePath = pathComponents.join(path.sep);
-        if (!existsSync(importFilePath)) {
+        if (!existsReferredFile(this.document.fileName, importFilename)) {
             this.diagnostics.push({
                 message: `"${importFilename}" does not exist.`,
                 range: getImportItemRange(),

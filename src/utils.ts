@@ -1,5 +1,5 @@
 import { assert } from 'console';
-import { existsSync } from 'fs';
+import { existsSync, readdirSync } from 'fs';
 import * as path from 'path';
 import { Color } from 'vscode';
 
@@ -111,4 +111,18 @@ export function existsReferredFile(documentPath: string, referredFilename: strin
     pathComponents.pop();
     pathComponents.push(referredFilename);
     return existsSync(pathComponents.join(path.sep));
+}
+
+export function enumerateReferrableFiles(documentPath: string, suffix: string | undefined): string[] {
+    const pathComponents = documentPath.split(path.sep);
+    pathComponents.pop();
+    const dirPath = pathComponents.join(path.sep);
+
+    const filenames: string[] = [];
+    readdirSync(dirPath).forEach(filename => {
+        if (!suffix || filename.endsWith(suffix)) {
+            filenames.push(filename);
+        }
+    });
+    return filenames;
 }
