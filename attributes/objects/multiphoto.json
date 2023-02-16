@@ -23,6 +23,7 @@
         "fill",
         "fit"
     ],
+    "content-size": "#size",
     "dim-color": "#color",
     "caption": "?",
     "subcaption": "?",

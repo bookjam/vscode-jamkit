@@ -13,11 +13,13 @@
         "yes",
         "no"
     ],
+    "seconds": "\\d",
     "preview-image": "#image-filename",
     "image-downloadable": [
         "yes",
         "no"
     ],
+    "content-size": "#size",
     "caption": "?",
     "subcaption": "?",
     "caption-font": "#font",

@@ -1,1 +1,4 @@
-{}
+{
+    "default-size": "#size",
+    "content-size": "#size"
+}

@@ -17,9 +17,8 @@
         "fill",
         "fit"
     ],
-    "floating-size": "#size",
-    "content-size": "#size",
     "default-size": "#size",
+    "content-size": "#size",
     "constraint-size": "#size",
     "content-gravity": [
         "left-top",
