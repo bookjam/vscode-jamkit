@@ -95,8 +95,5 @@
     "hides-when-selected": [
         "yes",
         "no"
-    ],
-    "seconds": {
-        "value-pattern": "\\d*\\.?\\d+"
-    }
+    ]
 }
