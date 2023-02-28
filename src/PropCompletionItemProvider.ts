@@ -45,7 +45,7 @@ export class PropCompletionItemProvider {
                 }
             }
             else {
-                item.insertText = new vscode.SnippetString(name + ': ${1};');
+                item.insertText = `${name}: `;
             }
             item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };
             return item;
@@ -83,6 +83,10 @@ export class PropCompletionItemProvider {
                 }
                 else {
                     item.insertText = suggestion.text;
+                }
+
+                if (context.kind === PropGroupKind.Block) {
+                    item.insertText += ';';
                 }
 
                 item.sortText = index.toString();
