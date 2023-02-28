@@ -85,7 +85,7 @@ export class PropCompletionItemProvider {
                     item.insertText = suggestion.text;
                 }
 
-                if (context.kind == PropGroupKind.Block) {
+                if (context.kind === PropGroupKind.Block) {
                     item.insertText += ';';
                 }
 
