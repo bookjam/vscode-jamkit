@@ -100,7 +100,6 @@ export class PropValueSpec {
     }
 
     verify(value: string, documentPath: string): PropValueVerifyResult {
-
         let errorMessage;
 
         if (!this.hasValidationRules()) {
@@ -209,6 +208,14 @@ export class PropValueSpec {
     }
 
     merge(other: PropValueSpec): void {
+        function mergeUnique<T>(dst: T[], src: T[]): void {
+            src.forEach(addition => {
+                if (!dst.includes(addition)) {
+                    dst.push(addition);
+                }
+            });
+        }
+
         mergeUnique(this.values, other.values);
         mergeUnique(this.suggestions, other.suggestions);
         mergeUnique(this.categories, other.categories);
@@ -295,14 +302,6 @@ export class PropValueSpec {
 
         return suggestions;
     }
-}
-
-function mergeUnique<T>(dst: T[], src: T[]): void {
-    src.forEach(addition => {
-        if (!dst.includes(addition)) {
-            dst.push(addition);
-        }
-    });
 }
 
 function makeSuggestion(kind: PropValueSuggestionIcon, label: string, text?: string): PropValueSuggestion {

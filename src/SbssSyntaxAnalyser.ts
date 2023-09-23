@@ -19,13 +19,11 @@ interface CondContext {
 
 // TODO: Use SbssContextParser
 export class SbssSyntaxAnalyser extends SyntaxAnalyser {
-
     private readonly contextStack: CondContext[] = [];
     private propTarget: PropTarget = { kind: PropTargetKind.Unknown };
     private propParser: PropGroupParser | null = null;
 
     processLine(line: number, text: string, isContinued: boolean): void {
-
         if (this.propParser instanceof PropBlockParser) {
             if (text.match(SBSS_PROP_BLOCK_SUFFIX)) {
                 this.propParser = null;
