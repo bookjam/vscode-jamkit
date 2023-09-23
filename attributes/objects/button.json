@@ -1,13 +1,14 @@
 {
     "label": "?",
+    "highlighted-label": "?",
     "selected-label": "?",
-    "disable-label": "?",
+    "disabled-label": "?",
     "url": "#url",
     "image": "#image-filename",
     "image-url": "#url",
-    "highlight-image": "#image-filename",
+    "highlighted-image": "#image-filename",
     "selected-image": "#image-filename",
-    "disable-image": "#image-filename",
+    "disabled-image": "#image-filename",
     "mask-image": "#image-filename",
     "default-image": "#image-filename",
     "image-downloadable": [
@@ -65,12 +66,12 @@
         "no"
     ],
     "label-color": "#color",
-    "highlight-label-color": "#color",
+    "highlighted-label-color": "#color",
     "selected-label-color": "#color",
-    "disable-label-color": "#color",
-    "highlight-background-color": "#color",
+    "disabled-label-color": "#color",
+    "highlighted-background-color": "#color",
     "selected-background-color": "#color",
-    "disable-background-color": "#color",
+    "disabled-background-color": "#color",
     "content-padding": "#4-sided-length",
     "scale-mode": [
         "fill",
@@ -88,7 +89,7 @@
         "yes",
         "no"
     ],
-    "disable-when-selected": [
+    "disables-when-selected": [
         "yes",
         "no"
     ],

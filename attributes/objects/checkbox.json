@@ -1,18 +1,18 @@
 {
     "label": "?",
     "selected-label": "?",
-    "disable-label": "?",
+    "disabled-label": "?",
     "image": "#image-filename",
     "image-url": "#image-url",
-    "highlight-image": "#image-filename",
+    "highlighted-image": "#image-filename",
     "selected-image": "#image-filename",
-    "disable-image": "#image-filename",
+    "disabled-image": "#image-filename",
     "answer-image": "#image-filename",
     "default-image": "#image-filename",
     "content-background-image": "#image-filename",
-    "highlight-background-image": "#image-filename",
+    "highlighted-background-image": "#image-filename",
     "selected-background-image": "#image-filename",
-    "disable-background-image": "#image-filename",
+    "disabled-background-image": "#image-filename",
     "image-downloadable": [
         "yes",
         "no"
@@ -62,12 +62,12 @@
         "no"
     ],
     "label-color": "#color",
-    "highlight-label-color": "#color",
+    "highlighted-label-color": "#color",
     "selected-label-color": "#color",
-    "disable-label-color": "#color",
-    "highlight-background-color": "#color",
+    "disabled-label-color": "#color",
+    "highlighted-background-color": "#color",
     "selected-background-color": "#color",
-    "disable-background-color": "#color",
+    "disabled-background-color": "#color",
     "content-padding": "#4-sided-length",
     "content-spacing": "?",
     "select-mode": [
@@ -91,7 +91,7 @@
         "yes",
         "no"
     ],
-    "disable-when-selected": [
+    "disables-when-selected": [
         "yes",
         "no"
     ],

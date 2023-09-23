@@ -23,7 +23,7 @@
         "left"
     ],
     "text-color": "#color",
-    "disable-text-color": "#color",
+    "disabled-text-color": "#color",
     "placeholder-color": "#color",
     "content-size": "#size",
     "editable": [
