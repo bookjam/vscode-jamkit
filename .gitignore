@@ -4,6 +4,5 @@ node_modules
 out
 syntaxes/sbml.tmLanguage.json
 syntaxes/sbss.tmLanguage.json
-sbml-configuration.json
-sbss-configuration.json
+languages/
 *.vsix

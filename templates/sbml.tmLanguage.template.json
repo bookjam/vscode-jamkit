@@ -1,4 +1,5 @@
 {
+    "name": "Smart Book Markup Language",
     "scopeName": "source.sbml",
     "patterns": [
         {

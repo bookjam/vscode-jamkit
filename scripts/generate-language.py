@@ -22,8 +22,10 @@ def _write_file(filename, content):
 def _generate_language(lang):
     content = _read_file('templates/' + lang + '-configuration.template.json')
     content = content.replace('__WORD_PATTERN__', _build_word_pattern())
-    _write_file(lang + '-configuration.json', content)
+    _write_file('languages/' + lang + '-configuration.json', content)
 
 
 if __name__ == '__main__':
+    if not os.path.exists('languages'):
+        os.makedirs('languages')
     _generate_language(sys.argv[1])
