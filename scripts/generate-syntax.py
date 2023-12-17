@@ -6,7 +6,7 @@ import sys
 
 _PROP_PAIR_PATTERN_TEMPLATE = r'''
 {
-    "match":   "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^__TERM__]*))",
+    "match": "([a-z-]+(@[a-z-]+)?)\\s*__SEP__\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_][A-Z0-9_]*)|([^__TERM__]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
@@ -17,7 +17,7 @@ _PROP_PAIR_PATTERN_TEMPLATE = r'''
 
 _INLINE_PROP_LIST_PATTERN_TEMPLATE = r'''
 {
-    "match":   "([a-z-]+(@[a-z-]+)?)\\s*=\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_]+)|([^(,)]*))",
+    "match": "([a-z-]+(@[a-z-]+)?)\\s*=\\s*((\"[^\\\\\"]*\")|('[^\\\\']*')|(\\$[A-Z_][A-Z0-9_]*)|([^(,)]*))",
     "captures": {
         "1": { "name": "__STYLE_PROP_NAME__" },
         "3": { "name": "__STYLE_PROP_VALUE__" },
@@ -29,7 +29,7 @@ _INLINE_PROP_LIST_PATTERN_TEMPLATE = r'''
 _EXPRESSION_PATTERNS = r'''
 {
     "name": "__STYLE_VARIABLE__",
-    "match": "\\$[A-Z_]+"
+    "match": "\\$[A-Z_][A-Z0-9_]*"
 },
 {
     "name": "__STYLE_OPERATOR__",

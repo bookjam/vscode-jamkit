@@ -63,9 +63,12 @@
         "variable-assignement": {
             "patterns": [
                 {
-                    "begin": "^\\s*(\\$[A-Z_]+)\\s*=",
+                    "begin": "^\\s*(\\$[A-Z_][A-Z_0-9]*)\\s*=\\s*((\\$[A-Z_][A-Z_0-9]*)|([^,]+))+",
                     "beginCaptures": {
                         "1": {
+                            "name": "__STYLE_VARIABLE__"
+                        },
+                        "3": {
                             "name": "__STYLE_VARIABLE__"
                         }
                     },
