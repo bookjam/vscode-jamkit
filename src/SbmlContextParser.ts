@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
-import { SBML_INLINE_OBJECT_PREFIX, SBML_PROP_LIST_PREFIX } from './patterns';
+import * as vscode from "vscode";
+import { ContextParser, PropGroupContext, PropGroupKind } from "./ContextParser";
+import { SBML_INLINE_OBJECT_PREFIX, SBML_PROP_LIST_PREFIX } from "./patterns";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class DirectiveContext {
@@ -33,7 +33,7 @@ export class SbmlContextParser extends ContextParser {
                 return this.textUpToCursor;
             })();
             const m = text.match(SBML_PROP_LIST_PREFIX);
-            if (m && m[4] == ':') {
+            if (m && m[4] == ":") {
                 const target = ((): PropTarget => {
                     if (m[1] == "begin")
                         return { kind: PropTargetKind.Section };
@@ -43,7 +43,7 @@ export class SbmlContextParser extends ContextParser {
                         return { kind: PropTargetKind.BlockObject, objectType: "sbml:image" };
                     return { kind: PropTargetKind.Unknown };
                 })();
-                const beginIndex = text.indexOf(':') + 1;
+                const beginIndex = text.indexOf(":") + 1;
                 return { kind: PropGroupKind.List, target, beginPos: new vscode.Position(this.logicalBeginLine, beginIndex) };
             }
         }
@@ -51,16 +51,16 @@ export class SbmlContextParser extends ContextParser {
         // inline objects: =(object, =(image
         {
             const objectBeginIndex = Math.max(
-                this.textUpToCursor.lastIndexOf('=(object '),
-                this.textUpToCursor.lastIndexOf('=(image ')
+                this.textUpToCursor.lastIndexOf("=(object "),
+                this.textUpToCursor.lastIndexOf("=(image ")
             );
-            if (objectBeginIndex >= 0 && this.textUpToCursor.lastIndexOf(')=') < objectBeginIndex) {
+            if (objectBeginIndex >= 0 && this.textUpToCursor.lastIndexOf(")=") < objectBeginIndex) {
                 const objectStr = this.textUpToCursor.substring(objectBeginIndex);
                 const m = objectStr.match(SBML_INLINE_OBJECT_PREFIX);
                 if (m) {
                     const objectType = (m[1] == "object") ? m[2] : "sbml:image";
                     const target = { kind: PropTargetKind.InlineObject, objectType };
-                    const beginPos = new vscode.Position(this.logicalBeginLine, objectBeginIndex + objectStr.indexOf(':') + 1);
+                    const beginPos = new vscode.Position(this.logicalBeginLine, objectBeginIndex + objectStr.indexOf(":") + 1);
                     return { kind: PropGroupKind.List, target, beginPos };
                 }
             }
@@ -86,10 +86,10 @@ export class SbmlContextParser extends ContextParser {
             if (trimmedText.endsWith(marker)) {
                 return new contextClass();
             }
-            const items = trimmedText.split(' ');
+            const items = trimmedText.split(" ");
             if (items.length >= 2) {
                 const prefix = items.pop();
-                while (items.at(-1) == '') {
+                while (items.at(-1) == "") {
                     items.pop();
                 }
                 if (items.at(-1)?.endsWith(marker)) {
@@ -99,20 +99,20 @@ export class SbmlContextParser extends ContextParser {
             }
         };
 
-        let context = parseContext('=(image', ImageNameContext);
+        let context = parseContext("=(image", ImageNameContext);
         if (context)
             return context;
 
-        context = parseContext('=(object', ObjectTypeContext);
+        context = parseContext("=(object", ObjectTypeContext);
         if (context)
             return context;
 
         if (!this.isContinuedLine) {
             if (trimmedText.startsWith("=image")) {
-                return parseContext('=image', ImageNameContext);
+                return parseContext("=image", ImageNameContext);
             }
             if (trimmedText.startsWith("=object")) {
-                return parseContext('=object', ObjectTypeContext);
+                return parseContext("=object", ObjectTypeContext);
             }
         }
     }

@@ -1,7 +1,7 @@
-import { assert } from 'console';
-import { existsSync, readdirSync } from 'fs';
-import * as path from 'path';
-import { Color } from 'vscode';
+import { assert } from "console";
+import { existsSync, readdirSync } from "fs";
+import * as path from "path";
+import { Color } from "vscode";
 
 // #fff, #ffff, #ffffff, #ffffffff
 const COLOR_PATTERN_HEX = /^#(([0-9A-Fa-f]{3})|([0-9A-Fa-f]{4})|([0-9A-Fa-f]{6})|([0-9A-Fa-f]{8}))$/;
@@ -27,7 +27,7 @@ export function isColorText(value: string): boolean {
 }
 
 function hexToColorNum(hex: string): number {
-    //return Number('0x' + hex) / 255;
+    //return Number("0x" + hex) / 255;
     return parseInt(hex, 16) / 255;
 }
 
@@ -87,11 +87,11 @@ export function toColor(value: string): Color | undefined {
 
 function colorNumToHex(colorNum: number): string {
     const hex = Math.round(colorNum * 255).toString(16);
-    return hex.length == 1 ? ('0' + hex) : hex;
+    return hex.length == 1 ? ("0" + hex) : hex;
 }
 
 export function toString(color: Color): string {
-    return '#' +
+    return "#" +
         colorNumToHex(color.red) +
         colorNumToHex(color.green) +
         colorNumToHex(color.blue) +
@@ -99,9 +99,9 @@ export function toString(color: Color): string {
 }
 
 export function unquote(value: string): string {
-    if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == '"' || value[0] == "'")) {
+    if (value.length >= 2 && value[0] == value[value.length - 1] && (value[0] == "\"" || value[0] == "'")) {
         value = value.substring(1, value.length - 1);
-        value = value.replace(/(?:\\(.))/g, '$1');
+        value = value.replace(/(?:\\(.))/g, "$1");
     }
     return value;
 }

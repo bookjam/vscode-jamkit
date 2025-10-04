@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
-import { assert } from 'console';
+import * as vscode from "vscode";
+import { assert } from "console";
 
 export interface PropRange {
     nameRange: vscode.Range;
@@ -71,7 +71,7 @@ export class PropGroupParser {
         for (let i = offset; i < text.length; ++i) {
             const ch = text[i];
 
-            if (ch == '\\' && i == text.length - 1) {
+            if (ch == "\\" && i == text.length - 1) {
                 // line continuation char - ignore.
                 break;
             }
@@ -133,7 +133,7 @@ export class PropGroupParser {
                     assert(this.nameEndPos);
                     assert(this.valueBeginPos);
                     if (this.valueQuoteChar) {
-                        if (ch === '\\') {
+                        if (ch === "\\") {
                             this.valueEscaped = !this.valueEscaped;
                         }
                         else if (ch === this.valueQuoteChar) {
@@ -173,7 +173,7 @@ export class PropGroupParser {
             if (this.state == PropParseState.InValue && !this.valueEndPos && i == text.length - 1) {
                 let endIndex = i + 1;
                 if (!this.valueQuoteChar) {
-                    while (endIndex > 0 && text[endIndex - 1] == ' ') {
+                    while (endIndex > 0 && text[endIndex - 1] == " ") {
                         endIndex -= 1;
                     }
                 }
@@ -201,17 +201,17 @@ export class PropGroupParser {
 
 export class PropListParser extends PropGroupParser {
     constructor() {
-        super(/*sep*/ '=', /*term*/ ',');
+        super(/*sep*/ "=", /*term*/ ",");
     }
 }
 
 export class PropBlockParser extends PropGroupParser {
     constructor() {
-        super(/*sep*/ ':', /*term*/ ';');
+        super(/*sep*/ ":", /*term*/ ";");
     }
 }
 
 function isSpace(ch: string) {
     assert(ch.length == 1);
-    return ch === ' ' || ch === '\t';
+    return ch === " " || ch === "\t";
 }

@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { readdirSync, existsSync } from 'fs';
+import * as vscode from "vscode";
+import * as path from "path";
+import { readdirSync, existsSync } from "fs";
 
 export enum AssetKind {
     Image, Audio, Video, Sound, Effect, Text
@@ -61,7 +61,7 @@ export class AssetRepository {
         const rootAssetDirPath = (() => {
             while (pathComponents.length > 0) {
 
-                for (const projectFileName of ['catalog.bon', 'book.bon']) {
+                for (const projectFileName of [ "catalog.bon", "book.bon" ]) {
                     pathComponents.pop();
                     pathComponents.push(projectFileName);
 
@@ -79,7 +79,7 @@ export class AssetRepository {
         if (rootAssetDirPath) {
             this.getAssetNamesAtDirPath(rootAssetDirPath).forEach(name => {
                 if (suffix === undefined || name.endsWith(suffix)) {
-                    assetNames.push('~/' + name);
+                    assetNames.push("~/" + name);
                 }
             });
         }
@@ -94,7 +94,7 @@ export class AssetRepository {
         if (!assetNames) {
             const uniqueNames = new Set<string>();
             readdirSync(dirPath).forEach(filename => {
-                if (filename.startsWith('.'))
+                if (filename.startsWith("."))
                     return;
                 uniqueNames.add(stripAtSuffix(filename));
             });

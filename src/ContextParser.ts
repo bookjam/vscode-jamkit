@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
-import { assert } from 'console';
+import * as vscode from "vscode";
+import { assert } from "console";
 import {
     PropParseState,
     PropListParser,
     PropBlockParser,
-} from './PropGroupParser';
+} from "./PropGroupParser";
 import { PropTarget } from "./PropTarget";
 
 export enum PropGroupKind {
@@ -131,7 +131,7 @@ export abstract class ContextParser {
             if (this.position.line == 0) {
                 this._isContinuedLine = false;
             } else {
-                this._isContinuedLine = this.document.lineAt(this.position).text.trimEnd().endsWith('\\');
+                this._isContinuedLine = this.document.lineAt(this.position).text.trimEnd().endsWith("\\");
             }
         }
         return this._isContinuedLine;

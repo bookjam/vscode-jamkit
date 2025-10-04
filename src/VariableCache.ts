@@ -1,7 +1,7 @@
-import { readFileSync } from 'fs';
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { parseSbssVariableDefinition } from './patterns';
+import { readFileSync } from "fs";
+import * as vscode from "vscode";
+import * as path from "path";
+import { parseSbssVariableDefinition } from "./patterns";
 
 const IMPORT_PATTERN = /^\s*import\s+"?([\w-]+\.sbss)"?/;
 
@@ -34,7 +34,7 @@ type DependencyMap = Map</*filePath*/ string, /*dependentFilePaths*/ string[]>;
 
 export class VariableCache {
     static init(context: vscode.ExtensionContext) {
-        const watcher = vscode.workspace.createFileSystemWatcher('**/*.sbss', /*ignoreCreationEvents*/ true);
+        const watcher = vscode.workspace.createFileSystemWatcher("**/*.sbss", /*ignoreCreationEvents*/ true);
         watcher.onDidChange(event => this.removeCache(event.fsPath));
         watcher.onDidDelete(event => this.removeCache(event.fsPath));
         context.subscriptions.push(watcher);
@@ -44,7 +44,7 @@ export class VariableCache {
     private static depencencyMap: DependencyMap = new Map();
 
     static getVariables(documentPath: string): VariableValues {
-        const filePath = documentPath.substring(0, documentPath.length - 4) + 'sbss';
+        const filePath = documentPath.substring(0, documentPath.length - 4) + "sbss";
         // console.log(`======= ${filePath} ========`);
         // this.getValueMap(filePath).forEach((values, name) => {
         //     console.log(`${name}: ${values}`);
@@ -97,7 +97,7 @@ export class VariableCache {
             this.parsingFiles.add(filePath);
 
             try {
-                const content = readFileSync(filePath, 'utf-8');
+                const content = readFileSync(filePath, "utf-8");
                 content.split(/\r?\n/).forEach(text => {
 
                     const varDef = parseSbssVariableDefinition(text);

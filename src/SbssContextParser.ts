@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from './patterns';
-import { ContextParser, PropGroupContext, PropGroupKind } from './ContextParser';
+import * as vscode from "vscode";
+import { SBSS_PROP_BLOCK_PREFIX, SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_LIST_PREFIX } from "./patterns";
+import { ContextParser, PropGroupContext, PropGroupKind } from "./ContextParser";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 
 export class SbssContextParser extends ContextParser {
@@ -12,7 +12,7 @@ export class SbssContextParser extends ContextParser {
             return {
                 kind: PropGroupKind.List,
                 target: this.getPropTarget(m[1]),
-                beginPos: new vscode.Position(line, text.indexOf(':') + 1)
+                beginPos: new vscode.Position(line, text.indexOf(":") + 1)
             };
         }
 
@@ -34,9 +34,9 @@ export class SbssContextParser extends ContextParser {
 
     private getPropTarget(selector: string): PropTarget {
         switch (selector[0]) {
-            case '@':
-            case '/':
-            case '%':
+            case "@":
+            case "/":
+            case "%":
                 return { kind: PropTargetKind.Section };
             default:
                 return { kind: PropTargetKind.Unknown };

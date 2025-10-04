@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import { PropCompletionItemProvider } from './PropCompletionItemProvider';
-import { SbssContextParser } from './SbssContextParser';
+import * as vscode from "vscode";
+import { PropCompletionItemProvider } from "./PropCompletionItemProvider";
+import { SbssContextParser } from "./SbssContextParser";
 
 export class SbssCompletionHandler {
     static init(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.languages.registerCompletionItemProvider(
-            'sbss',
+            "sbss",
             {
                 provideCompletionItems(
                     document: vscode.TextDocument,
@@ -20,7 +20,7 @@ export class SbssCompletionHandler {
                     }
                 }
             },
-            ':', ',', '=', '$'
+            ":", ",", "=", "$"
         ));
     }
 }

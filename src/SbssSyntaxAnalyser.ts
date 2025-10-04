@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
-import { PropGroupKind } from './ContextParser';
-import { SyntaxAnalyser } from './SyntaxAnalyser';
+import * as vscode from "vscode";
+import { PropGroupKind } from "./ContextParser";
+import { SyntaxAnalyser } from "./SyntaxAnalyser";
 import { PropTarget, PropTargetKind } from "./PropTarget";
-import { PropGroupParser, PropListParser, PropBlockParser } from './PropGroupParser';
-import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from './patterns';
-import { existsReferredFile, toColor, unquote } from './utils';
+import { PropGroupParser, PropListParser, PropBlockParser } from "./PropGroupParser";
+import { SBSS_PROP_BLOCK_SUFFIX, SBSS_PROP_GROUP_PREFIX, parseSbssVariableDefinition } from "./patterns";
+import { existsReferredFile, toColor, unquote } from "./utils";
 
 
 interface PropGroupBeginContext {
@@ -110,15 +110,15 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
             return false;
         }
 
-        const importItem = text.substring(text.indexOf('import') + 7).trim();
+        const importItem = text.substring(text.indexOf("import") + 7).trim();
         const importFilename = unquote(importItem);
         const getImportItemRange = () => {
             const index = text.indexOf(importItem);
             return new vscode.Range(line, index, line, index + importItem.length);
         };
-        if (!importFilename.endsWith('.sbss')) {
+        if (!importFilename.endsWith(".sbss")) {
             this.diagnostics.push({
-                message: 'We can only import a file ".sbss" suffix.',
+                message: "We can only import a file \".sbss\" suffix.",
                 range: getImportItemRange(),
                 severity: vscode.DiagnosticSeverity.Error
             });
@@ -143,7 +143,7 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
 
         const directive = m[1];
 
-        if (directive === 'if') {
+        if (directive === "if") {
             this.contextStack.push({ ifLine: line });
 
             // TODO: verify expression
@@ -163,18 +163,18 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
             return true;
         }
 
-        if (directive === 'end') {
+        if (directive === "end") {
             this.contextStack.pop();
             return true;
         }
 
-        if (condContext.elseLine && (directive === 'elif' || directive === 'else')) {
+        if (condContext.elseLine && (directive === "elif" || directive === "else")) {
             const relatedInfo = new vscode.DiagnosticRelatedInformation(
                 new vscode.Location(
                     this.document.uri,
                     new vscode.Range(condContext.elseLine, 0, condContext.elseLine, 0)
                 ),
-                '"else" appeared here.'
+                "\"else\" appeared here."
             );
             const index = text.indexOf(directive);
             this.diagnostics.push({
@@ -187,7 +187,7 @@ export class SbssSyntaxAnalyser extends SyntaxAnalyser {
             // fallthrough to handle else.
         }
 
-        if (directive === 'else') {
+        if (directive === "else") {
             condContext.elseLine = line;
         }
 

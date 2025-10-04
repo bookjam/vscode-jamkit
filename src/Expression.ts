@@ -476,12 +476,12 @@ export function checkLength(expr: string): LengthCheckResult {
 
 function getBultInFuncArity(name: string): number | undefined {
     switch (name) {
-        case 'floor':
-        case 'ceil':
-        case 'round':
+        case "floor":
+        case "ceil":
+        case "round":
             return 1;
-        case 'max':
-        case 'min':
+        case "max":
+        case "min":
             return 2;
     }
 }

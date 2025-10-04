@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-import { readdirSync, readFileSync } from 'fs';
+import { readdirSync, readFileSync } from "fs";
 import { assert } from "console";
 import { PropTarget, PropTargetKind } from "./PropTarget";
 import { PropValueSpec } from "./PropValueSpec";
-import * as path from 'path';
+import * as path from "path";
 
 class PropConfig {
     private readonly map;
@@ -14,10 +14,10 @@ class PropConfig {
 
     static fromJsonPath(jsonPath: string): PropConfig | undefined {
         try {
-            const json = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+            const json = JSON.parse(readFileSync(jsonPath, "utf-8"));
             const config = new PropConfig();
             Object.entries(json).forEach(entry => {
-                if (entry[0] == '@import') {
+                if (entry[0] == "@import") {
                     const filenames = entry[1] as string[];
                     filenames.forEach(filename => {
                         const pathComponents = jsonPath.split(path.sep);
@@ -69,11 +69,11 @@ export class PropConfigStore {
     private static readonly objectTypes: string[] = [];
 
     static init(context: vscode.ExtensionContext): void {
-        const configDirs = ['attributes', 'attributes/objects'];
+        const configDirs = [ "attributes", "attributes/objects" ];
         configDirs.forEach((configDir, index) => {
             const isObjectDir = index == 1;
             readdirSync(`${context.extensionPath}/${configDir}`).forEach(filename => {
-                if (!filename.endsWith('.json') || filename.startsWith('_'))
+                if (!filename.endsWith(".json") || filename.startsWith("_"))
                     return;
                 if (isObjectDir) {
                     this.objectTypes.push(filename.substring(0, filename.length - 5));
@@ -123,26 +123,26 @@ export class PropConfigStore {
             }
         }
 
-        if (propName === 'script' || propName.startsWith('script-when-') || propName.endsWith('-script')) {
-            return PropValueSpec.from('#function');
+        if (propName === "script" || propName.startsWith("script-when-") || propName.endsWith("-script")) {
+            return PropValueSpec.from("#function");
         }
 
-        if (propName === 'sound' || propName.startsWith('sound-when-')) {
-            return PropValueSpec.from('#sound-filename');
+        if (propName === "sound" || propName.startsWith("sound-when-")) {
+            return PropValueSpec.from("#sound-filename");
         }
     }
 
     private static getPropFileSequence(target: PropTarget): string[] {
         if (target.kind == PropTargetKind.Text) {
-            return ['core.text.json', 'core.common.json'];
+            return [ "core.text.json", "core.common.json" ];
         }
 
         if (target.kind == PropTargetKind.Section) {
-            return ['core.section.json', 'core.box.json', 'core.common.json'];
+            return [ "core.section.json", "core.box.json", "core.common.json" ];
         }
 
         if (target.kind == PropTargetKind.BlockObject) {
-            const sequence = [`core.object.block.json`, 'core.object.json', 'core.box.json', 'core.common.json'];
+            const sequence = [ "core.object.block.json", "core.object.json", "core.box.json", "core.common.json" ];
             if (target.objectType) {
                 return [`${target.objectType}.json`].concat(sequence);
             }
@@ -150,7 +150,7 @@ export class PropConfigStore {
         }
 
         if (target.kind == PropTargetKind.InlineObject) {
-            const sequence = [`core.object.inline.json`, 'core.object.json', 'core.common.json'];
+            const sequence = [ "core.object.inline.json", "core.object.json", "core.common.json" ];
             if (target.objectType) {
                 return [`${target.objectType}.json`].concat(sequence);
             }

@@ -1,13 +1,13 @@
-import * as vscode from 'vscode';
-import { PropConfigStore } from './PropConfigStore';
-import { AssetRepository } from './AssetRepository';
-import { ScriptNameCache } from './ScriptNameCache';
-import { VariableCache } from './VariableCache';
-import { toString } from './utils';
-import { SbmlSyntaxAnalyser } from './SbmlSyntaxAnalyser';
-import { SbssSyntaxAnalyser } from './SbssSyntaxAnalyser';
-import { SbssCompletionHandler } from './SbssCompletionHandler';
-import { SbmlCompletionHandler } from './SbmlCompletionHandler';
+import * as vscode from "vscode";
+import { PropConfigStore } from "./PropConfigStore";
+import { AssetRepository } from "./AssetRepository";
+import { ScriptNameCache } from "./ScriptNameCache";
+import { VariableCache } from "./VariableCache";
+import { toString } from "./utils";
+import { SbmlSyntaxAnalyser } from "./SbmlSyntaxAnalyser";
+import { SbssSyntaxAnalyser } from "./SbssSyntaxAnalyser";
+import { SbssCompletionHandler } from "./SbssCompletionHandler";
+import { SbmlCompletionHandler } from "./SbmlCompletionHandler";
 
 export class JamkitExtension {
     static init(context: vscode.ExtensionContext): void {
@@ -19,7 +19,7 @@ export class JamkitExtension {
         SbssCompletionHandler.init(context);
         SbmlCompletionHandler.init(context);
 
-        const collection = vscode.languages.createDiagnosticCollection('jamkit');
+        const collection = vscode.languages.createDiagnosticCollection("jamkit");
         const instance = new JamkitExtension(collection);
 
         const currentDocument = vscode.window.activeTextEditor?.document;
@@ -41,7 +41,7 @@ export class JamkitExtension {
             }
         }));
 
-        ['sbml', 'sbss'].forEach(documentSelector => {
+        [ "sbml", "sbss" ].forEach(documentSelector => {
             vscode.languages.registerColorProvider(documentSelector, {
                 provideDocumentColors: (document) => {
                     console.log(`provideDocumentColors - ${document.fileName}`);
@@ -86,10 +86,10 @@ export class JamkitExtension {
     private analize(document: vscode.TextDocument): void {
         console.log(`analize - ${document.fileName}`);
         const analyser = (() => {
-            if (document.fileName.endsWith('.sbml')) {
+            if (document.fileName.endsWith(".sbml")) {
                 return new SbmlSyntaxAnalyser(document);
             }
-            if (document.fileName.endsWith('.sbss')) {
+            if (document.fileName.endsWith(".sbss")) {
                 return new SbssSyntaxAnalyser(document);
             }
         })();

@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
-import { PropConfigStore } from './PropConfigStore';
+import * as vscode from "vscode";
+import { PropConfigStore } from "./PropConfigStore";
 import {
     PropGroupKind,
     PropNameContext,
     PropValueContext
-} from './ContextParser';
+} from "./ContextParser";
 
 export class PropCompletionItemProvider {
     readonly document;
@@ -37,7 +37,7 @@ export class PropCompletionItemProvider {
         return names.map(name => {
             const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Property);
             if (this.context.kind == PropGroupKind.List) {
-                if (this.triggerChar == ',' || this.triggerChar == ':') {
+                if (this.triggerChar == "," || this.triggerChar == ":") {
                     item.insertText = ` ${name}=`;
                 }
                 else {
@@ -47,7 +47,7 @@ export class PropCompletionItemProvider {
             else {
                 item.insertText = `${name}: `;
             }
-            item.command = { title: 'Select a value...', command: 'editor.action.triggerSuggest' };
+            item.command = { title: "Select a value...", command: "editor.action.triggerSuggest" };
             return item;
         });
     }
@@ -75,10 +75,10 @@ export class PropCompletionItemProvider {
                 if (suggestion.isSnippet) {
                     item.insertText = new vscode.SnippetString(suggestion.text);
                 }
-                else if (this.triggerChar === ':') {
-                    item.insertText = ' ' + suggestion.text;
+                else if (this.triggerChar === ":") {
+                    item.insertText = " " + suggestion.text;
                 }
-                else if (context.valuePrefix === '$' || context.valuePrefix === '~' || context.valuePrefix === '~/') {
+                else if (context.valuePrefix === "$" || context.valuePrefix === "~" || context.valuePrefix === "~/") {
                     item.insertText = suggestion.text.substring(context.valuePrefix.length);
                 }
                 else {
@@ -86,7 +86,7 @@ export class PropCompletionItemProvider {
                 }
 
                 if (context.kind === PropGroupKind.Block) {
-                    item.insertText += ';';
+                    item.insertText += ";";
                 }
 
                 item.sortText = index.toString();

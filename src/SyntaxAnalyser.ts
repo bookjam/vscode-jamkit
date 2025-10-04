@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
-import { PropConfigStore } from './PropConfigStore';
+import * as vscode from "vscode";
+import { PropConfigStore } from "./PropConfigStore";
 import { PropTarget, PropTargetKind } from "./PropTarget";
-import { PropRange } from './PropGroupParser';
-import { toColor, unquote } from './utils';
+import { PropRange } from "./PropGroupParser";
+import { toColor, unquote } from "./utils";
 
 export abstract class SyntaxAnalyser {
     protected readonly document: vscode.TextDocument;
@@ -66,7 +66,7 @@ export abstract class SyntaxAnalyser {
             return;
         }
 
-        if (value.startsWith('$') || (value.startsWith('@{') && value.startsWith('}'))) {
+        if (value.startsWith("$") || (value.startsWith("@{") && value.startsWith("}"))) {
             // No diagnostic for a variable or a template placeholder.
             return;
         }

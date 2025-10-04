@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import { assert } from 'console';
-import * as patterns from './patterns';
-import { PropListParser } from './PropGroupParser';
-import { SyntaxAnalyser } from './SyntaxAnalyser';
+import * as vscode from "vscode";
+import { assert } from "console";
+import * as patterns from "./patterns";
+import { PropListParser } from "./PropGroupParser";
+import { SyntaxAnalyser } from "./SyntaxAnalyser";
 import { PropTarget, PropTargetKind } from "./PropTarget";
-import { PropConfigStore } from './PropConfigStore';
-import { AssetRepository } from './AssetRepository';
+import { PropConfigStore } from "./PropConfigStore";
+import { AssetRepository } from "./AssetRepository";
 
 const IF_PATTERN = /^\s*=if\b/;
 const ELIF_PATTERN = /^\s*=elif\b/;
@@ -171,12 +171,12 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
                             new vscode.Range(line, 0, line, 0)
                         ),
                         context.type == DirectiveKind.Begin ?
-                            'the section starts here' : 'if statement starts here'
+                            "the section starts here" : "if statement starts here"
                     );
                     this.diagnostics.push({
                         message: context.type == DirectiveKind.Begin ?
                             `section tag mismatch: "${context.tag ? context.tag : ""}" != "${directive.tag}"` :
-                            "if statment can't have an ending tag",
+                            "if statment can\"t have an ending tag",
                         range: endTagRange,
                         severity: vscode.DiagnosticSeverity.Warning,
                         relatedInformation: [relatedInfo]
@@ -186,7 +186,7 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             else {
                 // dangling =end directive
                 this.diagnostics.push({
-                    message: `no matching =begin`,
+                    message: "no matching =begin",
                     range: new vscode.Range(line, 0, line, /*eol*/999),
                     severity: vscode.DiagnosticSeverity.Error,
                 });
@@ -240,29 +240,29 @@ export class SbmlSyntaxAnalyser extends SyntaxAnalyser {
             const tag = m[3]; // tag == objectType or imageName
             const tagBeginIndex = text.indexOf(tag, m.index + 1 + m[1].length + 1);
             const tagEndIndex = tagBeginIndex + tag.length;
-            if (m[1] === 'object') {
+            if (m[1] === "object") {
                 if (!PropConfigStore.getKnownObjectTypes().includes(tag)) {
                     this.addObjectTypeDiagnostic(tag, line, textOffset + tagBeginIndex);
                 }
             }
             else {
-                assert(m[1] === 'image');
+                assert(m[1] === "image");
                 const imageNames = AssetRepository.enumerateImageFileNames(this.document.fileName);
                 if (!imageNames.includes(tag)) {
                     this.addImageNameDiagnostic(tag, line, textOffset + tagBeginIndex);
                 }
             }
 
-            const endMarkerIndex = text.indexOf(')=', tagEndIndex);
+            const endMarkerIndex = text.indexOf(")=", tagEndIndex);
 
             // m[5] => (\s*:)
             if (m[5]) {
-                const propBeginIndex = text.indexOf(':', tagEndIndex) + 1;
+                const propBeginIndex = text.indexOf(":", tagEndIndex) + 1;
                 const propEndIndex = endMarkerIndex >= 0 ? endMarkerIndex : text.length;
                 const propListText = text.substring(0, propEndIndex);
                 const propTarget = {
                     kind: PropTargetKind.InlineObject,
-                    objectType: m[1] === 'object' ? tag : 'sbml:image'
+                    objectType: m[1] === "object" ? tag : "sbml:image"
                 };
                 const propListParser = new PropListParser();
                 propListParser.parse(line, propBeginIndex, propListText).forEach(

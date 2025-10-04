@@ -64,28 +64,28 @@ export class PropValueSpec {
         if (Array.isArray(valueSpec)) {
             values = valueSpec as string[];
         }
-        else if (typeof valueSpec == 'string') {
+        else if (typeof valueSpec == "string") {
             const specialValue = valueSpec as string;
             if (KNOWN_CATEGORIES.includes(specialValue)) {
                 category = specialValue;
             }
         }
-        else if (typeof valueSpec === 'object') {
+        else if (typeof valueSpec === "object") {
             const specObj = valueSpec as object;
-            if ('values' in specObj) {
+            if ("values" in specObj) {
                 values = specObj.values as string[];
             }
-            if ('suggestions' in specObj) {
+            if ("suggestions" in specObj) {
                 suggestions = specObj.suggestions as string[];
             }
-            if ('value-category' in specObj) {
-                const valueCategory = specObj['value-category'] as string;
+            if ("value-category" in specObj) {
+                const valueCategory = specObj["value-category"] as string;
                 if (KNOWN_CATEGORIES.includes(valueCategory)) {
                     category = valueCategory;
                 }
             }
-            if ('value-pattern' in specObj) {
-                pattern = specObj['value-pattern'] as string;
+            if ("value-pattern" in specObj) {
+                pattern = specObj["value-pattern"] as string;
             }
         }
 
@@ -144,7 +144,7 @@ export class PropValueSpec {
 
                 errorMessage =
                     `Please make sure '${value}' is a top-level function name ` +
-                    `defined in '${documentPath.substring(0, documentPath.length - 4) + 'js'}'.`;
+                    `defined in '${documentPath.substring(0, documentPath.length - 4) + "js"}'.`;
             }
             else if (category == '#color') {
                 if (isColorText(value)) {
@@ -284,7 +284,7 @@ export class PropValueSpec {
             VariableCache.getVariables(documentPath).forEach((values, name) => {
                 const validValues = (() => {
                     if (isStrictlyFontFamily) {
-                        return (name.startsWith('SANS_') || name.startsWith('SERIF_')) ? values : [];
+                        return (name.startsWith("SANS_") || name.startsWith("SERIF_")) ? values : [];
                     }
                     return values.filter(value => this.verify(value, documentPath).success);
                 })();
@@ -348,14 +348,14 @@ function isValidFontSize(value: string): boolean {
 function isValidFont(value: string): boolean {
     const arr = value.split(/\s+/);
     if (arr.length == 4) {
-        if (arr[0] !== 'normal' && arr[0] !== 'bold')
+        if (arr[0] !== "normal" && arr[0] !== "bold")
             return false;
-        if (arr[1] !== 'normal' && arr[1] !== 'italic')
+        if (arr[1] !== "normal" && arr[1] !== "italic")
             return false;
         return isValidFontSize(arr[2]);
     }
     else if (arr.length == 3) {
-        if (arr[0] !== 'normal' && arr[0] !== 'bold' && arr[0] !== 'italic')
+        if (arr[0] !== "normal" && arr[0] !== "bold" && arr[0] !== "italic")
             return false;
         return isValidFontSize(arr[1]);
     }
