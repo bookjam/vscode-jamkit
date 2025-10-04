@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import os
-import sys
+import sys, os
 
 
 _PROP_PAIR_PATTERN_TEMPLATE = r'''
