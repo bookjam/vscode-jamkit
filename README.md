@@ -149,12 +149,6 @@ npm run test
 npm run pretest && npm run test
 ```
 
-### Linting
-
-```bash
-npm run lint
-```
-
 ## Architecture
 
 The extension follows a modular architecture:

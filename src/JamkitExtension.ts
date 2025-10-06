@@ -8,6 +8,8 @@ import { SbmlSyntaxAnalyser } from "./SbmlSyntaxAnalyser";
 import { SbssSyntaxAnalyser } from "./SbssSyntaxAnalyser";
 import { SbssCompletionHandler } from "./SbssCompletionHandler";
 import { SbmlCompletionHandler } from "./SbmlCompletionHandler";
+import { ProjectDetector } from "./ProjectDetector";
+import { TypeScriptPlugin } from "./TypeScriptPlugin";
 
 export class JamkitExtension {
     static init(context: vscode.ExtensionContext): void {
@@ -18,6 +20,17 @@ export class JamkitExtension {
         AssetRepository.init(context);
         SbssCompletionHandler.init(context);
         SbmlCompletionHandler.init(context);
+
+        // Initialize TypeScript plugin for Jamkit projects
+        const projectDetector = new ProjectDetector();
+        projectDetector.initializeWatcher(context);
+
+        const typeScriptPlugin = new TypeScriptPlugin(projectDetector);
+        typeScriptPlugin.activate(context);
+
+        context.subscriptions.push({
+            dispose: () => projectDetector.dispose()
+        });
 
         const collection = vscode.languages.createDiagnosticCollection("jamkit");
         const instance = new JamkitExtension(collection);
