@@ -2,6 +2,9 @@
 .vscode-test/**
 .git/**
 .gitignore
+.claude/**
+CLAUDE.md
+AGENTS.md
 templates/**
 scripts/**
 makefile
