@@ -1,11 +1,20 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import * as fs from "fs";
 
 export class ProjectDetector {
-    private cache: Map<string, boolean> = new Map();
-    private fileWatcher: vscode.FileSystemWatcher | null = null;
+    private static cache: Map<string, string | null> = new Map();
 
-    public async isJamkitProject(filePath: string): Promise<boolean> {
+    static init(context: vscode.ExtensionContext): void {
+        const watcher = vscode.workspace.createFileSystemWatcher("**/*.bon");
+
+        watcher.onDidCreate(() => this.clearCache());
+        watcher.onDidDelete(() => this.clearCache());
+
+        context.subscriptions.push(watcher);
+    }
+
+    static async findProjectRoot(filePath: string): Promise<string | null> {
         const dir = path.dirname(filePath);
 
         if (this.cache.has(dir)) {
@@ -18,55 +27,25 @@ export class ProjectDetector {
         return result;
     }
 
-    private async findBonFile(dir: string): Promise<boolean> {
+    private static async findBonFile(dir: string): Promise<string | null> {
+        const root = path.parse(dir).root;
         let currentDir = dir;
-        const root = path.parse(currentDir).root;
 
         while (currentDir !== root) {
             const packageBon = path.join(currentDir, "package.bon");
             const bookBon = path.join(currentDir, "book.bon");
 
-            try {
-                await vscode.workspace.fs.stat(vscode.Uri.file(packageBon));
-                return true;
-            } catch {
-                // File doesn't exist, continue
+            if (fs.existsSync(packageBon) || fs.existsSync(bookBon)) {
+                return currentDir;
             }
 
-            try {
-                await vscode.workspace.fs.stat(vscode.Uri.file(bookBon));
-                return true;
-            } catch {
-                // File doesn't exist, continue
-            }
-
-            const parentDir = path.dirname(currentDir);
-
-            if (parentDir === currentDir) {
-                break; // Reached root
-            }
-
-            currentDir = parentDir;
+            currentDir = path.dirname(currentDir);
         }
 
-        return false;
+        return null;
     }
 
-    public initializeWatcher(context: vscode.ExtensionContext): void {
-        this.fileWatcher = vscode.workspace.createFileSystemWatcher("**/*.bon");
-
-        this.fileWatcher.onDidCreate(() => this.clearCache());
-        this.fileWatcher.onDidDelete(() => this.clearCache());
-
-        context.subscriptions.push(this.fileWatcher);
-    }
-
-    public clearCache(): void {
-        this.cache.clear();
-    }
-
-    public dispose(): void {
-        this.fileWatcher?.dispose();
+    private static clearCache(): void {
         this.cache.clear();
     }
 }

@@ -1,14 +1,12 @@
 import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 import { ProjectDetector } from "./ProjectDetector";
 import { TypeScriptPathResolver } from "./TypeScriptPathResolver";
 
 export class TypeScriptPlugin {
-    private projectDetector: ProjectDetector;
     private api: any;
-
-    constructor(projectDetector: ProjectDetector) {
-        this.projectDetector = projectDetector;
-    }
+    private configuredProjects: Set<string> = new Set();
 
     public async activate(context: vscode.ExtensionContext): Promise<void> {
         const tsExtension = vscode.extensions.getExtension("vscode.typescript-language-features");
@@ -29,8 +27,6 @@ export class TypeScriptPlugin {
             return;
         }
 
-        await this.configureTypeScript();
-
         vscode.window.onDidChangeActiveTextEditor(async (editor) => {
             if (editor && editor.document.languageId === "typescript") {
                 await this.onTypeScriptFileOpened(editor.document);
@@ -44,7 +40,17 @@ export class TypeScriptPlugin {
         }
     }
 
-    private async configureTypeScript(): Promise<void> {
+    private async onTypeScriptFileOpened(document: vscode.TextDocument): Promise<void> {
+        const filePath = document.uri.fsPath;
+        const projectRoot = await ProjectDetector.findProjectRoot(filePath);
+
+        if (projectRoot && !this.configuredProjects.has(projectRoot)) {
+            await this.configureTypeScript(projectRoot);
+            this.configuredProjects.add(projectRoot);
+        }
+    }
+
+    private async configureTypeScript(projectRoot: string): Promise<void> {
         const jamkitTypesPath = TypeScriptPathResolver.getJamkitTypesPath();
 
         if (!jamkitTypesPath) {
@@ -52,43 +58,30 @@ export class TypeScriptPlugin {
             return;
         }
 
-        if (this.api && this.api.configurePlugin) {
+        const tsConfigPath = path.join(projectRoot, "tsconfig.json");
+        let tsConfig: any = {};
+
+        if (fs.existsSync(tsConfigPath)) {
+            const content = fs.readFileSync(tsConfigPath, "utf-8");
             try {
-                await this.api.configurePlugin("typescript-jamkit-plugin", {
-                    typesPath: jamkitTypesPath
-                });
+                tsConfig = JSON.parse(content);
             } catch (error) {
-                console.error("Failed to configure TypeScript plugin:", error);
+                console.error("Failed to parse tsconfig.json:", error);
+                return;
             }
         }
-    }
 
-    private async onTypeScriptFileOpened(document: vscode.TextDocument): Promise<void> {
-        const filePath = document.uri.fsPath;
-        const isJamkitProject = await this.projectDetector.isJamkitProject(filePath);
+        tsConfig.compilerOptions = tsConfig.compilerOptions || {};
+        tsConfig.compilerOptions.typeRoots = tsConfig.compilerOptions.typeRoots || [];
 
-        if (isJamkitProject) {
-            await this.updateTypeScriptConfig(document.uri);
-        }
-    }
-
-    private async updateTypeScriptConfig(uri: vscode.Uri): Promise<void> {
-        const config = vscode.workspace.getConfiguration("typescript", uri);
-        const currentTypeRoots = config.get<string[]>("tsserver.typeRoots") || [];
-        const jamkitTypesPath = TypeScriptPathResolver.getJamkitTypesPath();
-
-        if (jamkitTypesPath && !currentTypeRoots.includes(jamkitTypesPath)) {
-            const updatedTypeRoots = [ ...currentTypeRoots, jamkitTypesPath ];
-            console.log(updatedTypeRoots)
+        if (!tsConfig.compilerOptions.typeRoots.includes(jamkitTypesPath)) {
+            tsConfig.compilerOptions.typeRoots.push(jamkitTypesPath);
 
             try {
-                await config.update(
-                    "tsserver.typeRoots",
-                    updatedTypeRoots,
-                    vscode.ConfigurationTarget.Workspace
-                );
+                fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2), "utf-8");
+                console.log(`Updated tsconfig.json at ${tsConfigPath}`);
             } catch (error) {
-                console.error("Failed to update TypeScript configuration:", error);
+                console.error("Failed to write tsconfig.json:", error);
             }
         }
     }

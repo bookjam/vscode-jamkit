@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { ProjectDetector } from "./ProjectDetector";
 import { PropConfigStore } from "./PropConfigStore";
 import { AssetRepository } from "./AssetRepository";
 import { ScriptNameCache } from "./ScriptNameCache";
@@ -8,7 +9,6 @@ import { SbmlSyntaxAnalyser } from "./SbmlSyntaxAnalyser";
 import { SbssSyntaxAnalyser } from "./SbssSyntaxAnalyser";
 import { SbssCompletionHandler } from "./SbssCompletionHandler";
 import { SbmlCompletionHandler } from "./SbmlCompletionHandler";
-import { ProjectDetector } from "./ProjectDetector";
 import { TypeScriptPlugin } from "./TypeScriptPlugin";
 
 export class JamkitExtension {
@@ -16,21 +16,15 @@ export class JamkitExtension {
 
         VariableCache.init(context);
         ScriptNameCache.init(context);
+        ProjectDetector.init(context);
         PropConfigStore.init(context);
         AssetRepository.init(context);
         SbssCompletionHandler.init(context);
         SbmlCompletionHandler.init(context);
 
         // Initialize TypeScript plugin for Jamkit projects
-        const projectDetector = new ProjectDetector();
-        projectDetector.initializeWatcher(context);
-
-        const typeScriptPlugin = new TypeScriptPlugin(projectDetector);
+        const typeScriptPlugin = new TypeScriptPlugin();
         typeScriptPlugin.activate(context);
-
-        context.subscriptions.push({
-            dispose: () => projectDetector.dispose()
-        });
 
         const collection = vscode.languages.createDiagnosticCollection("jamkit");
         const instance = new JamkitExtension(collection);
