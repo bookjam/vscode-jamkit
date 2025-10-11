@@ -8,22 +8,21 @@ export class TypeScriptPlugin {
     private configuredProjects: Set<string> = new Set();
 
     public async activate(context: vscode.ExtensionContext): Promise<void> {
-        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-            if (editor && editor.document.languageId === "typescript") {
-                await this.onTypeScriptFileOpened(editor.document);
-            }
-        }, null, context.subscriptions);
-
         const activeEditor = vscode.window.activeTextEditor;
 
         if (activeEditor && activeEditor.document.languageId === "typescript") {
             await this.onTypeScriptFileOpened(activeEditor.document);
         }
+
+        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+            if (editor && editor.document.languageId === "typescript") {
+                await this.onTypeScriptFileOpened(editor.document);
+            }
+        }, null, context.subscriptions);
     }
 
     private async onTypeScriptFileOpened(document: vscode.TextDocument): Promise<void> {
-        const filePath = document.uri.fsPath;
-        const projectRoot = await ProjectDetector.findProjectRoot(filePath);
+        const projectRoot = await ProjectDetector.findProjectRoot(document.uri.fsPath);
 
         if (projectRoot && !this.configuredProjects.has(projectRoot)) {
             await this.configureTypeScript(projectRoot);
