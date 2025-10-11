@@ -5,28 +5,9 @@ import { ProjectDetector } from "./ProjectDetector";
 import { TypeScriptPathResolver } from "./TypeScriptPathResolver";
 
 export class TypeScriptPlugin {
-    private api: any;
     private configuredProjects: Set<string> = new Set();
 
     public async activate(context: vscode.ExtensionContext): Promise<void> {
-        const tsExtension = vscode.extensions.getExtension("vscode.typescript-language-features");
-
-        if (!tsExtension) {
-            console.warn("TypeScript extension not found");
-            return;
-        }
-
-        if (!tsExtension.isActive) {
-            await tsExtension.activate();
-        }
-
-        this.api = tsExtension.exports;
-
-        if (!this.api) {
-            console.warn("TypeScript API not available");
-            return;
-        }
-
         vscode.window.onDidChangeActiveTextEditor(async (editor) => {
             if (editor && editor.document.languageId === "typescript") {
                 await this.onTypeScriptFileOpened(editor.document);
