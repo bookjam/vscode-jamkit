@@ -18,6 +18,9 @@
             "include": "#object"
         },
         {
+            "include": "#props"
+        },
+        {
             "include": "#style"
         },
         {
@@ -108,6 +111,23 @@
                 },
                 "2": {
                     "name": "__STYLE_SBML_STYLE_NAME__"
+                }
+            },
+            "end": "$",
+            "patterns": [
+                {
+                    "include": "#property-list"
+                }
+            ]
+        },
+        "props": {
+            "begin": "^\\s*(=props)\\s+([^:]+)",
+            "beginCaptures": {
+                "1": {
+                    "name": "__STYLE_SBML_PROPS__"
+                },
+                "2": {
+                    "name": "__STYLE_SBML_PROPS_NAME__"
                 }
             },
             "end": "$",
